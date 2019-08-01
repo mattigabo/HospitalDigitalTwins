@@ -6,7 +6,7 @@ package HospitalDigitalTwins
 class App {
     companion object {
         fun startServices() {
-            PatientVerticleStarter.deployVerticle()
+            //PatientVerticleStarter.deployVerticle()
         }
     }
 
