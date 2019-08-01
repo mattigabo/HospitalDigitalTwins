@@ -4,6 +4,12 @@
 package HospitalDigitalTwins
 
 class App {
+    companion object {
+        fun startServices() {
+            PatientVerticleStarter.deployVerticle()
+        }
+    }
+
     val greeting: String
         get() {
             return "Hello world."
@@ -12,4 +18,5 @@ class App {
 
 fun main(args: Array<String>) {
     println(App().greeting)
+    App.startServices()
 }
