@@ -1,5 +1,7 @@
 package HospitalDigitalTwins.ontologies
 
+import HospitalDigitalTwins.ontologies.treatments.Treatment
+
 /**
  * Created by Matteo Gabellini on 2019-08-01.
  */
