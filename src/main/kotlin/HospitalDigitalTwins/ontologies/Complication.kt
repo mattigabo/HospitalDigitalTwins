@@ -5,7 +5,7 @@ import java.util.*
 /**
  * Created by Matteo Gabellini on 2019-08-01.
  */
-data class Complication(val name: ComplicationName, val note: String, val generationTime: Date)
+data class Complication(val name: String, val note: String = "", val generationTime: Date)
 
 enum class ComplicationNames(val stringFormat: String) {
     IMPAIRED_CONSCIOUSNESS("impaired-consciousness"),

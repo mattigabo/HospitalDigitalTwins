@@ -11,8 +11,22 @@ interface VitalParameter<T> {
 }
 
 object VitalParameters {
+
+    object Eye {
+
+        data class RightPhotoReactive(
+            override val value: Boolean,
+            override val acquisitionTime: Date
+        ) : VitalParameter<Boolean>
+
+        data class LeftPhotoReactive(
+            override val value: Boolean,
+            override val acquisitionTime: Date
+        ) : VitalParameter<Boolean>
+    }
+
     data class RespiratoryTract(
-        override val value: RespiratoryTract.Value,
+        override val value: Value,
         override val acquisitionTime: Date
     ) : VitalParameter<RespiratoryTract.Value> {
         enum class Value {
@@ -20,19 +34,26 @@ object VitalParameters {
         }
     }
 
-    data class BreathingRate(override val value: Int, override val acquisitionTime: Date) : VitalParameter<Int>
+    data class BreathingRate(override val value: Int, override val acquisitionTime: Date) :
+        VitalParameter<Int>
 
-    data class OutlyingSaturation(override val value: Int, override val acquisitionTime: Date) : VitalParameter<Int>
-
-    data class RightPhotoReactive(override val value: Boolean, override val acquisitionTime: Date) :
-        VitalParameter<Boolean>
+    data class OutlyingSaturation(override val value: Int, override val acquisitionTime: Date) :
+        VitalParameter<Int>
 
     data class DiastolicPressure(override val value: Double, override val acquisitionTime: Date) :
         VitalParameter<Double>
 
-    data class SistolicPressure(override val value: Double, override val acquisitionTime: Date) : VitalParameter<Double>
+    data class SistolicPressure(override val value: Double, override val acquisitionTime: Date) :
+        VitalParameter<Double>
 
-    data class Heartbeat(val rate, val typology: Heartbeat.Typologies) : VitalParameter {
+    object Heartbeat {
+
+        data class Rate(override val value: Integer, override val acquisitionTime: Date) : VitalParameter<Integer>
+
+        data class Typology(
+            override val value: Heartbeat.Typologies,
+            override val acquisitionTime: Date
+        ) : VitalParameter<Heartbeat.Typologies>
 
         enum class Typologies(val stringFormat: String) {
             RITHMIC("rithmic"),
@@ -42,6 +63,7 @@ object VitalParameters {
                 return this.stringFormat
             }
         }
+
     }
 
     data class BloodPressure(
@@ -49,23 +71,24 @@ object VitalParameters {
         override val acquisitionTime: Date
     ) : VitalParameter<Int>
 
-    data class CapRefillTime(
-        override val value: CapRefilTimeValues,
+    class CapRefillTime(
+        override val value: CapRefillTime.Values,
         override val acquisitionTime: Date
-    ) : VitalParameter<CapRefilTimeValues>
+    ) : VitalParameter<CapRefillTime.Values> {
 
-    enum class CapRefilTimeValues(val stringFormat: String) {
-        NORMAL("normal"),
-        AUGMENTED("augmented"),
-        NONE("none");
+        enum class Values(val stringFormat: String) {
+            NORMAL("normal"),
+            AUGMENTED("augmented"),
+            NONE("none");
 
-        override fun toString(): String {
-            return this.stringFormat
+            override fun toString(): String {
+                return this.stringFormat
+            }
         }
     }
 
-    data class Skin(
-        override val value: Skin.Colors,
+    class Skin(
+        override val value: Colors,
         override val acquisitionTime: Date
     ) : VitalParameter<Skin.Colors> {
         enum class Colors(val stringFormat: String) {

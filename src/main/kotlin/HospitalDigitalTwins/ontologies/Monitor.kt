@@ -6,7 +6,9 @@ package HospitalDigitalTwins.ontologies
 class MonitorInfo(
     val physicalIdentifier: String,
     val manufacturer: String,
-    val manufacturerGatewayInfo,
-    val parameterMeasured: Array<VitalParameter>,
+    val manufacturerGatewayInfo: ManufacturerGatewayInfo,
+    val parameterMeasured: Array<VitalParameter<Any>>,
     var location: String
 )
+
+interface ManufacturerGatewayInfo

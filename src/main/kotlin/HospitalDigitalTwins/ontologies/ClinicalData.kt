@@ -7,17 +7,22 @@ import HospitalDigitalTwins.ontologies.treatments.Treatment
  */
 class ClinicalData(var bloodType: BloodType, var vitalParameters: MutableList<VitalParameter<Any>>, var treatments: MutableList<Treatment>)
 
-class BloodType(var group: BloodGroup, var rh: RhFactor)
+class BloodType(var group: Blood.Group, var rh: Blood.RhFactor)
 
-enum class BloodGroup(private val stringFormat: String) {
-    A("A"), B("B"), AB("AB"), Zero("0");
+object Blood {
+    enum class Group(private val stringFormat: String) {
+        A("A"),
+        B("B"),
+        AB("AB"),
+        Zero("0");
 
-    override fun toString(): String {
-        return this.stringFormat
+        override fun toString(): String {
+            return this.stringFormat
+        }
+    }
+
+    enum class RhFactor(val signFormat: String) {
+        POSITIVE("+"),
+        NEGATIVE("-")
     }
 }
-
-enum class RhFactor(val signFormat: String) {
-    POSITIVE("+"), NEGATIVE("-")
-}
-
