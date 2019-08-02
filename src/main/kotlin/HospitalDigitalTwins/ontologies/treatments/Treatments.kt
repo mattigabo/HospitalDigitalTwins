@@ -16,11 +16,14 @@ interface Treatment {
     val location: kotlin.String
 }
 
-open class BasicTreatment(val executionTime: Date, override var location: String) : Treatment
+abstract class BasicTreatment(open val executionTime: Date, override var location: String) : Treatment
 
-open class TimedTreatment(val startTime: Date, override var location: String) : Treatment {
-    var endTime: Date? = null
-}
+abstract class TimedTreatment(
+        val name: String,
+        open val startTime: Date,
+        override val location: String,
+        open var endTime: Date? = null
+) : Treatment
 
 class Administration(val drug: Drug, executionTime: Date, location: String) : BasicTreatment(executionTime, location)
 
@@ -42,3 +45,29 @@ class Injection(
     }
 }
 
+
+object TimedTreatments {
+    data class Reanimation(
+            override val startTime: Date,
+            override val location: String,
+            override var endTime: Date? = null
+    ) : TimedTreatment("reboa-zone-3", startTime, location, endTime)
+
+    data class Tourniquet(
+            override val startTime: Date,
+            override val location: String,
+            override var endTime: Date? = null
+    ) : TimedTreatment("reboa-zone-3", startTime, location, endTime)
+
+    data class ReboaZone1(
+            override val startTime: Date,
+            override val location: String,
+            override var endTime: Date? = null
+    ) : TimedTreatment("reboa-zone-3", startTime, location, endTime)
+
+    data class ReboaZone3(
+            override val startTime: Date,
+            override val location: String,
+            override var endTime: Date? = null
+    ) : TimedTreatment("reboa-zone-3", startTime, location, endTime)
+}

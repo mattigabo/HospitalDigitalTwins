@@ -5,7 +5,7 @@ import java.util.*
 /**
  * Created by Matteo Gabellini on 2019-08-01.
  */
-data class Complication(val name: String, val note: String = "", val generationTime: Date)
+data class Complication(val name: String, val note: String = "", val occurrenceTime: Date)
 
 enum class ComplicationNames(val stringFormat: String) {
     IMPAIRED_CONSCIOUSNESS("impaired-consciousness"),
@@ -20,5 +20,10 @@ enum class ComplicationNames(val stringFormat: String) {
         return this.stringFormat
     }
 
-
+    /**
+     * Factory method that create a complication instance with the complication name item from which the method was invoked
+     * */
+    fun occurs(note: String = "", occurrenceTime: Date): Complication {
+        return Complication(this.stringFormat, note, occurrenceTime)
+    }
 }
