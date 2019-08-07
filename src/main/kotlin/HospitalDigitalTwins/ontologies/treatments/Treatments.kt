@@ -13,26 +13,29 @@ import java.util.*
  * @param location
  */
 interface Treatment {
-    val location: kotlin.String
+    val name: String
 }
 
-abstract class BasicTreatment(open val executionTime: Date, override var location: String) : Treatment
+interface BasicTreatment : Treatment {
+    val executionTime: Date
+}
 
-abstract class TimedTreatment(
-        val name: String,
-        open val startTime: Date,
-        override val location: String,
-        open var endTime: Date? = null
-) : Treatment
+interface TimedTreatment : Treatment {
+    val startTime: Date
+    var endTime: Date?
+}
 
-class Administration(val drug: Drug, executionTime: Date, location: String) : BasicTreatment(executionTime, location)
+class Administration(val drug: Drug, override val executionTime: Date) : BasicTreatment {
+    override val name: String = "Administration of ${this.drug.name}"
+}
 
 class Injection(
-    var typology: Injection.Typology,
-    val calimber: String,
-    executionTime: Date,
-    location: String
-) : BasicTreatment(executionTime, location) {
+        var typology: Injection.Typology,
+        val calimber: String,
+        override val executionTime: Date
+) : BasicTreatment {
+
+    override val name = "${this.typology} injection"
 
     enum class Typology(val stringFormat: String) {
         PERIPHERAL("peripheral"),
@@ -45,29 +48,16 @@ class Injection(
     }
 }
 
+class IppvTreatment(
+        val vt: Int,
+        val fr: Int,
+        val peep: Int,
+        val fio2: Int,
+        override val executionTime: Date
+) : BasicTreatment {
+    override val name = "IppvTreatment"
+}
 
-object TimedTreatments {
-    data class Reanimation(
-            override val startTime: Date,
-            override val location: String,
-            override var endTime: Date? = null
-    ) : TimedTreatment("reboa-zone-3", startTime, location, endTime)
-
-    data class Tourniquet(
-            override val startTime: Date,
-            override val location: String,
-            override var endTime: Date? = null
-    ) : TimedTreatment("reboa-zone-3", startTime, location, endTime)
-
-    data class ReboaZone1(
-            override val startTime: Date,
-            override val location: String,
-            override var endTime: Date? = null
-    ) : TimedTreatment("reboa-zone-3", startTime, location, endTime)
-
-    data class ReboaZone3(
-            override val startTime: Date,
-            override val location: String,
-            override var endTime: Date? = null
-    ) : TimedTreatment("reboa-zone-3", startTime, location, endTime)
+data class Adrenalin(override val executionTime: Date) : BasicTreatment {
+    override val name = "adrenalin"
 }
