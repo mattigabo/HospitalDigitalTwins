@@ -1,6 +1,6 @@
-package HospitalDigitalTwins.ontologies
+package hospitaldigitaltwins.ontologies
 
-import HospitalDigitalTwins.ontologies.treatments.Treatment
+import hospitaldigitaltwins.ontologies.treatments.Treatment
 
 /**
  * Created by Matteo Gabellini on 2019-08-01.

@@ -1,4 +1,4 @@
-package HospitalDigitalTwins.ontologies.treatments
+package hospitaldigitaltwins.ontologies.treatments
 
 import java.util.*
 

@@ -1,6 +1,6 @@
-package HospitalDigitalTwins.ontologies.treatments
+package hospitaldigitaltwins.ontologies.treatments
 
-import HospitalDigitalTwins.ontologies.Drug
+import hospitaldigitaltwins.ontologies.Drug
 import java.util.*
 
 /**
