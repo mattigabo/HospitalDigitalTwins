@@ -1,0 +1,51 @@
+openapi: 3.0.0
+info:
+  version: "1.0.0"
+  title: Temperature-sensor-api
+  description: The API for a Digital Twin of a Temperature Sensor Monitor mounted in a room
+paths:
+  /temperature:
+    get:
+      tags:
+        - Environment
+      operationId: temperatureMeasured
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemperatueMeasured'
+components:
+  schemas:
+    TemperatueMeasured:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: the name of the zone
+        value:
+          type: number
+          format: double
+          description: the temperature in the zone
+        units:
+          type: string
+          description: the temperature units
+          enum:
+            - celsius
+            - fahrenheit
+          default: fahrenheit
+        timestamp:
+          type: string
+          format: date-time
+          description: the timestamp when the temperature was measured
+      description: the temperature measured by the sensor
+# Added by API Auto Mocking Plugin
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/mattigabo/TemperatureMonitorDigitalTwin/1.0.0
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/mattigabo/TemperatureSensor/1.0.0

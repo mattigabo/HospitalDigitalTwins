@@ -37,7 +37,7 @@ interface LinkSemantic
 
 data class basicSemantic(val description: String) : LinkSemantic
 
-data class DigitalTwinValue<T>(val value: T, val generationTime: Instant)
+open class DigitalTwinValue<T>(open val value: T, open val generationTime: Instant)
 
 /**
  * Classes that implements this interface model physical counterpart information,
@@ -62,8 +62,9 @@ interface EvolutionController {
 }
 
 
-interface CommunicationAdapter
-
+interface InteractionAdapter
+interface PhysicalWorldInteractionAdapter : InteractionAdapter
+interface DigitalTwinInteractionAdapter : InteractionAdapter
 
 interface DigitalTwinFactory {
     fun create(id: URI): DigitalTwin

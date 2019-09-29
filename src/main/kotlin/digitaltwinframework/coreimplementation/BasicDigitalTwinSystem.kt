@@ -1,6 +1,7 @@
 package digitaltwinframework.coreimplementation
 
 import digitaltwinframework.*
+import io.vertx.core.Vertx
 import java.net.InetAddress
 import java.net.URI
 
@@ -20,15 +21,32 @@ class BasicIdentifierGenerator : IdentifierGenerator {
     }
 }
 
-class BasicDigitalTwinManager : DigitalTwinManager {
+class BasicDigitalTwinSystem private constructor() : DigitalTwinSystem {
 
     var localLinkStorage: ArrayList<DigitalTwinLink> = ArrayList()
     var restServer: RESTServer
     val identifierGenerator = BasicIdentifierGenerator()
+    var vertx = Vertx.vertx()
+    var eventBus = vertx.eventBus()
+
+    companion object {
+        var RUNNING_INSTANCE: BasicDigitalTwinSystem? = null
+            private set
+
+        @JvmStatic
+        fun boot(): BasicDigitalTwinSystem {
+            RUNNING_INSTANCE?.let {
+                return RUNNING_INSTANCE as BasicDigitalTwinSystem
+            }
+
+            return BasicDigitalTwinSystem()
+        }
+    }
 
     init {
-        println("Digital Twin Manager ---> Creating REST server")
-        restServer = RESTServer.getInstance()
+        BasicDigitalTwinSystem.RUNNING_INSTANCE = this
+        restServer = RESTServer()
+        vertx.deployVerticle(restServer)
     }
 
     override fun createDigitalTwin(factory: DigitalTwinFactory): URI {
@@ -46,5 +64,14 @@ class BasicDigitalTwinManager : DigitalTwinManager {
 
     override fun deleteLingk(link: DigitalTwinLink) {
 
+    }
+
+    override fun RESTServerInstance(): RESTServer {
+        return restServer
+    }
+
+    override fun shutdown() {
+        vertx.close()
+        BasicDigitalTwinSystem.RUNNING_INSTANCE = null
     }
 }

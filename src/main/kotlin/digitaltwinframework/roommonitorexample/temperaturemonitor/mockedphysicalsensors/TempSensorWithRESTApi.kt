@@ -1,2 +1,0 @@
-package digitaltwinframework.roommonitorexample.temperaturemonitor.mockedphysicalsensors
-

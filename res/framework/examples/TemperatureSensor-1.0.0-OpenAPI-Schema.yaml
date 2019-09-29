@@ -1,0 +1,43 @@
+openapi: "3.0.0"
+info:
+  version: "1.0.0"
+  title: Temperature-sensor-api
+  description: The API for a basic Temperature Sensor
+paths:
+  /temperature:
+    get:
+      tags:
+        - Environment
+      operationId: temperatureMeasured
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemperatueMeasured'
+components:
+  schemas:
+    TemperatueMeasured:
+      type: object
+      required:
+        - value
+        - units
+        - timestamp
+      properties:
+        value:
+          type: number
+          format: double
+          description: the temperature in the zone
+        units:
+          type: string
+          description: the temperature units
+          enum:
+            - celsius
+            - fahrenheit
+          default: fahrenheit
+        timestamp:
+          type: string
+          format: date-time
+          description: the timestamp when the temperature was measured
+      description: the temperature measured by the sensor
