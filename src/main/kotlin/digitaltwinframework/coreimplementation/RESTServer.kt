@@ -1,7 +1,6 @@
 package digitaltwinframework.coreimplementation
 
 import io.vertx.core.AbstractVerticle
-import io.vertx.core.Vertx
 import io.vertx.core.http.HttpServer
 import io.vertx.ext.web.Router
 import java.net.URI
@@ -15,8 +14,8 @@ class RESTServer : AbstractVerticle() {
 
     private var eb = BasicDigitalTwinSystem.RUNNING_INSTANCE!!.vertx.eventBus()
 
-    //private var host = "localhost"
-    private var host = "192.168.0.13"
+    private var host = "localhost"
+    //private var host = "192.168.0.13"
     private var portNumber = 8080
 
     private var dtSystemSuffix = "/digitaltwinsystem"
@@ -25,22 +24,13 @@ class RESTServer : AbstractVerticle() {
 
     private lateinit var server: HttpServer
 
-    data class NewRouter(val digitalTwinID: URI, val router: Router)
+    data class DTRouter(val digitalTwinID: URI, val router: Router)
     data class UnregisterRouter(val digitalTwinID: URI)
 
     override fun start() {
         super.start()
 
-        server = Vertx.vertx().createHttpServer()
-
-        router.route().path("/prova").handler { routingContext ->
-            // This handler gets called for each request that arrives on the server
-            val response = routingContext.response()
-            response.putHeader("content-type", "text/plain")
-
-            // Write to the response and end it
-            response.end("Hello World!")
-        }
+        server = this.vertx.createHttpServer()
 
         server.requestHandler(router).listen(portNumber, host) { res ->
             if (res.succeeded()) {
@@ -61,10 +51,11 @@ class RESTServer : AbstractVerticle() {
 
 
     private fun registerToEventBus() {
+        this.eb.registerDefaultCodec(DTRouter::class.java, DTRouterMessageCodec())
         this.eb.consumer<Any>(SystemEventBusAddresses.RESTServer.address) { message ->
             message.body().let {
                 when (it) {
-                    is NewRouter -> this.setSubRouter(it.digitalTwinID, it.router)
+                    is DTRouter -> this.setSubRouter(it.digitalTwinID, it.router)
                     is UnregisterRouter -> this.removeSubRouter(it.digitalTwinID)
                 }
             }
@@ -73,7 +64,7 @@ class RESTServer : AbstractVerticle() {
 
     fun setSubRouter(digitalTwinID: URI, requestRouter: Router) {
         digitalTwinRouters.put(digitalTwinID, requestRouter)
-        router.mountSubRouter("/" + digitalTwinID.toString(), requestRouter)
+        router.mountSubRouter("/" + digitalTwinID.toString() + "/", requestRouter)
     }
 
     fun removeSubRouter(digitalTwinID: URI) {

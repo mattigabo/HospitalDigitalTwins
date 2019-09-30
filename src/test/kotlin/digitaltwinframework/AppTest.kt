@@ -29,7 +29,7 @@ class AppTest {
             response.end("Hello World!2")
         }
 
-        dtSystem.eventBus.send(SystemEventBusAddresses.RESTServer.address, RESTServer.NewRouter(mockDtID, dtRouter))
+        dtSystem.eventBus.send(SystemEventBusAddresses.RESTServer.address, RESTServer.DTRouter(mockDtID, dtRouter))
 
         Thread.sleep(5000)
         println("Remove previous added route")
@@ -50,6 +50,9 @@ class AppTest {
 
         val mockedTempSensor = MockedTempSensorWithRESTInterface()
         dtSystem.vertx.deployVerticle(mockedTempSensor)
+
+        Thread.sleep(5000)
+
         val dtId = dtSystem.createDigitalTwin(TempMonitorDTFactory("North"))
         println("Digital Twin created with ID ${dtId}")
 

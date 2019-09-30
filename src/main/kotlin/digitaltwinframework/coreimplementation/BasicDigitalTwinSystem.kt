@@ -8,7 +8,7 @@ import java.net.URI
 /*
 *   This is a basic implementation of a digital twin identifier generator. It is usable
 *   from a Digital Twin Manager implementation in order to generate new unique identifier for digital twins instances
-*   Basic Identifier schema: "dt://machine-ip/dt-realm-name/progressiveId"
+*   Basic Identifier schema: "DT.machine_ip.realm_name.progressiveId"
 * */
 class BasicIdentifierGenerator : IdentifierGenerator {
     private var idCounter = 0
@@ -17,7 +17,7 @@ class BasicIdentifierGenerator : IdentifierGenerator {
     override fun nextIdentifier(): URI {
         val address = InetAddress.getLocalHost()
         val ip = address.hostAddress
-        return URI("dt://${ip}/${dtRealmName}/${idCounter++}")
+        return URI("DT.${ip}.${dtRealmName}.${idCounter++}")
     }
 }
 

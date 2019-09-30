@@ -51,7 +51,7 @@ class RESTFaceAdapter(val thisDT: TempMonitorDT) : InteractionAdapter {
 
     private fun registerToTheRunningServer(router: Router) {
         BasicDigitalTwinSystem.RUNNING_INSTANCE?.let {
-            it.eventBus.send(SystemEventBusAddresses.RESTServer.address, RESTServer.NewRouter(thisDT.identifier, router))
+            it.eventBus.send(SystemEventBusAddresses.RESTServer.address, RESTServer.DTRouter(thisDT.identifier, router))
         }
     }
 }

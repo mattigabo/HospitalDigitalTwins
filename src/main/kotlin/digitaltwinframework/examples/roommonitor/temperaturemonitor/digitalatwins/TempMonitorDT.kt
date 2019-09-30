@@ -40,7 +40,11 @@ class TempMonitorDT(identifier: URI, roomPosition: String) : BasicDigitalTwin(id
 }
 
 class TempMonitorDTMetaInfo(val manufacturer: String = "FrameworkExample") : DigitalTwinMetaInfo {
-    val openApiSpecificationPath = "file://${System.getProperty("user.dir")}/res/framework/examples/TemperatureMonitorDigitalTwin-1.0.0-OpenApi-schema.yaml"
+    val openApiSpecificationPath =
+        "file://${System.getProperty("user.dir")}/res/framework/examples/TemperatureMonitorDigitalTwin-1.0.0-OpenApi-schema.yaml".replace(
+            " ",
+            "%20"
+        )
 }
 
 class TempMonitorModelData(roomPosition: String) : PhysicalCounterpartModelData {
