@@ -1,14 +1,16 @@
 package digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwins
 
 import digitaltwinframework.PhysicalWorldInteractionAdapter
-import digitaltwinframework.roommonitorexample.temperaturemonitor.digitalatwins.Temperature
+import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
+import digitaltwinframework.roommonitorexample.temperaturemonitor.digitalatwins.TempMonitorDT
+import digitaltwinframework.roommonitorexample.temperaturemonitor.mockedphysicalsensors.MockedTempSensorWithRESTInterface
 import io.vertx.core.Vertx
 import io.vertx.ext.web.client.WebClient
 import java.time.Instant
 
-class PhysicalTempSensorAdapter : PhysicalWorldInteractionAdapter {
+class PhysicalTempSensorAdapter(val thisDT: TempMonitorDT) : PhysicalWorldInteractionAdapter {
 
-    private var physicalDeviceHost = "localhost"
+    private var physicalDeviceHost = MockedTempSensorWithRESTInterface.host
     private var portNumber = 8081
 
     var client = WebClient.create(Vertx.vertx())
@@ -25,7 +27,7 @@ class PhysicalTempSensorAdapter : PhysicalWorldInteractionAdapter {
                 val timestamp: Instant = jObjResponse.getInstant("timestamp")
                 val temp = Temperature(value, unit, timestamp)
 
-                println("Received response with status code${temp}")
+                BasicDigitalTwinSystem.RUNNING_INSTANCE!!.eventBus.send(thisDT.EVOLUTION_CONTROLLER_ADDRESS, temp)
             } else {
                 println("Something went wrong ${ar.cause().message}")
             }

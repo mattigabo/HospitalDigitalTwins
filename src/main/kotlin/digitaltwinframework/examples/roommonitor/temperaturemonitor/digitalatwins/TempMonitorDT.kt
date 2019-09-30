@@ -3,9 +3,10 @@ package digitaltwinframework.roommonitorexample.temperaturemonitor.digitalatwins
 import digitaltwinframework.*
 import digitaltwinframework.coreimplementation.BasicDigitalTwin
 import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
-import digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwins.PhysicalTempSensorAdapter
+import digitaltwinframework.coreimplementation.SystemEventBusAddresses
+import digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwins.*
 import io.vertx.core.AbstractVerticle
-import io.vertx.core.Vertx
+import io.vertx.core.eventbus.EventBus
 import java.net.URI
 import java.time.Instant
 
@@ -13,21 +14,27 @@ class TempMonitorDT(identifier: URI, roomPosition: String) : BasicDigitalTwin(id
     override var modelData: TempMonitorModelData = TempMonitorModelData(roomPosition)
     override var metaInfo: TempMonitorDTMetaInfo = TempMonitorDTMetaInfo()
 
-    val physicalCounterPartAdapter = PhysicalTempSensorAdapter()
-    override val evolutionManager = TempMonitorEvolutionController(modelData, physicalCounterPartAdapter)
+    val EVOLUTION_CONTROLLER_ADDRESS = SystemEventBusAddresses.EVOLUTION_CONTROLLER_SUFFIX.preappend(identifier.toString())
+
+    val physicalCounterPartAdapter = PhysicalTempSensorAdapter(this)
+    override val evolutionManager = TempMonitorEvolutionController(this)
     //fun dtRestFaceAdapter = RESTFaceAdapter(metaInfo.openApiSpecificationPath)
+    val restFace = RESTFaceAdapter(this)
+
 
     init {
-        Vertx.vertx().deployVerticle(evolutionManager)
+        BasicDigitalTwinSystem.RUNNING_INSTANCE?.let {
+            it.vertx.deployVerticle(evolutionManager)
+            it.eventBus.registerDefaultCodec(Temperature::class.java, TemperatureMessageCodec())
+
+            restFace.loadOpenApiSpec()
+        }
     }
 
     override fun stop() {
-        Vertx.vertx().undeploy(evolutionManager.deploymentID()) { res ->
-            if (res.succeeded()) {
-                println("Undeployed ok")
-            } else {
-                println("Undeploy failed!")
-            }
+        BasicDigitalTwinSystem.RUNNING_INSTANCE?.let {
+            it.vertx.undeploy(evolutionManager.deploymentID())
+            it.eventBus.unregisterCodec(TemperatureMessageCodec().name())
         }
     }
 }
@@ -37,27 +44,42 @@ class TempMonitorDTMetaInfo(val manufacturer: String = "FrameworkExample") : Dig
 }
 
 class TempMonitorModelData(roomPosition: String) : PhysicalCounterpartModelData {
-    var currentTemperature: DigitalTwinValue<Int>? = null
-    var measureUnit: String = "Celsius"
-    var roomPosition: DigitalTwinValue<String>? = DigitalTwinValue(roomPosition, Instant.now())
+    var temperature: Temperature? = null
+    var roomLocation: DigitalTwinValue<String>? = DigitalTwinValue(roomPosition, Instant.now())
 }
 
-
-data class Temperature(override val value: Int, val unit: String, val measureTimestamp: Instant) : DigitalTwinValue<Int>(value, measureTimestamp)
-
-class TempMonitorEvolutionController(var modelData: TempMonitorModelData, var physicalCounterpart: PhysicalTempSensorAdapter) : EvolutionController, AbstractVerticle() {
+class TempMonitorEvolutionController(var thisDT: TempMonitorDT) : EvolutionController, AbstractVerticle() {
     private val temperatureUpdatePeriod: Long = 1000
 
     override fun start() {
         super.start()
-
-        val eb = Vertx.vertx().eventBus()
-
-        eb.consumer<Any>("EvolutionController", { message -> println(message.body()) })
-
         BasicDigitalTwinSystem.RUNNING_INSTANCE?.let {
+
+            this.registerToEventBus(it.eventBus)
+
             it.vertx.setPeriodic(temperatureUpdatePeriod) { id ->
-                physicalCounterpart.requestTemperature()
+                thisDT.physicalCounterPartAdapter.requestTemperature()
+            }
+        }
+    }
+
+    private fun registerToEventBus(eb: EventBus) {
+        eb.consumer<Any>(thisDT.EVOLUTION_CONTROLLER_ADDRESS) { message ->
+            when (message.body()) {
+                is Temperature -> {
+                    println("Temperature received from Physical CounterPart: ${message.body()}")
+
+                    thisDT.modelData.temperature = message.body() as Temperature
+                }
+
+                OperationIDS.TEMPERATURE_MEASURED -> message.reply("""
+                   {
+                        "value":{${thisDT.modelData.temperature!!.value}},
+                        "unit":"{${thisDT.modelData.temperature!!.unit}}",
+                        "timestamp":"{${thisDT.modelData.temperature!!.generationTime}}",
+                        "roomLocation":":{${thisDT.modelData.roomLocation}}"
+                   }
+               """.trimIndent())
             }
         }
     }
@@ -66,10 +88,7 @@ class TempMonitorEvolutionController(var modelData: TempMonitorModelData, var ph
         super.stop()
         println("Evolution Manager Termination")
     }
-
-
 }
-
 
 class TempMonitorDTFactory(var position: String) : DigitalTwinFactory {
     override fun create(id: URI): DigitalTwin = TempMonitorDT(id, position)

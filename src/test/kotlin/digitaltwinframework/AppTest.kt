@@ -1,8 +1,8 @@
 package digitaltwinframework
 
 import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
-import digitaltwinframework.coreimplementation.DTSystemEventBusAddresses
 import digitaltwinframework.coreimplementation.RESTServer
+import digitaltwinframework.coreimplementation.SystemEventBusAddresses
 import digitaltwinframework.roommonitorexample.temperaturemonitor.digitalatwins.TempMonitorDTFactory
 import digitaltwinframework.roommonitorexample.temperaturemonitor.mockedphysicalsensors.MockedTempSensorWithRESTInterface
 import io.vertx.core.Vertx
@@ -29,11 +29,11 @@ class AppTest {
             response.end("Hello World!2")
         }
 
-        dtSystem.eventBus.send(DTSystemEventBusAddresses.RESTServer.address, RESTServer.NewRouter(mockDtID, dtRouter))
+        dtSystem.eventBus.send(SystemEventBusAddresses.RESTServer.address, RESTServer.NewRouter(mockDtID, dtRouter))
 
         Thread.sleep(5000)
         println("Remove previous added route")
-        dtSystem.eventBus.send(DTSystemEventBusAddresses.RESTServer.address, RESTServer.UnregisterRouter(mockDtID))
+        dtSystem.eventBus.send(SystemEventBusAddresses.RESTServer.address, RESTServer.UnregisterRouter(mockDtID))
 
 
         Thread.sleep(10000)
@@ -50,9 +50,10 @@ class AppTest {
 
         val mockedTempSensor = MockedTempSensorWithRESTInterface()
         dtSystem.vertx.deployVerticle(mockedTempSensor)
-        dtSystem.createDigitalTwin(TempMonitorDTFactory("North"))
+        val dtId = dtSystem.createDigitalTwin(TempMonitorDTFactory("North"))
+        println("Digital Twin created with ID ${dtId}")
 
-        Thread.sleep(10000)
+        Thread.sleep(20000)
         println("Shutdown all")
         dtSystem.shutdown()
     }

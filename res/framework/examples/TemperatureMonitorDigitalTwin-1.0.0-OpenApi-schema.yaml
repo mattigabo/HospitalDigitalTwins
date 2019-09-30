@@ -21,11 +21,11 @@ components:
     TemperatueMeasured:
       type: object
       required:
-        - name
+        - value
+        - units
+        - timestamp
+        - roomLocation
       properties:
-        name:
-          type: string
-          description: the name of the zone
         value:
           type: number
           format: double
@@ -41,11 +41,12 @@ components:
           type: string
           format: date-time
           description: the timestamp when the temperature was measured
-      description: the temperature measured by the sensor
-# Added by API Auto Mocking Plugin
-servers:
-  # Added by API Auto Mocking Plugin
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/mattigabo/TemperatureMonitorDigitalTwin/1.0.0
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/mattigabo/TemperatureSensor/1.0.0
+        roomLocation:
+          type: string
+          enum:
+            - "north"
+            - "east"
+            - "south"
+            - "west"
+          description: location where the monitor is mounted in the room
+      description: the temperature measured by the sensor mounted the specified location in the room

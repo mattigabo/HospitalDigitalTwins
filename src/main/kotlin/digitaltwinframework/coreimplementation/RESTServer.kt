@@ -15,7 +15,8 @@ class RESTServer : AbstractVerticle() {
 
     private var eb = BasicDigitalTwinSystem.RUNNING_INSTANCE!!.vertx.eventBus()
 
-    private var host = "localhost"
+    //private var host = "localhost"
+    private var host = "192.168.0.13"
     private var portNumber = 8080
 
     private var dtSystemSuffix = "/digitaltwinsystem"
@@ -60,7 +61,7 @@ class RESTServer : AbstractVerticle() {
 
 
     private fun registerToEventBus() {
-        this.eb.consumer<Any>(DTSystemEventBusAddresses.RESTServer.address) { message ->
+        this.eb.consumer<Any>(SystemEventBusAddresses.RESTServer.address) { message ->
             message.body().let {
                 when (it) {
                     is NewRouter -> this.setSubRouter(it.digitalTwinID, it.router)

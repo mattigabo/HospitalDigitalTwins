@@ -12,6 +12,7 @@ import java.net.URI
 abstract class BasicDigitalTwin(
         override val identifier: URI
 ) : DigitalTwin {
+
     var relationToOtherDT: MutableMap<URI, ArrayList<LinkSemantic>> = HashMap()
 
     override fun addLink(digitalTwinId: URI, semantic: LinkSemantic) {
