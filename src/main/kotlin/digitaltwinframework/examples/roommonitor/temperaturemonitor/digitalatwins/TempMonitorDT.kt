@@ -14,16 +14,16 @@ class TempMonitorDT(identifier: URI, roomPosition: String) : BasicDigitalTwin(id
     override var modelData: TempMonitorModelData = TempMonitorModelData(roomPosition)
     override var metaInfo: TempMonitorDTMetaInfo = TempMonitorDTMetaInfo()
 
+    override val evolutionManager = TempMonitorEvolutionController(this)
+
     val EVOLUTION_CONTROLLER_ADDRESS = SystemEventBusAddresses.EVOLUTION_CONTROLLER_SUFFIX.preappend(identifier.toString())
 
     val physicalCounterPartAdapter = PhysicalTempSensorAdapter(this)
-    override val evolutionManager = TempMonitorEvolutionController(this)
-    //fun dtRestFaceAdapter = RESTFaceAdapter(metaInfo.openApiSpecificationPath)
+
     val restFace = RESTFaceAdapter(this)
 
-
     init {
-        BasicDigitalTwinSystem.RUNNING_INSTANCE?.let {
+        this.dtSystem.let {
             it.vertx.deployVerticle(evolutionManager)
             it.eventBus.registerDefaultCodec(Temperature::class.java, TemperatureMessageCodec())
 
@@ -32,7 +32,7 @@ class TempMonitorDT(identifier: URI, roomPosition: String) : BasicDigitalTwin(id
     }
 
     override fun stop() {
-        BasicDigitalTwinSystem.RUNNING_INSTANCE?.let {
+        this.dtSystem.let {
             it.vertx.undeploy(evolutionManager.deploymentID())
             it.eventBus.unregisterCodec(TemperatureMessageCodec().name())
         }
@@ -81,7 +81,7 @@ class TempMonitorEvolutionController(var thisDT: TempMonitorDT) : EvolutionContr
                         "value":{${thisDT.modelData.temperature!!.value}},
                         "unit":"{${thisDT.modelData.temperature!!.unit}}",
                         "timestamp":"{${thisDT.modelData.temperature!!.generationTime}}",
-                        "roomLocation":":{${thisDT.modelData.roomLocation}}"
+                        "roomLocation":":{${thisDT.modelData.roomLocation!!.value}}"
                    }
                """.trimIndent())
             }

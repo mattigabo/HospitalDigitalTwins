@@ -17,17 +17,21 @@ class BasicIdentifierGenerator : IdentifierGenerator {
     override fun nextIdentifier(): URI {
         val address = InetAddress.getLocalHost()
         val ip = address.hostAddress
-        return URI("DT.${ip}.${dtRealmName}.${idCounter++}")
+        return URI("${idCounter++}")//"DT.${ip}.${dtRealmName}.${idCounter++}")
     }
 }
 
 class BasicDigitalTwinSystem private constructor() : DigitalTwinSystem {
+
+    override val name = "BasicDigitalTwinSystem"
 
     var localLinkStorage: ArrayList<DigitalTwinLink> = ArrayList()
     var restServer: RESTServer
     val identifierGenerator = BasicIdentifierGenerator()
     var vertx = Vertx.vertx()
     var eventBus = vertx.eventBus()
+
+    var runningDT = HashMap<URI, DigitalTwin>()
 
     companion object {
         var RUNNING_INSTANCE: BasicDigitalTwinSystem? = null
@@ -45,12 +49,13 @@ class BasicDigitalTwinSystem private constructor() : DigitalTwinSystem {
 
     init {
         BasicDigitalTwinSystem.RUNNING_INSTANCE = this
-        restServer = RESTServer()
+        restServer = RESTServer(this)
         vertx.deployVerticle(restServer)
     }
 
     override fun createDigitalTwin(factory: DigitalTwinFactory): URI {
         var dt = factory.create(identifierGenerator.nextIdentifier())
+        this.runningDT.put(dt.identifier, dt)
         return dt.identifier
     }
 
@@ -71,6 +76,7 @@ class BasicDigitalTwinSystem private constructor() : DigitalTwinSystem {
     }
 
     override fun shutdown() {
+        this.runningDT.forEach { it.value.stop() }
         vertx.close()
         BasicDigitalTwinSystem.RUNNING_INSTANCE = null
     }

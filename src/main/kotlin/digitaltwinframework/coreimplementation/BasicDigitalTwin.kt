@@ -10,7 +10,8 @@ import java.net.URI
  *
  * */
 abstract class BasicDigitalTwin(
-        override val identifier: URI
+        override val identifier: URI,
+        val dtSystem: BasicDigitalTwinSystem = BasicDigitalTwinSystem.RUNNING_INSTANCE!!
 ) : DigitalTwin {
 
     var relationToOtherDT: MutableMap<URI, ArrayList<LinkSemantic>> = HashMap()

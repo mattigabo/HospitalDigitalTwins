@@ -33,7 +33,7 @@ class RESTFaceAdapter(val thisDT: TempMonitorDT) : InteractionAdapter {
     }
 
     fun loadOpenApiSpec() {
-        OpenAPI3RouterFactory.create(io.vertx.core.Vertx.vertx(), thisDT.metaInfo.openApiSpecificationPath) { asyncResult ->
+        OpenAPI3RouterFactory.create(thisDT.dtSystem.vertx, thisDT.metaInfo.openApiSpecificationPath) { asyncResult ->
             if (asyncResult.succeeded()) {
                 var routerFactory: OpenAPI3RouterFactory = asyncResult.result()
 
@@ -43,16 +43,17 @@ class RESTFaceAdapter(val thisDT: TempMonitorDT) : InteractionAdapter {
             } else {
                 println("ERROR")
                 // Something went wrong during router factory initialization
-                val exception = asyncResult.cause() // (2)
+                val exception = asyncResult.cause()
                 println(exception)
             }
         }
     }
 
     private fun registerToTheRunningServer(router: Router) {
-        BasicDigitalTwinSystem.RUNNING_INSTANCE?.let {
-            it.eventBus.send(SystemEventBusAddresses.RESTServer.address, RESTServer.DTRouter(thisDT.identifier, router))
-        }
+        thisDT.dtSystem
+                .eventBus
+                .send(SystemEventBusAddresses.RESTServer.address, RESTServer.DTRouter(thisDT.identifier, router))
+
     }
 }
 

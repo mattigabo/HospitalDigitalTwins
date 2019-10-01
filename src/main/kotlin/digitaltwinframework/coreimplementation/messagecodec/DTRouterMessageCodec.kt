@@ -1,5 +1,6 @@
-package digitaltwinframework.coreimplementation
+package digitaltwinframework.coreimplementation.messagecodec
 
+import digitaltwinframework.coreimplementation.RESTServer
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.eventbus.MessageCodec
 import io.vertx.core.json.JsonObject

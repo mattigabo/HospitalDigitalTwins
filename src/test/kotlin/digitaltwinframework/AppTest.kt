@@ -3,6 +3,8 @@ package digitaltwinframework
 import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
 import digitaltwinframework.coreimplementation.RESTServer
 import digitaltwinframework.coreimplementation.SystemEventBusAddresses
+import digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwins.Temperature
+import digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwins.TemperatureMessageCodec
 import digitaltwinframework.roommonitorexample.temperaturemonitor.digitalatwins.TempMonitorDTFactory
 import digitaltwinframework.roommonitorexample.temperaturemonitor.mockedphysicalsensors.MockedTempSensorWithRESTInterface
 import io.vertx.core.Vertx
@@ -13,6 +15,7 @@ class AppTest {
 
     fun testRESTServerRouteAdding() {
         val dtSystem = BasicDigitalTwinSystem.boot()
+        dtSystem.eventBus.registerDefaultCodec(Temperature::class.java, TemperatureMessageCodec())
 
         Thread.sleep(5000)
         println("Add a route")
@@ -31,9 +34,9 @@ class AppTest {
 
         dtSystem.eventBus.send(SystemEventBusAddresses.RESTServer.address, RESTServer.DTRouter(mockDtID, dtRouter))
 
-        Thread.sleep(5000)
+        Thread.sleep(10000)
         println("Remove previous added route")
-        dtSystem.eventBus.send(SystemEventBusAddresses.RESTServer.address, RESTServer.UnregisterRouter(mockDtID))
+        dtSystem.eventBus.send(SystemEventBusAddresses.RESTServer.address, RESTServer.UnregisterRouter(mockDtID, dtRouter))
 
 
         Thread.sleep(10000)
@@ -65,5 +68,6 @@ class AppTest {
 fun main() {
     println("Provo ad avviare il digital twin manager")
     AppTest().testDigitalTwinAndMockedSensorInteraction()
+    //AppTest().testRESTServerRouteAdding()
 
 }

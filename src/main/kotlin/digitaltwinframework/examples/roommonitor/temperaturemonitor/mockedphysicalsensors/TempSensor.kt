@@ -26,8 +26,8 @@ class SimulatedTempSensor {
 
 class MockedTempSensorWithRESTInterface : AbstractVerticle() {
     companion object {
-        var host = "localhost"
-        //val host = "192.168.0.13"
+        //var host = "localhost"
+        val host = "192.168.0.13"
         val portNumber = 8081
         val openApiSpecPath =
             "file://${System.getProperty("user.dir")}/res/framework/examples/TemperatureSensor-1.0.0-OpenAPI-Schema.yaml".replace(

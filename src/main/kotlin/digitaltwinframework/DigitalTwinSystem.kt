@@ -4,6 +4,9 @@ import digitaltwinframework.coreimplementation.RESTServer
 import java.net.URI
 
 interface DigitalTwinSystem {
+
+    val name: String
+
     fun createDigitalTwin(factory: DigitalTwinFactory): URI
     fun killDigitalTwin(target: URI)
     fun enstablishLink(firstDT: DigitalTwinMetaInfo, secondDT: DigitalTwinMetaInfo, semantic: LinkSemantic)
