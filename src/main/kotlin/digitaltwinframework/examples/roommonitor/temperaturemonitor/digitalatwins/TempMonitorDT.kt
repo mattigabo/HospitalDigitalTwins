@@ -47,7 +47,7 @@ class TempMonitorDTMetaInfo(val manufacturer: String = "FrameworkExample") : Dig
         )
 }
 
-class TempMonitorModelData(roomPosition: String) : PhysicalCounterpartModelData {
+class TempMonitorModelData(roomPosition: String) : PhysicalAssetModelData {
     var temperature: Temperature? = null
     var roomLocation: DigitalTwinValue<String>? = DigitalTwinValue(roomPosition, Instant.now())
 }

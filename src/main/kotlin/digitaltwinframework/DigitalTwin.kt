@@ -6,7 +6,7 @@ import java.time.Instant
 interface DigitalTwin {
     val identifier: URI
     val metaInfo: DigitalTwinMetaInfo
-    val modelData: PhysicalCounterpartModelData
+    val modelData: PhysicalAssetModelData
     val evolutionManager: EvolutionController
     /**
      * Add a semantic link to another digital twin
@@ -43,13 +43,13 @@ open class DigitalTwinValue<T>(open val value: T, open val generationTime: Insta
  * Classes that implements this interface model physical counterpart information,
  * that the digital twin must store and manage such as: Physiological, structural, behavioural information.
  * */
-interface PhysicalCounterpartModelData
+interface PhysicalAssetModelData
 
 
-interface PhysiologicalModel : PhysicalCounterpartModelData
-interface StructuralModel : PhysicalCounterpartModelData
-interface BehaviouralModel : PhysicalCounterpartModelData
-interface ProcessModel : PhysicalCounterpartModelData
+interface PhysiologicalModel : PhysicalAssetModelData
+interface StructuralModel : PhysicalAssetModelData
+interface BehaviouralModel : PhysicalAssetModelData
+interface ProcessModel : PhysicalAssetModelData
 
 /*
 * This component encapsulate the interaction with the physical counter part in order to maintain the physical model updated,
