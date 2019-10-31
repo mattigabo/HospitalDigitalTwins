@@ -6,7 +6,6 @@ import digitaltwinframework.coreimplementation.RESTServer
 import digitaltwinframework.coreimplementation.SystemEventBusAddresses
 import digitaltwinframework.roommonitorexample.temperaturemonitor.digitalatwins.TempMonitorDT
 import io.vertx.core.Handler
-import io.vertx.core.http.HttpHeaders
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory
@@ -24,13 +23,6 @@ class RESTFaceAdapter(val thisDT: TempMonitorDT) : InteractionAdapter {
         }
     }
 
-    private fun sendResponse(response: String, routingContext: RoutingContext) {
-        routingContext
-                .response()
-                .setStatusCode(200)
-                .putHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-                .end(response)
-    }
 
     fun loadOpenApiSpec() {
         OpenAPI3RouterFactory.create(thisDT.dtSystem.vertx, thisDT.metaInfo.openApiSpecificationPath) { asyncResult ->

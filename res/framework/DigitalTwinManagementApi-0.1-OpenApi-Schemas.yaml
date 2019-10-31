@@ -59,6 +59,7 @@ paths:
         - "Management"
         - "SemanticLink"
       description: "Delete the link to antoher digital twin passing the link identifier"
+      operationId: deleteLink
       parameters:
         - $ref: "#/components/parameters/link-id-param"
       responses:

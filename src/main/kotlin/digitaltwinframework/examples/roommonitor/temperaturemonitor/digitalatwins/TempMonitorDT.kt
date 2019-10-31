@@ -3,6 +3,7 @@ package digitaltwinframework.roommonitorexample.temperaturemonitor.digitalatwins
 import digitaltwinframework.*
 import digitaltwinframework.coreimplementation.BasicDigitalTwin
 import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
+import digitaltwinframework.coreimplementation.ConfigUtils
 import digitaltwinframework.coreimplementation.SystemEventBusAddresses
 import digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwins.*
 import io.vertx.core.AbstractVerticle
@@ -40,11 +41,9 @@ class TempMonitorDT(identifier: URI, roomPosition: String) : BasicDigitalTwin(id
 }
 
 class TempMonitorDTMetaInfo(val manufacturer: String = "FrameworkExample") : DigitalTwinMetaInfo {
-    val openApiSpecificationPath =
-        "file://${System.getProperty("user.dir")}/res/framework/examples/TemperatureMonitorDigitalTwin-1.0.0-OpenApi-schema.yaml".replace(
-            " ",
-            "%20"
-        )
+    val openApiSpecificationPath = ConfigUtils.cleanSpace(
+        ConfigUtils.resourceFolderPath() + "framework/examples/TemperatureMonitorDigitalTwin-1.0.0-OpenApi-schema.yaml"
+    )
 }
 
 class TempMonitorDataModel(roomPosition: String) : PhysicalAssetDataModel {
