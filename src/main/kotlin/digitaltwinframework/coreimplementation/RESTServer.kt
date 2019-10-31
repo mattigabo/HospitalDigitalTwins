@@ -12,9 +12,10 @@ import java.net.URI
  * If multiple digital twins run on a single machine the REST server instance is one
  * and each digital twin register wich message want to receive from it
  * */
-class RESTServer(val dtSystem: BasicDigitalTwinSystem) : AbstractVerticle() {
+class RESTServer : AbstractVerticle() {
 
-    private var eb = BasicDigitalTwinSystem.RUNNING_INSTANCE!!.vertx.eventBus()
+
+    private var eb = VertxDigitalTwinExecutor.runningInstance!!.vertx.eventBus()
 
     //private var host = "localhost"
     private var host = "192.168.0.13"

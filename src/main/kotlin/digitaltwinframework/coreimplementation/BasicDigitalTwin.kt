@@ -9,10 +9,7 @@ import java.net.URI
  * that provide basic implementation of the management of the core aspects
  *
  * */
-abstract class BasicDigitalTwin(
-        override val identifier: URI,
-        val dtSystem: BasicDigitalTwinSystem = BasicDigitalTwinSystem.RUNNING_INSTANCE!!
-) : DigitalTwin {
+abstract class BasicDigitalTwin(override val identifier: URI) : DigitalTwin {
 
     var relationToOtherDT: MutableMap<URI, ArrayList<LinkSemantic>> = HashMap()
 

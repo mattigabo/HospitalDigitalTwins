@@ -1,6 +1,8 @@
 package digitaltwinframework.coreimplementation
 
-import digitaltwinframework.*
+import digitaltwinframework.DigitalTwinLink
+import digitaltwinframework.DigitalTwinSystem
+import digitaltwinframework.IdentifierGenerator
 import io.vertx.core.Vertx
 import java.net.InetAddress
 import java.net.URI
@@ -31,7 +33,7 @@ class BasicDigitalTwinSystem private constructor() : DigitalTwinSystem {
     var vertx = Vertx.vertx()
     var eventBus = vertx.eventBus()
 
-    var runningDT = HashMap<URI, DigitalTwin>()
+    var runningDT = ArrayList<URI>()
 
     companion object {
         var RUNNING_INSTANCE: BasicDigitalTwinSystem? = null
@@ -51,24 +53,6 @@ class BasicDigitalTwinSystem private constructor() : DigitalTwinSystem {
         BasicDigitalTwinSystem.RUNNING_INSTANCE = this
         restServer = RESTServer(this)
         vertx.deployVerticle(restServer)
-    }
-
-    override fun createDigitalTwin(factory: DigitalTwinFactory): URI {
-        var dt = factory.create(identifierGenerator.nextIdentifier())
-        this.runningDT.put(dt.identifier, dt)
-        return dt.identifier
-    }
-
-    override fun killDigitalTwin(target: URI) {
-
-    }
-
-    override fun enstablishLink(firstDT: DigitalTwinMetaInfo, secondDT: DigitalTwinMetaInfo, semantic: LinkSemantic) {
-
-    }
-
-    override fun deleteLingk(link: DigitalTwinLink) {
-
     }
 
     override fun RESTServerInstance(): RESTServer {

@@ -11,7 +11,7 @@ import java.net.URI
 import java.time.Instant
 
 class TempMonitorDT(identifier: URI, roomPosition: String) : BasicDigitalTwin(identifier) {
-    override var modelData: TempMonitorModelData = TempMonitorModelData(roomPosition)
+    override var dataModel: TempMonitorDataModel = TempMonitorDataModel(roomPosition)
     override var metaInfo: TempMonitorDTMetaInfo = TempMonitorDTMetaInfo()
 
     override val evolutionManager = TempMonitorEvolutionController(this)
@@ -47,7 +47,7 @@ class TempMonitorDTMetaInfo(val manufacturer: String = "FrameworkExample") : Dig
         )
 }
 
-class TempMonitorModelData(roomPosition: String) : PhysicalAssetModelData {
+class TempMonitorDataModel(roomPosition: String) : PhysicalAssetDataModel {
     var temperature: Temperature? = null
     var roomLocation: DigitalTwinValue<String>? = DigitalTwinValue(roomPosition, Instant.now())
 }
@@ -73,15 +73,15 @@ class TempMonitorEvolutionController(var thisDT: TempMonitorDT) : EvolutionContr
                 is Temperature -> {
                     println("Temperature received from Physical CounterPart: ${message.body()}")
 
-                    thisDT.modelData.temperature = message.body() as Temperature
+                    thisDT.dataModel.temperature = message.body() as Temperature
                 }
 
                 OperationIDS.TEMPERATURE_MEASURED -> message.reply("""
                    {
-                        "value":{${thisDT.modelData.temperature!!.value}},
-                        "unit":"{${thisDT.modelData.temperature!!.unit}}",
-                        "timestamp":"{${thisDT.modelData.temperature!!.generationTime}}",
-                        "roomLocation":":{${thisDT.modelData.roomLocation!!.value}}"
+                        "value":{${thisDT.dataModel.temperature!!.value}},
+                        "unit":"{${thisDT.dataModel.temperature!!.unit}}",
+                        "timestamp":"{${thisDT.dataModel.temperature!!.generationTime}}",
+                        "roomLocation":":{${thisDT.dataModel.roomLocation!!.value}}"
                    }
                """.trimIndent())
             }
