@@ -53,7 +53,7 @@ paths:
         '500':
           description: "server error"
 
-  /links/{linkId}:
+  /links/{linkToDelete}:
     delete:
       tags:
         - "Management"
@@ -61,7 +61,7 @@ paths:
       description: "Delete the link to antoher digital twin passing the link identifier"
       operationId: deleteLink
       parameters:
-        - $ref: "#/components/parameters/link-id-param"
+        - $ref: "#/components/parameters/link-to-delete-param"
       responses:
         '204':
           description: "link successfully deleted"
@@ -77,34 +77,28 @@ paths:
       description: "Notify the digital twin to start the shutdown procedure"
       operationId: shutdownDigitalTwin
       responses:
-        '201':
+        '200':
           description: "Shutdown Process Executed"
 components:
   parameters:
-    link-id-param:
+    link-to-delete-param:
       in: path
-      name: "linkId"
-      description: "identifier of the link to another digital twin"
+      name: "linkToDelete"
+      description: "link to another digital twin that must be deleted"
       required: true
       schema:
-        $ref: "#/components/schemas/linkIdentifier"
+        $ref: "#/components/schemas/linkToAnotherDigitalTwin"
 
   schemas:
     digitalTwinIdentifier:
       type: string
 
-    linkIdentifier:
-      type: string
-
     linkToAnotherDigitalTwin:
       type: object
       required:
-        - id
         - otherDigitalTwin
         - semantic
       properties:
-        id:
-          $ref: "#/components/schemas/linkIdentifier"
         otherDigitalTwin:
           $ref: "#/components/schemas/digitalTwinIdentifier"
         semantic:

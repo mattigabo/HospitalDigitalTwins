@@ -8,7 +8,7 @@ interface DigitalTwin {
     val metaInfo: DigitalTwinMetaInfo
     val dataModel: PhysicalAssetDataModel
     val evolutionController: EvolutionController
-    val executor: DigitalTwinExecutor
+    val executionEngine: DigitalTwinExecutionEngine
 
     /**
      * Add a semantic link to another digital twin
@@ -18,7 +18,7 @@ interface DigitalTwin {
     /**
      * Delete a semantic link to another digital twin if present
      * */
-    fun deleteLink(digitalTwinId: URI, semantic: LinkSemantic)
+    fun deleteLink(digitalTwinId: URI, semantic: LinkSemantic): Boolean
 
     /**
      * Stopping the digital twin causes the termination of the evolution of the digital twin and the resource release
@@ -64,7 +64,10 @@ interface EvolutionController {
 }
 
 
-interface InteractionAdapter
+interface InteractionAdapter {
+    val adapterName: String
+}
+
 interface PhysicalWorldInteractionAdapter : InteractionAdapter
 interface DigitalTwinInteractionAdapter : InteractionAdapter
 

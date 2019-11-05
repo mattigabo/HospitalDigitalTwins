@@ -1,35 +1,33 @@
 package digitaltwinframework.roommonitorexample.temperaturemonitor.digitalatwins
 
 import digitaltwinframework.*
-import digitaltwinframework.coreimplementation.BasicDigitalTwin
-import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
-import digitaltwinframework.coreimplementation.ConfigUtils
-import digitaltwinframework.coreimplementation.SystemEventBusAddresses
+import digitaltwinframework.coreimplementation.*
 import digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwins.*
-import io.vertx.core.AbstractVerticle
 import io.vertx.core.eventbus.EventBus
 import java.net.URI
 import java.time.Instant
 
-class TempMonitorDT(identifier: URI, roomPosition: String) : BasicDigitalTwin(identifier) {
+class TempMonitorDT(
+        identifier: URI,
+        roomPosition: String,
+        executionEngine: BasicDigitalTwinExecutionEngine
+) : AbstractDigitalTwin(identifier, executionEngine) {
+
     override var dataModel: TempMonitorDataModel = TempMonitorDataModel(roomPosition)
     override var metaInfo: TempMonitorDTMetaInfo = TempMonitorDTMetaInfo()
 
     override val evolutionManager = TempMonitorEvolutionController(this)
 
-    val EVOLUTION_CONTROLLER_ADDRESS = SystemEventBusAddresses.EVOLUTION_CONTROLLER_SUFFIX.preappend(identifier.toString())
-
     val physicalCounterPartAdapter = PhysicalTempSensorAdapter(this)
 
-    val restFace = RESTFaceAdapter(this)
+    val restFace = TempMonitorRESTInteractionAdapter(this)
 
     init {
-        this.dtSystem.let {
-            it.vertx.deployVerticle(evolutionManager)
-            it.eventBus.registerDefaultCodec(Temperature::class.java, TemperatureMessageCodec())
+        executionEngine.vertx.deployVerticle(evolutionManager)
+        executionEngine.eventBus.registerDefaultCodec(Temperature::class.java, TemperatureMessageCodec())
 
-            restFace.loadOpenApiSpec()
-        }
+        restFace.loadOpenApiSpec()
+
     }
 
     override fun stop() {
@@ -51,7 +49,7 @@ class TempMonitorDataModel(roomPosition: String) : PhysicalAssetDataModel {
     var roomLocation: DigitalTwinValue<String>? = DigitalTwinValue(roomPosition, Instant.now())
 }
 
-class TempMonitorEvolutionController(var thisDT: TempMonitorDT) : EvolutionController, AbstractVerticle() {
+class TempMonitorEvolutionController(var thisDT: TempMonitorDT) : BasicEvolutionController {
     private val temperatureUpdatePeriod: Long = 1000
 
     override fun start() {

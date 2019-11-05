@@ -1,15 +1,14 @@
 package hospitaldigitaltwins.traumamanagement.patient
 
 import digitaltwinframework.EvolutionController
-import digitaltwinframework.coreimplementation.BasicDigitalTwin
+import digitaltwinframework.coreimplementation.AbstractDigitalTwin
+import digitaltwinframework.coreimplementation.BasicDigitalTwinExecutionEngine
 import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
-import digitaltwinframework.coreimplementation.BasicEvolutionController
-import digitaltwinframework.coreimplementation.VertxDigitalTwinExecutor
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.eventbus.EventBus
 import java.net.URI
 
-class PatientDT(dtIdentifier: URI, executor: VertxDigitalTwinExecutor) : BasicDigitalTwin(dtIdentifier, executor)
+class PatientDT(dtIdentifier: URI, executor: BasicDigitalTwinExecutionEngine) : AbstractDigitalTwin(dtIdentifier, executor)
 
 
 class PatientEvolutionController : EvolutionController, AbstractVerticle() {

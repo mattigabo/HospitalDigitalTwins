@@ -1,8 +1,8 @@
 package hospitaldigitaltwins.traumamanagement.patient
 
-import digitaltwinframework.coreimplementation.VertxDigitalTwinExecutor
+import digitaltwinframework.coreimplementation.BasicDigitalTwinExecutionEngine
 
 fun main() {
-    VertxDigitalTwinExecutor.boot()
+    BasicDigitalTwinExecutionEngine.boot()
 
 }

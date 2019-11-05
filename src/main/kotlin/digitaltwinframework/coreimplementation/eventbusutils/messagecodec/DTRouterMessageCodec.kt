@@ -1,4 +1,4 @@
-package digitaltwinframework.coreimplementation.messagecodec
+package digitaltwinframework.coreimplementation.eventbusutils.messagecodec
 
 import digitaltwinframework.coreimplementation.RESTServer
 import io.vertx.core.buffer.Buffer
@@ -7,13 +7,16 @@ import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 import java.net.URI
 
-class UnregisterDTRouterMessageCodec : MessageCodec<RESTServer.UnregisterRouter, RESTServer.UnregisterRouter> {
+/**
+ * Created by Matteo Gabellini on 30/09/2019.
+ */
+class DTRouterMessageCodec : MessageCodec<RESTServer.DTRouter, RESTServer.DTRouter> {
 
     override fun systemCodecID(): Byte {
         return -1
     }
 
-    override fun encodeToWire(buffer: Buffer, s: RESTServer.UnregisterRouter) {
+    override fun encodeToWire(buffer: Buffer, s: RESTServer.DTRouter) {
         val jsonToEncode = JsonObject()
         jsonToEncode.put("digitalTwinID", s.digitalTwinID)
         jsonToEncode.put("router", s.router)
@@ -29,7 +32,7 @@ class UnregisterDTRouterMessageCodec : MessageCodec<RESTServer.UnregisterRouter,
         buffer.appendString(jsonToStr)
     }
 
-    override fun decodeFromWire(pos: Int, buffer: Buffer): RESTServer.UnregisterRouter {
+    override fun decodeFromWire(pos: Int, buffer: Buffer): RESTServer.DTRouter {
         // Length of JSON
         val length = buffer.getInt(pos)
 
@@ -41,10 +44,10 @@ class UnregisterDTRouterMessageCodec : MessageCodec<RESTServer.UnregisterRouter,
         val digitalTwinID: URI = URI(contentJson.getString("digitalTwinID"))
         val router: Router = contentJson.getValue("unit") as Router
 
-        return RESTServer.UnregisterRouter(digitalTwinID, router)
+        return RESTServer.DTRouter(digitalTwinID, router)
     }
 
-    override fun transform(s: RESTServer.UnregisterRouter): RESTServer.UnregisterRouter {
+    override fun transform(s: RESTServer.DTRouter): RESTServer.DTRouter {
         return s
     }
 

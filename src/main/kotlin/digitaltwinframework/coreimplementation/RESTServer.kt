@@ -1,6 +1,7 @@
 package digitaltwinframework.coreimplementation
 
-import digitaltwinframework.coreimplementation.messagecodec.DTRouterMessageCodec
+import digitaltwinframework.coreimplementation.eventbusutils.SystemEventBusAddresses
+import digitaltwinframework.coreimplementation.eventbusutils.messagecodec.DTRouterMessageCodec
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.http.HttpServer
 import io.vertx.ext.web.Router
@@ -15,10 +16,11 @@ import java.net.URI
 class RESTServer : AbstractVerticle() {
 
 
-    private var eb = VertxDigitalTwinExecutor.runningInstance!!.vertx.eventBus()
+    private var eb = BasicDigitalTwinExecutionEngine.runningInstance!!.vertx.eventBus()
 
     //private var host = "localhost"
-    private var host = "192.168.0.13"
+    //private var host = "192.168.0.13"
+    private var host = "0.0.0.0"
     private var portNumber = 8080
 
     private var dtSystemSuffix = "/digitaltwinsystem"

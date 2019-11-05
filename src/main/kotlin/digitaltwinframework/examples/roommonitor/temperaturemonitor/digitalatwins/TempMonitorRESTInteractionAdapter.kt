@@ -1,9 +1,9 @@
 package digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwins
 
-import digitaltwinframework.InteractionAdapter
+import digitaltwinframework.coreimplementation.AbstractRESTInteractionAdapter
 import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
 import digitaltwinframework.coreimplementation.RESTServer
-import digitaltwinframework.coreimplementation.SystemEventBusAddresses
+import digitaltwinframework.coreimplementation.eventbusutils.SystemEventBusAddresses
 import digitaltwinframework.roommonitorexample.temperaturemonitor.digitalatwins.TempMonitorDT
 import io.vertx.core.Handler
 import io.vertx.ext.web.Router
@@ -11,7 +11,7 @@ import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory
 
 
-class RESTFaceAdapter(val thisDT: TempMonitorDT) : InteractionAdapter {
+class TempMonitorRESTInteractionAdapter(override val thisDT: TempMonitorDT) : AbstractRESTInteractionAdapter(thisDT) {
 
     private var temperatureRequestHandler = Handler<RoutingContext> { routingContext: RoutingContext ->
         BasicDigitalTwinSystem.RUNNING_INSTANCE?.let {
