@@ -1,24 +1,25 @@
 package digitaltwinframework
 
+import digitaltwinframework.coreimplementation.Identifiable
+import digitaltwinframework.coreimplementation.Semantics
 import java.net.URI
 import java.time.Instant
 
-interface DigitalTwin {
-    val identifier: URI
-    val metaInfo: DigitalTwinMetaInfo
-    val dataModel: PhysicalAssetDataModel
+interface DigitalTwin : Identifiable<URI> {
+    val metaInfo: MetaInfo
+    val dataModel: Model
     val evolutionController: EvolutionController
     val executionEngine: DigitalTwinExecutionEngine
 
     /**
      * Add a semantic link to another digital twin
      * */
-    fun addLink(digitalTwinId: URI, semantic: LinkSemantic)
+    fun addLink(digitalTwinId: URI, semantic: Semantics)
 
     /**
      * Delete a semantic link to another digital twin if present
      * */
-    fun deleteLink(digitalTwinId: URI, semantic: LinkSemantic): Boolean
+    fun deleteLink(digitalTwinId: URI, semantic: Semantics): Boolean
 
     /**
      * Stopping the digital twin causes the termination of the evolution of the digital twin and the resource release
@@ -26,18 +27,9 @@ interface DigitalTwin {
     fun stop()
 }
 
-enum class DigitalTwinState {
-    IN_SYNC,
-    NOT_IN_SYNC,
-    STOPPED
-}
 
+interface MetaInfo
 
-interface DigitalTwinMetaInfo
-
-interface LinkSemantic
-
-data class basicSemantic(val description: String) : LinkSemantic
 
 open class DigitalTwinValue<T>(open val value: T, open val generationTime: Instant)
 
@@ -45,13 +37,7 @@ open class DigitalTwinValue<T>(open val value: T, open val generationTime: Insta
  * Classes that implements this interface model physical counterpart information,
  * that the digital twin must store and manage such as: Physiological, structural, behavioural information.
  * */
-interface PhysicalAssetDataModel
-
-
-interface PhysiologicalModel : PhysicalAssetDataModel
-interface StructuralModel : PhysicalAssetDataModel
-interface BehaviouralModel : PhysicalAssetDataModel
-interface ProcessModel : PhysicalAssetDataModel
+interface Model
 
 /*
 * This component encapsulate the interaction with the physical counter part in order to maintain the physical model updated,

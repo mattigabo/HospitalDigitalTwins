@@ -1,7 +1,7 @@
 package digitaltwinframework.coreimplementation
 
 import digitaltwinframework.InteractionAdapter
-import digitaltwinframework.coreimplementation.eventbusutils.SystemEventBusAddresses
+import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses
 import io.vertx.core.Handler
 import io.vertx.core.http.HttpHeaders
 import io.vertx.ext.web.Router

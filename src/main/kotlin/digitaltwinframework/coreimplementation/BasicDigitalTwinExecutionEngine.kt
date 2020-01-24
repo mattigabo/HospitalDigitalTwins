@@ -27,9 +27,6 @@ class BasicDigitalTwinExecutionEngine : DigitalTwinExecutionEngine {
         }
     }
 
-    init {
-        DigitalTwinExecutionEngine.runningInstance = this
-    }
 
     override fun executeDigitalTwin(id: URI, factory: DigitalTwinFactory): URI {
         var dt = factory.create(id)

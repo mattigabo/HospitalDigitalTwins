@@ -1,4 +1,4 @@
-package digitaltwinframework.coreimplementation.eventbusutils.messagecodec
+package digitaltwinframework.coreimplementation.utils.eventbusutils.messagecodec
 
 import digitaltwinframework.coreimplementation.RESTServer
 import io.vertx.core.buffer.Buffer

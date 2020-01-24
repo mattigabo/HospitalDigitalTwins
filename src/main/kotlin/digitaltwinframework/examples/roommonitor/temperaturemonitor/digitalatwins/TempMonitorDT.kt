@@ -1,7 +1,13 @@
 package digitaltwinframework.roommonitorexample.temperaturemonitor.digitalatwins
 
-import digitaltwinframework.*
-import digitaltwinframework.coreimplementation.*
+import digitaltwinframework.DigitalTwin
+import digitaltwinframework.DigitalTwinFactory
+import digitaltwinframework.DigitalTwinValue
+import digitaltwinframework.Model
+import digitaltwinframework.coreimplementation.AbstractDigitalTwin
+import digitaltwinframework.coreimplementation.BasicDigitalTwinExecutionEngine
+import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
+import digitaltwinframework.coreimplementation.BasicEvolutionController
 import digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwins.*
 import io.vertx.core.eventbus.EventBus
 import java.net.URI
@@ -44,7 +50,7 @@ class TempMonitorDTMetaInfo(val manufacturer: String = "FrameworkExample") : Dig
     )
 }
 
-class TempMonitorDataModel(roomPosition: String) : PhysicalAssetDataModel {
+class TempMonitorDataModel(roomPosition: String) : Model {
     var temperature: Temperature? = null
     var roomLocation: DigitalTwinValue<String>? = DigitalTwinValue(roomPosition, Instant.now())
 }

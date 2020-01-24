@@ -1,4 +1,4 @@
-package digitaltwinframework.coreimplementation.eventbusutils
+package digitaltwinframework.coreimplementation.utils.eventbusutils
 
 /**
  * The Set of the core  element adresses of the digital twin framework implementation, usable with the vert.x event bus

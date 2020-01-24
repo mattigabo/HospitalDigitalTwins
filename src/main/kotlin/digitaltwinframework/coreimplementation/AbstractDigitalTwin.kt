@@ -2,9 +2,8 @@ package digitaltwinframework.coreimplementation
 
 import digitaltwinframework.DigitalTwin
 import digitaltwinframework.EvolutionController
-import digitaltwinframework.LinkSemantic
-import digitaltwinframework.coreimplementation.eventbusutils.StandardMessages.OPERATION_EXECUTED_MESSAGE
-import digitaltwinframework.coreimplementation.eventbusutils.SystemEventBusAddresses
+import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages.OPERATION_EXECUTED_MESSAGE
+import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.json.JsonArray
@@ -16,31 +15,31 @@ import java.net.URI
  *
  * */
 abstract class AbstractDigitalTwin(
-        override val identifier: URI,
-        override val executionEngine: BasicDigitalTwinExecutionEngine
+    override val identifier: URI,
+    override val executionEngine: BasicDigitalTwinExecutionEngine
 ) : DigitalTwin {
 
-    var relationToOtherDT: MutableMap<URI, ArrayList<LinkSemantic>> = HashMap()
+    var relationToOtherDT: MutableMap<URI, ArrayList<Semantics>> = HashMap()
 
     override val evolutionController: BasicEvolutionController = BasicEvolutionController(this)
     val EVOLUTION_CONTROLLER_ADDRESS = SystemEventBusAddresses.EVOLUTION_CONTROLLER_SUFFIX.preappend(identifier.toString())
 
-    override fun addLink(digitalTwinId: URI, semantic: LinkSemantic) {
+    override fun addLink(digitalTwinId: URI, semantic: Semantics) {
         if (this.relationToOtherDT.containsKey(digitalTwinId)) {
             this.relationToOtherDT.get(digitalTwinId)?.add(semantic)
         } else {
-            var linkList = ArrayList<LinkSemantic>()
+            var linkList = ArrayList<Semantics>()
             linkList.add(semantic)
             this.relationToOtherDT.put(digitalTwinId, linkList)
         }
     }
 
-    override fun deleteLink(digitalTwinId: URI, semantic: LinkSemantic): Boolean {
+    override fun deleteLink(digitalTwinId: URI, semantic: Semantics): Boolean {
         return this.relationToOtherDT.get(digitalTwinId)?.remove(semantic) ?: false
     }
 }
 
-class BasicEvolutionController(val thisDT: AbstractDigitalTwin) : EvolutionController, AbstractVerticle() {
+open class BasicEvolutionController(open val thisDT: AbstractDigitalTwin) : EvolutionController, AbstractVerticle() {
 
     var coreManagAdapter = CoreManagementApiRESTAdapter(thisDT)
 

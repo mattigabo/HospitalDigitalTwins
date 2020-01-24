@@ -1,18 +1,21 @@
 package hospitaldigitaltwins.traumamanagement.patient
 
-import digitaltwinframework.EvolutionController
 import digitaltwinframework.coreimplementation.AbstractDigitalTwin
 import digitaltwinframework.coreimplementation.BasicDigitalTwinExecutionEngine
 import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
-import io.vertx.core.AbstractVerticle
+import digitaltwinframework.coreimplementation.BasicEvolutionController
 import io.vertx.core.eventbus.EventBus
 import java.net.URI
 
-class PatientDT(dtIdentifier: URI, executor: BasicDigitalTwinExecutionEngine) : AbstractDigitalTwin(dtIdentifier, executor)
+class PatientDT(
+    dtIdentifier: URI,
+    executor: BasicDigitalTwinExecutionEngine
+) : AbstractDigitalTwin(dtIdentifier, executor) {
 
+    override val evolutionController: PatientEvolutionController = PatientEvolutionController(this)
+}
 
-class PatientEvolutionController : EvolutionController, AbstractVerticle() {
-    private val temperatureUpdatePeriod: Long = 1000
+class PatientEvolutionController(override val thisDT: PatientDT) : BasicEvolutionController(thisDT) {
 
     override fun start() {
         super.start()

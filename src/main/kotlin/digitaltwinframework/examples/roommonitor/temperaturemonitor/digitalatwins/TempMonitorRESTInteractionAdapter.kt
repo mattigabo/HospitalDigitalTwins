@@ -3,7 +3,7 @@ package digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwi
 import digitaltwinframework.coreimplementation.AbstractRESTInteractionAdapter
 import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
 import digitaltwinframework.coreimplementation.RESTServer
-import digitaltwinframework.coreimplementation.eventbusutils.SystemEventBusAddresses
+import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses
 import digitaltwinframework.roommonitorexample.temperaturemonitor.digitalatwins.TempMonitorDT
 import io.vertx.core.Handler
 import io.vertx.ext.web.Router

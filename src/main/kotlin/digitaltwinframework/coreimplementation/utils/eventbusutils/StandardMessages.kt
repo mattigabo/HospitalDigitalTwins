@@ -1,4 +1,4 @@
-package digitaltwinframework.coreimplementation.eventbusutils
+package digitaltwinframework.coreimplementation.utils.eventbusutils
 
 object StandardMessages {
     const val EMPTY_MESSAGE = ""

@@ -1,9 +1,7 @@
 package digitaltwinframework.coreimplementation
 
-import digitaltwinframework.LinkSemantic
-import digitaltwinframework.basicSemantic
-import digitaltwinframework.coreimplementation.eventbusutils.StandardMessages.EMPTY_MESSAGE
-import digitaltwinframework.coreimplementation.eventbusutils.SystemEventBusAddresses.Companion.composeAddress
+import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages.EMPTY_MESSAGE
+import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses.Companion.composeAddress
 import io.vertx.core.Handler
 import io.vertx.ext.web.RoutingContext
 
@@ -38,7 +36,7 @@ class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTIn
         val requestContentJson = routingContext.bodyAsJson
         val linkToDT = CoreManagementSchemas.LinkToAnotherDigitalTwin(
                 requestContentJson.getString("otherDigitalTwin"),
-                basicSemantic(requestContentJson.getString("semantic"))
+            textualSemantics(requestContentJson.getString("semantic"))
         )
 
         thisDT.executionEngine.eventBus.request<String>(ADD_LINK_TO_ANOTHER_DIGITAL_TWIN_BUS_ADDR, linkToDT) { ar ->
@@ -64,7 +62,7 @@ class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTIn
         val requestContentJson = routingContext.bodyAsJson
         val linkToDT = CoreManagementSchemas.LinkToAnotherDigitalTwin(
                 requestContentJson.getString("otherDigitalTwin"),
-                basicSemantic(requestContentJson.getString("semantic"))
+            textualSemantics(requestContentJson.getString("semantic"))
         )
 
         thisDT.executionEngine.eventBus.request<String>(DELETE_LINK_BUS_ADDR, linkToDT) { ar ->
@@ -111,5 +109,5 @@ class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTIn
 
 
 object CoreManagementSchemas {
-    data class LinkToAnotherDigitalTwin(val otherDigitalTwin: String, val semantic: LinkSemantic)
+    data class LinkToAnotherDigitalTwin(val otherDigitalTwin: String, val semantic: Semantics)
 }

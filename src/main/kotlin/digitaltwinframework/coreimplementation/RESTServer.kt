@@ -1,7 +1,7 @@
 package digitaltwinframework.coreimplementation
 
-import digitaltwinframework.coreimplementation.eventbusutils.SystemEventBusAddresses
-import digitaltwinframework.coreimplementation.eventbusutils.messagecodec.DTRouterMessageCodec
+import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses
+import digitaltwinframework.coreimplementation.utils.eventbusutils.messagecodec.DTRouterMessageCodec
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.http.HttpServer
 import io.vertx.ext.web.Router

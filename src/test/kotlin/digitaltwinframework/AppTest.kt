@@ -2,7 +2,7 @@ package digitaltwinframework
 
 import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
 import digitaltwinframework.coreimplementation.RESTServer
-import digitaltwinframework.coreimplementation.eventbusutils.SystemEventBusAddresses
+import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses
 import digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwins.Temperature
 import digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwins.TemperatureMessageCodec
 import digitaltwinframework.roommonitorexample.temperaturemonitor.digitalatwins.TempMonitorDTFactory
@@ -48,6 +48,10 @@ class AppTest {
         Vertx.vertx().deployVerticle(MockedTempSensorWithRESTInterface())
     }
 
+    fun testBasicDigitalTwin() {
+
+    }
+
     fun testDigitalTwinAndMockedSensorInteraction() {
         val dtSystem = BasicDigitalTwinSystem.boot()
 
@@ -68,6 +72,10 @@ class AppTest {
 fun main() {
     println("Provo ad avviare il digital twin manager")
     AppTest().testDigitalTwinAndMockedSensorInteraction()
+
+    //Test Digital Twin Creation
+    AppTest().testBasicDigitalTwin()
+
     //AppTest().testRESTServerRouteAdding()
 
 }

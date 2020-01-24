@@ -1,7 +1,6 @@
 package digitaltwinframework
 
 import digitaltwinframework.coreimplementation.RESTServer
-import java.net.URI
 
 interface DigitalTwinSystem {
 
@@ -10,8 +9,4 @@ interface DigitalTwinSystem {
     fun RESTServerInstance(): RESTServer
 
     fun shutdown()
-}
-
-interface IdentifierGenerator {
-    fun nextIdentifier(): URI
 }

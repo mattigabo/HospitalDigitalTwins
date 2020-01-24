@@ -1,6 +1,6 @@
 package hospitaldigitaltwins.ontologies
 
-import digitaltwinframework.PhysicalAssetDataModel
+import digitaltwinframework.Model
 import java.util.*
 
 /**
@@ -11,4 +11,4 @@ class PatientDataModel(
     val creation: Date,
     var anagraphic: Anagraphic,
     var clinicalData: ClinicalData
-) : PhysicalAssetDataModel
+) : Model
