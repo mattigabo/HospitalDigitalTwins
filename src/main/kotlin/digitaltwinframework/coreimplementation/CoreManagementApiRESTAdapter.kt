@@ -1,5 +1,6 @@
 package digitaltwinframework.coreimplementation
 
+import digitaltwinframework.coreimplementation.utils.ConfigUtils
 import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages.EMPTY_MESSAGE
 import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses.Companion.composeAddress
 import io.vertx.core.Handler
