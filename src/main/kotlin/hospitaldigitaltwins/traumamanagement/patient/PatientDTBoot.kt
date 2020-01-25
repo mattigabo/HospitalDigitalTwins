@@ -1,8 +1,8 @@
 package hospitaldigitaltwins.traumamanagement.patient
 
-import digitaltwinframework.coreimplementation.BasicDigitalTwinExecutionEngine
+import digitaltwinframework.coreimplementation.BasicDigitalTwinRunningEnvironment
 
 fun main() {
-    BasicDigitalTwinExecutionEngine.boot()
+    BasicDigitalTwinRunningEnvironment.boot()
 
 }

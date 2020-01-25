@@ -16,7 +16,7 @@ import java.net.URI
 class RESTServer : AbstractVerticle() {
 
 
-    private var eb = BasicDigitalTwinExecutionEngine.runningInstance!!.vertx.eventBus()
+    private var eb = BasicDigitalTwinRunningEnvironment.runningInstance!!.vertx.eventBus()
 
     //private var host = "localhost"
     //private var host = "192.168.0.13"
@@ -26,6 +26,7 @@ class RESTServer : AbstractVerticle() {
     private var dtSystemSuffix = "/digitaltwinsystem"
     private var digitalTwinRouters = HashMap<URI, ArrayList<Router>>()
     private var router = Router.router(this.vertx)
+
 
     private var infoRequestHandler = { routingContext: RoutingContext ->
         val response = routingContext.response()

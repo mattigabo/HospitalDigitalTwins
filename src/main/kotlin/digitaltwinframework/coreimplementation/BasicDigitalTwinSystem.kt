@@ -11,7 +11,6 @@ class BasicDigitalTwinSystem private constructor() : DigitalTwinSystem {
     override val name = "BasicDigitalTwinSystem"
 
     var localRelationStorage: ArrayList<DigitalTwinRelation> = ArrayList()
-    var restServer: RESTServer
     val identifierGenerator = BasicIdentifierGenerator()
     var vertx = Vertx.vertx()
     var eventBus = vertx.eventBus()

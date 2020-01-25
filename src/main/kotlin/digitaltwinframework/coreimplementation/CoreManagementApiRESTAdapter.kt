@@ -13,18 +13,18 @@ import io.vertx.ext.web.RoutingContext
  * */
 class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTInteractionAdapter(thisDT) {
 
-    override val adapterName: String = "Digital Twin Core Management REST Api"
+    override val adapterName: String = "DigitalTwinCoreManagementRESTApi"
     private val apiSpecsPath = ConfigUtils.createUri("/framework/DigitalTwinManagementApi-0.1-OpenApi-Schemas.yaml")
 
-    val GET_IDENTIFIER_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.GET_IDENTIFIER)
-    val ADD_LINK_TO_ANOTHER_DIGITAL_TWIN_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.ADD_LINK_TO_ANOTHER_DIGITAL_TWIN)
-    val GET_ALL_LINK_TO_OTHER_DIGITAL_TWINS_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.GET_ALL_LINK_TO_OTHER_DIGITAL_TWINS)
+    val GET_ID_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.GET_IDENTIFIER)
+    val ADD_LINK_TO_ANOTHER_DT_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.ADD_LINK_TO_ANOTHER_DIGITAL_TWIN)
+    val GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.GET_ALL_LINK_TO_OTHER_DIGITAL_TWINS)
     val DELETE_LINK_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.DELETE_LINK)
-    val SHUTDOWN_DIGITAL_TWIN_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.SHUTDOWN_DIGITAL_TWIN)
+    val SHUTDOWN_DT_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.SHUTDOWN_DIGITAL_TWIN)
 
 
-    val onIdentifierRequestHandler = Handler<RoutingContext> { routingContext ->
-        thisDT.executionEngine.eventBus.request<String>(GET_IDENTIFIER_BUS_ADDR, "") { ar ->
+    val onIdRequestHandler = Handler<RoutingContext> { routingContext ->
+        thisDT.runningEnvironment.eventBus.request<String>(GET_ID_BUS_ADDR, "") { ar ->
             if (ar.succeeded()) {
                 sendSuccessResponse(ar.result().body(), routingContext)
             } else if (ar.failed()) {
@@ -33,14 +33,14 @@ class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTIn
         }
     }
 
-    val addLinkToAnotherDigitalTwinHandler = Handler<RoutingContext> { routingContext ->
+    val addLinkToAnotherDTHandler = Handler<RoutingContext> { routingContext ->
         val requestContentJson = routingContext.bodyAsJson
         val linkToDT = CoreManagementSchemas.LinkToAnotherDigitalTwin(
                 requestContentJson.getString("otherDigitalTwin"),
-            textualSemantics(requestContentJson.getString("semantic"))
+                textualSemantics(requestContentJson.getString("semantic"))
         )
 
-        thisDT.executionEngine.eventBus.request<String>(ADD_LINK_TO_ANOTHER_DIGITAL_TWIN_BUS_ADDR, linkToDT) { ar ->
+        thisDT.runningEnvironment.eventBus.request<String>(ADD_LINK_TO_ANOTHER_DT_BUS_ADDR, linkToDT) { ar ->
             if (ar.succeeded()) {
                 sendSuccessResponse(ar.result().body(), routingContext)
             } else if (ar.failed()) {
@@ -49,8 +49,8 @@ class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTIn
         }
     }
 
-    val onGetAllLinksToOtherDigitalTwinHandler = Handler<RoutingContext> { routingContext ->
-        thisDT.executionEngine.eventBus.request<String>(GET_ALL_LINK_TO_OTHER_DIGITAL_TWINS_BUS_ADDR, EMPTY_MESSAGE) { ar ->
+    val onGetAllLinksToOtherDTHandler = Handler<RoutingContext> { routingContext ->
+        thisDT.runningEnvironment.eventBus.request<String>(GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR, EMPTY_MESSAGE) { ar ->
             if (ar.succeeded()) {
                 sendSuccessResponse(ar.result().body(), routingContext)
             } else if (ar.failed()) {
@@ -66,7 +66,7 @@ class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTIn
             textualSemantics(requestContentJson.getString("semantic"))
         )
 
-        thisDT.executionEngine.eventBus.request<String>(DELETE_LINK_BUS_ADDR, linkToDT) { ar ->
+        thisDT.runningEnvironment.eventBus.request<String>(DELETE_LINK_BUS_ADDR, linkToDT) { ar ->
             if (ar.succeeded()) {
                 sendSuccessResponse(ar.result().body(), routingContext)
             } else if (ar.failed()) {
@@ -75,8 +75,8 @@ class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTIn
         }
     }
 
-    val onShutdownDigitalTwinHandler = Handler<RoutingContext> { routingContext ->
-        thisDT.executionEngine.eventBus.request<String>(SHUTDOWN_DIGITAL_TWIN_BUS_ADDR, EMPTY_MESSAGE) { ar ->
+    val onShutdownDTHandler = Handler<RoutingContext> { routingContext ->
+        thisDT.runningEnvironment.eventBus.request<String>(SHUTDOWN_DT_BUS_ADDR, EMPTY_MESSAGE) { ar ->
             if (ar.succeeded()) {
                 sendSuccessResponse(ar.result().body(), routingContext)
             }
@@ -89,11 +89,11 @@ class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTIn
 
     override fun operationCallbackMapping(): Map<String, Handler<RoutingContext>> {
         return mapOf(
-                OperationIDS.GET_IDENTIFIER to onIdentifierRequestHandler,
-                OperationIDS.ADD_LINK_TO_ANOTHER_DIGITAL_TWIN to addLinkToAnotherDigitalTwinHandler,
-                OperationIDS.GET_ALL_LINK_TO_OTHER_DIGITAL_TWINS to onGetAllLinksToOtherDigitalTwinHandler,
+                OperationIDS.GET_IDENTIFIER to onIdRequestHandler,
+                OperationIDS.ADD_LINK_TO_ANOTHER_DIGITAL_TWIN to addLinkToAnotherDTHandler,
+                OperationIDS.GET_ALL_LINK_TO_OTHER_DIGITAL_TWINS to onGetAllLinksToOtherDTHandler,
                 OperationIDS.DELETE_LINK to onDeleteLinkHandler,
-                OperationIDS.SHUTDOWN_DIGITAL_TWIN to onShutdownDigitalTwinHandler
+                OperationIDS.SHUTDOWN_DIGITAL_TWIN to onShutdownDTHandler
         )
     }
 

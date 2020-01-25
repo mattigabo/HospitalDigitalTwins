@@ -1,15 +1,15 @@
 package hospitaldigitaltwins.traumamanagement.patient
 
 import digitaltwinframework.coreimplementation.AbstractDigitalTwin
-import digitaltwinframework.coreimplementation.BasicDigitalTwinExecutionEngine
+import digitaltwinframework.coreimplementation.BasicDigitalTwinRunningEnvironment
 import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
 import digitaltwinframework.coreimplementation.BasicEvolutionController
 import io.vertx.core.eventbus.EventBus
 import java.net.URI
 
 class PatientDT(
-    dtIdentifier: URI,
-    executor: BasicDigitalTwinExecutionEngine
+        dtIdentifier: URI,
+        executor: BasicDigitalTwinRunningEnvironment
 ) : AbstractDigitalTwin(dtIdentifier, executor) {
 
     override val evolutionController: PatientEvolutionController = PatientEvolutionController(this)

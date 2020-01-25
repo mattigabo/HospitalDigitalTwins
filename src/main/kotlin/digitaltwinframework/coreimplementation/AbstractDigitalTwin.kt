@@ -15,8 +15,8 @@ import java.net.URI
  *
  * */
 abstract class AbstractDigitalTwin(
-    override val identifier: URI,
-    override val executionEngine: BasicDigitalTwinExecutionEngine
+        override val identifier: URI,
+        override val runningEnvironment: BasicDigitalTwinRunningEnvironment
 ) : DigitalTwin {
 
     var relationToOtherDT: MutableMap<URI, ArrayList<Semantics>> = HashMap()
@@ -45,12 +45,12 @@ open class BasicEvolutionController(open val thisDT: AbstractDigitalTwin) : Evol
 
     override fun start() {
         super.start()
-        this.registerCoreHandlerToEventBus(thisDT.executionEngine.eventBus)
+        this.registerCoreHandlerToEventBus(thisDT.runningEnvironment.eventBus)
     }
 
     private fun registerCoreHandlerToEventBus(eb: EventBus) {
 
-        eb.consumer<Any>(coreManagAdapter.GET_IDENTIFIER_BUS_ADDR) { message ->
+        eb.consumer<Any>(coreManagAdapter.GET_ID_BUS_ADDR) { message ->
             message.reply("""
                    {
                         "digitalTwinIdentifier":{${thisDT.identifier}}
@@ -58,7 +58,7 @@ open class BasicEvolutionController(open val thisDT: AbstractDigitalTwin) : Evol
                """.trimIndent())
         }
 
-        eb.consumer<Any>(coreManagAdapter.ADD_LINK_TO_ANOTHER_DIGITAL_TWIN_BUS_ADDR) { message ->
+        eb.consumer<Any>(coreManagAdapter.ADD_LINK_TO_ANOTHER_DT_BUS_ADDR) { message ->
             when (message.body()) {
                 is CoreManagementSchemas.LinkToAnotherDigitalTwin -> {
                     val link = message.body() as CoreManagementSchemas.LinkToAnotherDigitalTwin
@@ -68,7 +68,7 @@ open class BasicEvolutionController(open val thisDT: AbstractDigitalTwin) : Evol
             }
         }
 
-        eb.consumer<Any>(coreManagAdapter.GET_ALL_LINK_TO_OTHER_DIGITAL_TWINS_BUS_ADDR) { message ->
+        eb.consumer<Any>(coreManagAdapter.GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR) { message ->
             val reply = JsonArray(thisDT.relationToOtherDT.map { entry ->
                 entry.value.map {
                     CoreManagementSchemas.LinkToAnotherDigitalTwin(entry.key.toString(), it)
@@ -93,7 +93,7 @@ open class BasicEvolutionController(open val thisDT: AbstractDigitalTwin) : Evol
             message.reply(wasDeleted)
         }
 
-        eb.consumer<Any>(coreManagAdapter.SHUTDOWN_DIGITAL_TWIN_BUS_ADDR) { message ->
+        eb.consumer<Any>(coreManagAdapter.SHUTDOWN_DT_BUS_ADDR) { message ->
             message.reply("Started the shutdown procedure...")
             this.stop()
             System.exit(1)

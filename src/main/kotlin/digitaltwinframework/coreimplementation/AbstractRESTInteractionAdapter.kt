@@ -42,7 +42,7 @@ abstract class AbstractRESTInteractionAdapter(open val thisDT: AbstractDigitalTw
     }
 
     fun loadOpenApiSpec() {
-        OpenAPI3RouterFactory.create(thisDT.executionEngine.vertx, getOpenApiSpec()) { asyncResult ->
+        OpenAPI3RouterFactory.create(thisDT.runningEnvironment.vertx, getOpenApiSpec()) { asyncResult ->
             if (asyncResult.succeeded()) {
                 var routerFactory: OpenAPI3RouterFactory = asyncResult.result()
 
@@ -60,7 +60,7 @@ abstract class AbstractRESTInteractionAdapter(open val thisDT: AbstractDigitalTw
     }
 
     private fun registerToTheRunningServer(router: Router) {
-        thisDT.executionEngine.eventBus
+        thisDT.runningEnvironment.eventBus
                 .send(SystemEventBusAddresses.RESTServer.address,
                         RESTServer.DTRouter(thisDT.identifier, router))
 

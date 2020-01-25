@@ -9,7 +9,7 @@ interface DigitalTwin : Identifiable<URI> {
     val metaInfo: MetaInfo
     val dataModel: Model
     val evolutionController: EvolutionController
-    val executionEngine: DigitalTwinExecutionEngine
+    val runningEnvironment: DigitalTwinRunningEnvironment
 
     /**
      * Add a semantic link to another digital twin

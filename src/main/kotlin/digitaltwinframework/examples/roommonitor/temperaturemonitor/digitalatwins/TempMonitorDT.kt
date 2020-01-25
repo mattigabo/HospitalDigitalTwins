@@ -5,7 +5,7 @@ import digitaltwinframework.DigitalTwinFactory
 import digitaltwinframework.DigitalTwinValue
 import digitaltwinframework.Model
 import digitaltwinframework.coreimplementation.AbstractDigitalTwin
-import digitaltwinframework.coreimplementation.BasicDigitalTwinExecutionEngine
+import digitaltwinframework.coreimplementation.BasicDigitalTwinRunningEnvironment
 import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
 import digitaltwinframework.coreimplementation.BasicEvolutionController
 import digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwins.*
@@ -16,7 +16,7 @@ import java.time.Instant
 class TempMonitorDT(
         identifier: URI,
         roomPosition: String,
-        executionEngine: BasicDigitalTwinExecutionEngine
+        executionEngine: BasicDigitalTwinRunningEnvironment
 ) : AbstractDigitalTwin(identifier, executionEngine) {
 
     override var dataModel: TempMonitorDataModel = TempMonitorDataModel(roomPosition)
