@@ -16,11 +16,11 @@ class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTIn
     override val adapterName: String = "DigitalTwinCoreManagementRESTApi"
     private val apiSpecsPath = ConfigUtils.createUri("/framework/DigitalTwinManagementApi-0.1-OpenApi-Schemas.yaml")
 
-    val GET_ID_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.GET_IDENTIFIER)
-    val ADD_LINK_TO_ANOTHER_DT_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.ADD_LINK_TO_ANOTHER_DIGITAL_TWIN)
-    val GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.GET_ALL_LINK_TO_OTHER_DIGITAL_TWINS)
+    val GET_ID_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.GET_ID)
+    val ADD_LINK_TO_ANOTHER_DT_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.ADD_LINK_TO_ANOTHER_DT)
+    val GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.GET_ALL_LINK_TO_OTHER_DT)
     val DELETE_LINK_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.DELETE_LINK)
-    val SHUTDOWN_DT_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.SHUTDOWN_DIGITAL_TWIN)
+    val SHUTDOWN_DT_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.SHUTDOWN_DT)
 
 
     val onIdRequestHandler = Handler<RoutingContext> { routingContext ->
@@ -89,21 +89,21 @@ class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTIn
 
     override fun operationCallbackMapping(): Map<String, Handler<RoutingContext>> {
         return mapOf(
-                OperationIDS.GET_IDENTIFIER to onIdRequestHandler,
-                OperationIDS.ADD_LINK_TO_ANOTHER_DIGITAL_TWIN to addLinkToAnotherDTHandler,
-                OperationIDS.GET_ALL_LINK_TO_OTHER_DIGITAL_TWINS to onGetAllLinksToOtherDTHandler,
+                OperationIDS.GET_ID to onIdRequestHandler,
+                OperationIDS.ADD_LINK_TO_ANOTHER_DT to addLinkToAnotherDTHandler,
+                OperationIDS.GET_ALL_LINK_TO_OTHER_DT to onGetAllLinksToOtherDTHandler,
                 OperationIDS.DELETE_LINK to onDeleteLinkHandler,
-                OperationIDS.SHUTDOWN_DIGITAL_TWIN to onShutdownDTHandler
+                OperationIDS.SHUTDOWN_DT to onShutdownDTHandler
         )
     }
 
     companion object {
         object OperationIDS {
-            const val GET_IDENTIFIER = "getIdentifier"
-            const val ADD_LINK_TO_ANOTHER_DIGITAL_TWIN = "addLinkToAnotherDigitalTwin"
-            const val GET_ALL_LINK_TO_OTHER_DIGITAL_TWINS = "getAllLinkToOtherDigitalTwins"
+            const val GET_ID = "getIdentifier"
+            const val ADD_LINK_TO_ANOTHER_DT = "addLinkToAnotherDigitalTwin"
+            const val GET_ALL_LINK_TO_OTHER_DT = "getAllLinkToOtherDigitalTwins"
             const val DELETE_LINK = "deleteLink"
-            const val SHUTDOWN_DIGITAL_TWIN = "shutdownDigitalTwin"
+            const val SHUTDOWN_DT = "shutdownDigitalTwin"
         }
     }
 }
