@@ -1,8 +1,8 @@
 package digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwins
-
-import digitaltwinframework.coreimplementation.AbstractRESTInteractionAdapter
+/*
+import digitaltwinframework.coreimplementation.restmanagement.AbstractRESTInteractionAdapter
 import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
-import digitaltwinframework.coreimplementation.RESTServer
+import digitaltwinframework.coreimplementation.restmanagement.RESTServer
 import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses
 import digitaltwinframework.roommonitorexample.temperaturemonitor.digitalatwins.TempMonitorDT
 import io.vertx.core.Handler
@@ -51,4 +51,4 @@ class TempMonitorRESTInteractionAdapter(override val thisDT: TempMonitorDT) : Ab
 
 object OperationIDS {
     const val TEMPERATURE_MEASURED = "temperatureMeasured"
-}
+}*/

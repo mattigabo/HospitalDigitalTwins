@@ -1,5 +1,9 @@
-package digitaltwinframework.coreimplementation
+package digitaltwinframework.coreimplementation.restmanagement
 
+import digitaltwinframework.coreimplementation.AbstractDigitalTwin
+import digitaltwinframework.coreimplementation.BasicDigitalTwinRunningEnvironment
+import digitaltwinframework.coreimplementation.Semantics
+import digitaltwinframework.coreimplementation.textualSemantics
 import digitaltwinframework.coreimplementation.utils.ConfigUtils
 import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages.EMPTY_MESSAGE
 import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses.Companion.composeAddress
@@ -11,10 +15,13 @@ import io.vertx.ext.web.RoutingContext
  * The handler defined in this class will be used by the REST server control flow in order to forward the received
  * request about the core management function, to the specified Digital Twin
  * */
-class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTInteractionAdapter(thisDT) {
+class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin)
+    : AbstractRESTInteractionAdapter(thisDT.evolutionController.vertx, thisDT) {
 
     override val adapterName: String = "DigitalTwinCoreManagementRESTApi"
     private val apiSpecsPath = ConfigUtils.createUri("/framework/DigitalTwinManagementApi-0.1-OpenApi-Schemas.yaml")
+
+    val eventBus = BasicDigitalTwinRunningEnvironment.runningInstance!!.eventBus
 
     val GET_ID_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.GET_ID)
     val ADD_LINK_TO_ANOTHER_DT_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.ADD_LINK_TO_ANOTHER_DT)
@@ -24,7 +31,7 @@ class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTIn
 
 
     val onIdRequestHandler = Handler<RoutingContext> { routingContext ->
-        thisDT.runningEnvironment.eventBus.request<String>(GET_ID_BUS_ADDR, "") { ar ->
+        eventBus.request<String>(GET_ID_BUS_ADDR, "") { ar ->
             if (ar.succeeded()) {
                 sendSuccessResponse(ar.result().body(), routingContext)
             } else if (ar.failed()) {
@@ -40,7 +47,7 @@ class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTIn
                 textualSemantics(requestContentJson.getString("semantic"))
         )
 
-        thisDT.runningEnvironment.eventBus.request<String>(ADD_LINK_TO_ANOTHER_DT_BUS_ADDR, linkToDT) { ar ->
+        eventBus.request<String>(ADD_LINK_TO_ANOTHER_DT_BUS_ADDR, linkToDT) { ar ->
             if (ar.succeeded()) {
                 sendSuccessResponse(ar.result().body(), routingContext)
             } else if (ar.failed()) {
@@ -50,7 +57,7 @@ class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTIn
     }
 
     val onGetAllLinksToOtherDTHandler = Handler<RoutingContext> { routingContext ->
-        thisDT.runningEnvironment.eventBus.request<String>(GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR, EMPTY_MESSAGE) { ar ->
+        eventBus.request<String>(GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR, EMPTY_MESSAGE) { ar ->
             if (ar.succeeded()) {
                 sendSuccessResponse(ar.result().body(), routingContext)
             } else if (ar.failed()) {
@@ -63,10 +70,11 @@ class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTIn
         val requestContentJson = routingContext.bodyAsJson
         val linkToDT = CoreManagementSchemas.LinkToAnotherDigitalTwin(
                 requestContentJson.getString("otherDigitalTwin"),
-            textualSemantics(requestContentJson.getString("semantic"))
+                textualSemantics(requestContentJson.getString("semantic")
+                )
         )
 
-        thisDT.runningEnvironment.eventBus.request<String>(DELETE_LINK_BUS_ADDR, linkToDT) { ar ->
+        eventBus.request<String>(DELETE_LINK_BUS_ADDR, linkToDT) { ar ->
             if (ar.succeeded()) {
                 sendSuccessResponse(ar.result().body(), routingContext)
             } else if (ar.failed()) {
@@ -76,7 +84,7 @@ class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin) : AbstractRESTIn
     }
 
     val onShutdownDTHandler = Handler<RoutingContext> { routingContext ->
-        thisDT.runningEnvironment.eventBus.request<String>(SHUTDOWN_DT_BUS_ADDR, EMPTY_MESSAGE) { ar ->
+        eventBus.request<String>(SHUTDOWN_DT_BUS_ADDR, EMPTY_MESSAGE) { ar ->
             if (ar.succeeded()) {
                 sendSuccessResponse(ar.result().body(), routingContext)
             }

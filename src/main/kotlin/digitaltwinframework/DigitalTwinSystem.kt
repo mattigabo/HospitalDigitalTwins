@@ -1,6 +1,6 @@
 package digitaltwinframework
 
-import digitaltwinframework.coreimplementation.RESTServer
+import digitaltwinframework.coreimplementation.restmanagement.RESTServer
 
 interface DigitalTwinSystem {
 

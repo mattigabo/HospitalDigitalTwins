@@ -1,11 +1,11 @@
-package digitaltwinframework.coreimplementation
+package digitaltwinframework.coreimplementation.restmanagement
 
+import digitaltwinframework.coreimplementation.BasicDigitalTwinRunningEnvironment
 import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses
 import digitaltwinframework.coreimplementation.utils.eventbusutils.messagecodec.DTRouterMessageCodec
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.http.HttpServer
 import io.vertx.ext.web.Router
-import io.vertx.ext.web.RoutingContext
 import java.net.URI
 
 /**
@@ -13,35 +13,13 @@ import java.net.URI
  * If multiple digital twins run on a single machine the REST server instance is one
  * and each digital twin register wich message want to receive from it
  * */
-class RESTServer : AbstractVerticle() {
+class RESTServer(val config: RESTServerConfig, val environmentName: String) : AbstractVerticle() {
 
 
-    private var eb = BasicDigitalTwinRunningEnvironment.runningInstance!!.vertx.eventBus()
+    private val eb = BasicDigitalTwinRunningEnvironment.runningInstance!!.vertx.eventBus()
 
-    //private var host = "localhost"
-    //private var host = "192.168.0.13"
-    private var host = "0.0.0.0"
-    private var portNumber = 8080
-
-    private var dtSystemSuffix = "/digitaltwinsystem"
     private var digitalTwinRouters = HashMap<URI, ArrayList<Router>>()
     private var router = Router.router(this.vertx)
-
-
-    private var infoRequestHandler = { routingContext: RoutingContext ->
-        val response = routingContext.response()
-        response.putHeader("content-type", "text/json")
-
-        val responseBody = """
-            {
-                "digitalTwinsystem":{
-                    "name":${this.dtSystem.name}
-                    "RunningDigitalTwin": ${this.dtSystem.runningDT.size}
-                }
-            }
-        """.trimIndent()
-        response.end(responseBody)
-    }
 
     private lateinit var server: HttpServer
 
@@ -52,14 +30,11 @@ class RESTServer : AbstractVerticle() {
         super.start()
 
         server = this.vertx.createHttpServer()
-
-        router.route().path("/info").handler(infoRequestHandler)
-
-        server.requestHandler(router).listen(portNumber, host) { res ->
+        server.requestHandler(router).listen(config.portNumber, config.host) { res ->
             if (res.succeeded()) {
-                println("Digital Twin System: Server is now listening!")
+                println("${environmentName}: REST Server is now listening!")
             } else {
-                println("Digital Twin System: Failed to bind the REST Server!")
+                println("${environmentName}: Failed to bind the REST Server!")
                 println(res.cause())
             }
         }
@@ -112,3 +87,10 @@ class RESTServer : AbstractVerticle() {
 }
 
 
+data class RESTServerConfig(val host: String, val portNumber: Int)
+
+object DevelopmentConfigurations {
+    val localhostConfig = RESTServerConfig("localhost", 8080)
+    val homePcConfig = RESTServerConfig("192.168.0.13", 8080)
+    val basicConfig = RESTServerConfig("0.0.0.0", 8080)
+}

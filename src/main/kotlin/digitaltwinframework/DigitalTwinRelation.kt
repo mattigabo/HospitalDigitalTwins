@@ -1,10 +1,11 @@
 package digitaltwinframework
 
 import digitaltwinframework.coreimplementation.Semantics
+import java.net.URI
 
 
 interface DigitalTwinRelation {
-    val firstDigitalTwin: MetaInfo
-    val secondDigitalTwin: MetaInfo
+    val firstDigitalTwin: URI
+    val secondDigitalTwin: URI
     val semantics: Semantics
 }

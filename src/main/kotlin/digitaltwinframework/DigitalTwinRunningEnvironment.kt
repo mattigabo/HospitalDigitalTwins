@@ -8,4 +8,5 @@ import java.net.URI
  * */
 interface DigitalTwinRunningEnvironment {
     fun executeDigitalTwin(id: URI, factory: DigitalTwinFactory)
+    fun shutdown()
 }

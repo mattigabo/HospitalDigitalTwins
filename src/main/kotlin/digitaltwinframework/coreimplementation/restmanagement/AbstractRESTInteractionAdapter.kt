@@ -1,8 +1,10 @@
-package digitaltwinframework.coreimplementation
+package digitaltwinframework.coreimplementation.restmanagement
 
+import digitaltwinframework.DigitalTwin
 import digitaltwinframework.InteractionAdapter
 import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses
 import io.vertx.core.Handler
+import io.vertx.core.Vertx
 import io.vertx.core.http.HttpHeaders
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
@@ -14,7 +16,7 @@ import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory
  * request to the digital twin evolution controller
  * */
 
-abstract class AbstractRESTInteractionAdapter(open val thisDT: AbstractDigitalTwin) : InteractionAdapter {
+abstract class AbstractRESTInteractionAdapter(val vertxInstance: Vertx, val thisDT: DigitalTwin) : InteractionAdapter {
 
     abstract fun getOpenApiSpec(): String
 
@@ -42,7 +44,7 @@ abstract class AbstractRESTInteractionAdapter(open val thisDT: AbstractDigitalTw
     }
 
     fun loadOpenApiSpec() {
-        OpenAPI3RouterFactory.create(thisDT.runningEnvironment.vertx, getOpenApiSpec()) { asyncResult ->
+        OpenAPI3RouterFactory.create(vertxInstance, getOpenApiSpec()) { asyncResult ->
             if (asyncResult.succeeded()) {
                 var routerFactory: OpenAPI3RouterFactory = asyncResult.result()
 
@@ -60,7 +62,7 @@ abstract class AbstractRESTInteractionAdapter(open val thisDT: AbstractDigitalTw
     }
 
     private fun registerToTheRunningServer(router: Router) {
-        thisDT.runningEnvironment.eventBus
+        vertxInstance.eventBus()
                 .send(SystemEventBusAddresses.RESTServer.address,
                         RESTServer.DTRouter(thisDT.identifier, router))
 

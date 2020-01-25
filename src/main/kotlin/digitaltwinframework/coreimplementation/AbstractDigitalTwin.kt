@@ -1,12 +1,7 @@
 package digitaltwinframework.coreimplementation
 
 import digitaltwinframework.DigitalTwin
-import digitaltwinframework.EvolutionController
-import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages.OPERATION_EXECUTED_MESSAGE
 import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses
-import io.vertx.core.AbstractVerticle
-import io.vertx.core.eventbus.EventBus
-import io.vertx.core.json.JsonArray
 import java.net.URI
 
 /**
@@ -14,95 +9,23 @@ import java.net.URI
  * that provide basic implementation of the management of the core aspects
  *
  * */
-abstract class AbstractDigitalTwin(
-        override val identifier: URI,
-        override val runningEnvironment: BasicDigitalTwinRunningEnvironment
-) : DigitalTwin {
+abstract class AbstractDigitalTwin(override val identifier: URI) : DigitalTwin {
 
-    var relationToOtherDT: MutableMap<URI, ArrayList<Semantics>> = HashMap()
+    private var shutdownStarted = false
+    val runningEnv = BasicDigitalTwinRunningEnvironment.runningInstance!!
 
-    override val evolutionController: BasicEvolutionController = BasicEvolutionController(this)
+    val evolutionController: BasicEvolutionController = BasicEvolutionController(this)
     val EVOLUTION_CONTROLLER_ADDRESS = SystemEventBusAddresses.EVOLUTION_CONTROLLER_SUFFIX.preappend(identifier.toString())
 
-    override fun addLink(digitalTwinId: URI, semantic: Semantics) {
-        if (this.relationToOtherDT.containsKey(digitalTwinId)) {
-            this.relationToOtherDT.get(digitalTwinId)?.add(semantic)
-        } else {
-            var linkList = ArrayList<Semantics>()
-            linkList.add(semantic)
-            this.relationToOtherDT.put(digitalTwinId, linkList)
-        }
+    val relationManager = RelationManager()
+
+    init {
+        runningEnv.vertx.deployVerticle(evolutionController)
     }
 
-    override fun deleteLink(digitalTwinId: URI, semantic: Semantics): Boolean {
-        return this.relationToOtherDT.get(digitalTwinId)?.remove(semantic) ?: false
+    override fun shutdown() {
+        runningEnv.vertx.undeploy(evolutionController.deploymentID())
+        runningEnv.shutdown()
     }
 }
 
-open class BasicEvolutionController(open val thisDT: AbstractDigitalTwin) : EvolutionController, AbstractVerticle() {
-
-    var coreManagAdapter = CoreManagementApiRESTAdapter(thisDT)
-
-    override fun start() {
-        super.start()
-        this.registerCoreHandlerToEventBus(thisDT.runningEnvironment.eventBus)
-    }
-
-    private fun registerCoreHandlerToEventBus(eb: EventBus) {
-
-        eb.consumer<Any>(coreManagAdapter.GET_ID_BUS_ADDR) { message ->
-            message.reply("""
-                   {
-                        "digitalTwinIdentifier":{${thisDT.identifier}}
-                   }
-               """.trimIndent())
-        }
-
-        eb.consumer<Any>(coreManagAdapter.ADD_LINK_TO_ANOTHER_DT_BUS_ADDR) { message ->
-            when (message.body()) {
-                is CoreManagementSchemas.LinkToAnotherDigitalTwin -> {
-                    val link = message.body() as CoreManagementSchemas.LinkToAnotherDigitalTwin
-                    thisDT.addLink(URI(link.otherDigitalTwin), link.semantic)
-                    message.reply(OPERATION_EXECUTED_MESSAGE)
-                }
-            }
-        }
-
-        eb.consumer<Any>(coreManagAdapter.GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR) { message ->
-            val reply = JsonArray(thisDT.relationToOtherDT.map { entry ->
-                entry.value.map {
-                    CoreManagementSchemas.LinkToAnotherDigitalTwin(entry.key.toString(), it)
-                }
-            }.toList())
-
-            message.reply(reply)
-        }
-
-        eb.consumer<Any>(coreManagAdapter.DELETE_LINK_BUS_ADDR) { message ->
-            var wasDeleted = false
-            when (message.body()) {
-                is CoreManagementSchemas.LinkToAnotherDigitalTwin -> {
-                    val link = message.body() as CoreManagementSchemas.LinkToAnotherDigitalTwin
-                    thisDT.relationToOtherDT.get(URI(link.otherDigitalTwin))?.let {
-                        if (it.contains(link.semantic)) {
-                            wasDeleted = thisDT.deleteLink(URI(link.otherDigitalTwin), link.semantic)
-                        }
-                    }
-                }
-            }
-            message.reply(wasDeleted)
-        }
-
-        eb.consumer<Any>(coreManagAdapter.SHUTDOWN_DT_BUS_ADDR) { message ->
-            message.reply("Started the shutdown procedure...")
-            this.stop()
-            System.exit(1)
-        }
-    }
-
-
-    override fun stop() {
-        super.stop()
-        println("Evolution Manager Termination")
-    }
-}

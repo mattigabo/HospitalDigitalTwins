@@ -1,12 +1,6 @@
 package digitaltwinframework.coreimplementation
 
-import digitaltwinframework.BasicIdentifierGenerator
-import digitaltwinframework.DigitalTwinRelation
-import digitaltwinframework.DigitalTwinSystem
-import io.vertx.core.Vertx
-import java.net.URI
-
-class BasicDigitalTwinSystem private constructor() : DigitalTwinSystem {
+/*class BasicDigitalTwinSystem private constructor() : DigitalTwinSystem {
 
     override val name = "BasicDigitalTwinSystem"
 
@@ -15,7 +9,24 @@ class BasicDigitalTwinSystem private constructor() : DigitalTwinSystem {
     var vertx = Vertx.vertx()
     var eventBus = vertx.eventBus()
 
+    var restServer: RESTServer
     var runningDT = ArrayList<URI>()
+
+    private var infoRequestHandler = { routingContext: RoutingContext ->
+        val response = routingContext.response()
+        response.putHeader("content-type", "text/json")
+
+        val responseBody = """
+        {
+            "digitalTwinsystem":{
+            "name":${this.dtSystem.name}
+            "RunningDigitalTwin": ${this.dtSystem.runningDT.size}
+        }
+        }
+        """.trimIndent()
+        response.end(responseBody)
+    }
+
 
     companion object {
         var RUNNING_INSTANCE: BasicDigitalTwinSystem? = null
@@ -46,5 +57,5 @@ class BasicDigitalTwinSystem private constructor() : DigitalTwinSystem {
         vertx.close()
         BasicDigitalTwinSystem.RUNNING_INSTANCE = null
     }
-}
+}*/
 

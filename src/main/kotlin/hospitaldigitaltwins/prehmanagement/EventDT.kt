@@ -1,2 +1,0 @@
-package hospitaldigitaltwins.prehmanagement
-

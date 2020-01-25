@@ -1,19 +1,11 @@
 package digitaltwinframework
 
-import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
-import digitaltwinframework.coreimplementation.RESTServer
-import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses
-import digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwins.Temperature
-import digitaltwinframework.examples.roommonitor.temperaturemonitor.digitalatwins.TemperatureMessageCodec
-import digitaltwinframework.roommonitorexample.temperaturemonitor.digitalatwins.TempMonitorDTFactory
-import digitaltwinframework.roommonitorexample.temperaturemonitor.mockedphysicalsensors.MockedTempSensorWithRESTInterface
-import io.vertx.core.Vertx
-import io.vertx.ext.web.Router
-import java.net.URI
+//import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
+import digitaltwinframework.coreimplementation.BasicDigitalTwinRunningEnvironment
 
 class AppTest {
 
-    fun testRESTServerRouteAdding() {
+    /*fun testRESTServerRouteAdding() {
         val dtSystem = BasicDigitalTwinSystem.boot()
         dtSystem.eventBus.registerDefaultCodec(Temperature::class.java, TemperatureMessageCodec())
 
@@ -48,10 +40,6 @@ class AppTest {
         Vertx.vertx().deployVerticle(MockedTempSensorWithRESTInterface())
     }
 
-    fun testBasicDigitalTwin() {
-
-    }
-
     fun testDigitalTwinAndMockedSensorInteraction() {
         val dtSystem = BasicDigitalTwinSystem.boot()
 
@@ -60,18 +48,24 @@ class AppTest {
 
         Thread.sleep(5000)
 
-        val dtId = dtSystem.createDigitalTwin(TempMonitorDTFactory("North"))
-        println("Digital Twin created with ID ${dtId}")
+        //val dtId = dtSystem.createDigitalTwin(TempMonitorDTFactory("North"))
+        //println("Digital Twin created with ID ${dtId}")
 
         Thread.sleep(20000)
         println("Shutdown all")
         dtSystem.shutdown()
     }
+*/
+
+    fun testBasicDigitalTwin() {
+        println("Test a basic digital twin boot")
+        BasicDigitalTwinRunningEnvironment("testEnvironment")
+    }
+
+
 }
 
 fun main() {
-    println("Provo ad avviare il digital twin manager")
-    AppTest().testDigitalTwinAndMockedSensorInteraction()
 
     //Test Digital Twin Creation
     AppTest().testBasicDigitalTwin()

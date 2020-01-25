@@ -1,3 +1,4 @@
+/*
 package hospitaldigitaltwins.traumamanagement.patient
 
 import digitaltwinframework.coreimplementation.AbstractDigitalTwin
@@ -37,4 +38,4 @@ class PatientEvolutionController(override val thisDT: PatientDT) : BasicEvolutio
     }
 
     //
-}
+}*/

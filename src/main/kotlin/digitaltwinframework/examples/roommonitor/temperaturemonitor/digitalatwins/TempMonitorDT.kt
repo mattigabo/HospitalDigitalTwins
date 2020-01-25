@@ -1,3 +1,4 @@
+/*
 package digitaltwinframework.roommonitorexample.temperaturemonitor.digitalatwins
 
 import digitaltwinframework.DigitalTwin
@@ -100,3 +101,4 @@ class TempMonitorEvolutionController(var thisDT: TempMonitorDT) : BasicEvolution
 class TempMonitorDTFactory(var position: String) : DigitalTwinFactory {
     override fun create(id: URI): DigitalTwin = TempMonitorDT(id, position)
 }
+*/

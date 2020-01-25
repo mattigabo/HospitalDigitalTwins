@@ -1,6 +1,6 @@
 package digitaltwinframework.coreimplementation.utils.eventbusutils.messagecodec
 
-import digitaltwinframework.coreimplementation.RESTServer
+import digitaltwinframework.coreimplementation.restmanagement.RESTServer
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.eventbus.MessageCodec
 import io.vertx.core.json.JsonObject
