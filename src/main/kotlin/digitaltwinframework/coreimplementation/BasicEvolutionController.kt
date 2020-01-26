@@ -13,6 +13,8 @@ open class BasicEvolutionController(open val thisDT: AbstractDigitalTwin) : Abst
 
     var coreManagAdapter = CoreManagementApiRESTAdapter(thisDT)
 
+    val relationManager = RelationManager()
+
     override fun start() {
         super.start()
         this.registerCoreHandlerToEventBus(thisDT.runningEnv.eventBus)
@@ -33,14 +35,14 @@ open class BasicEvolutionController(open val thisDT: AbstractDigitalTwin) : Abst
             when (message.body()) {
                 is CoreManagementSchemas.LinkToAnotherDigitalTwin -> {
                     val link = message.body() as CoreManagementSchemas.LinkToAnotherDigitalTwin
-                    thisDT.relationManager.addRelation(URI(link.otherDigitalTwin), link.semantic)
+                    relationManager.addRelation(URI(link.otherDigitalTwin), link.semantic)
                     message.reply(StandardMessages.OPERATION_EXECUTED_MESSAGE)
                 }
             }
         }
 
         eb.consumer<Any>(coreManagAdapter.GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR) { message ->
-            val reply = JsonArray(thisDT.relationManager.relationToOtherDT.map { entry ->
+            val reply = JsonArray(relationManager.relationToOtherDT.map { entry ->
                 entry.value.map {
                     CoreManagementSchemas.LinkToAnotherDigitalTwin(entry.key.toString(), it)
                 }
@@ -54,9 +56,9 @@ open class BasicEvolutionController(open val thisDT: AbstractDigitalTwin) : Abst
             when (message.body()) {
                 is CoreManagementSchemas.LinkToAnotherDigitalTwin -> {
                     val link = message.body() as CoreManagementSchemas.LinkToAnotherDigitalTwin
-                    thisDT.relationManager.relationToOtherDT.get(URI(link.otherDigitalTwin))?.let {
+                    relationManager.relationToOtherDT.get(URI(link.otherDigitalTwin))?.let {
                         if (it.contains(link.semantic)) {
-                            wasDeleted = thisDT.relationManager.deleteRelation(URI(link.otherDigitalTwin), link.semantic)
+                            wasDeleted = relationManager.deleteRelation(URI(link.otherDigitalTwin), link.semantic)
                         }
                     }
                 }

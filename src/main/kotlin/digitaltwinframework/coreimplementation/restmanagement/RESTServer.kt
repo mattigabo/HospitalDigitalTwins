@@ -32,7 +32,7 @@ class RESTServer(val config: RESTServerConfig, val environmentName: String) : Ab
         server = this.vertx.createHttpServer()
         server.requestHandler(router).listen(config.portNumber, config.host) { res ->
             if (res.succeeded()) {
-                println("${environmentName}: REST Server is now listening!")
+                println("${environmentName}: Rest Server is now listening!")
             } else {
                 println("${environmentName}: Failed to bind the REST Server!")
                 println(res.cause())

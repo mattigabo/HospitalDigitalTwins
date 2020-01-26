@@ -17,8 +17,6 @@ abstract class AbstractDigitalTwin(override val identifier: URI) : DigitalTwin {
     val evolutionController: BasicEvolutionController = BasicEvolutionController(this)
     val EVOLUTION_CONTROLLER_ADDRESS = SystemEventBusAddresses.EVOLUTION_CONTROLLER_SUFFIX.preappend(identifier.toString())
 
-    val relationManager = RelationManager()
-
     init {
         runningEnv.vertx.deployVerticle(evolutionController)
     }
