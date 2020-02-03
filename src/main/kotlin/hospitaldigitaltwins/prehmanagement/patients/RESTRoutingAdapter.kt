@@ -1,5 +1,9 @@
 package hospitaldigitaltwins.prehmanagement.patients
 
+import digitaltwinframework.coreimplementation.restmanagement.AbstractRESTInteractionAdapter
+
+class RESTRoutingAdapter : AbstractRESTInteractionAdapter()
+
 object PatientOperationIDS {
     val ADD_PATIENT = "addPatient"
     val GET_PATIENTS = "getAllPatients"
