@@ -105,7 +105,7 @@ object BasicVitalParameters {
     ) : VitalParameter<VerbalResponseTypes>
 
     enum class MotorResponseTypes(val stringFormat: String) {
-        EXECUTES_ORDERS("Executes orders"),
+        EXECUTES_ORDERS("6 - Executes orders"),
         LOCALIZES("5 - Localizes"),
         NORMAl_FLEXION("4 - Normal flexion"),
         ABNORMAL_FLEXION("3 - Abnormal flexion"),

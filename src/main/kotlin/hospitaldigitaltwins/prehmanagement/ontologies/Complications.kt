@@ -1,4 +1,4 @@
-package hospitaldigitaltwins.ontologies
+package hospitaldigitaltwins.prehmanagement.ontologies
 
 import java.util.*
 
@@ -24,6 +24,10 @@ enum class ComplicationNames(val stringFormat: String) {
      * Factory method that create a complication instance with the complication name item from which the method was invoked
      * */
     fun occurs(note: String = "", occurrenceTime: Date): Complication {
-        return Complication(this.stringFormat, note, occurrenceTime)
+        return Complication(
+            this.stringFormat,
+            note,
+            occurrenceTime
+        )
     }
 }

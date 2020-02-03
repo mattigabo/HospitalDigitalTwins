@@ -9,7 +9,7 @@ class Anagraphic(
     var name: String,
     var surname: String,
     var residency: String,
-    var birthplace: String,
+    var birthPlace: String,
     var birthDate: Date,
     var gender: Gender
 )
