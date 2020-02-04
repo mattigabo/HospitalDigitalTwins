@@ -7,5 +7,4 @@ class RESTRoutingAdapter : AbstractRESTInteractionAdapter()
 object EventOperationIDS {
     val POST_EVENT_INFO = "addEventInfo"
     val GET_EVENT_INFO = "getEventInfo"
-    val PATCH_EVENT_INFO = "patchEventInfo"
 }

@@ -9,4 +9,8 @@ open class Administration(val drug: String, val executionTime: Date) {
     val name: String = "Administration of ${this.drug}"
 }
 
-class VariableAdministration(drug: String, executionTime: Date, val dosage: Int) : Administration(drug, executionTime)
+class VariableAdministration(
+    drug: String, executionTime: Date,
+    val dosage: Int,
+    val measureUnit: String
+) : Administration(drug, executionTime)

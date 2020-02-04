@@ -11,19 +11,15 @@ object MissionOperationIDS {
     const val GET_MISSION = "getMission"
     const val DEL_MISSION = "deleteMission"
 
-    const val PUT_ONGOING = "putMissionOngoing"
-    const val GET_ONGOING = "getMissionOngoing"
-
-    const val PUT_MEDIC = "addMissionMedic"
+    const val PUT_MEDIC = "setMissionMedic"
     const val GET_MEDIC = "getMissionMedic"
-    const val DEL_MEDIC = "delMissionMedic"
 
-    const val PUT_RETURN_INFO = "putMissionReturnInfo"
+    const val PUT_RETURN_INFO = "setMissionReturnInfo"
     const val GET_RETURN_INFO = "getMissionReturnInfo"
-    const val DEL_RETURN_INFO = "delMissionReturnInfo"
 
     const val GET_TRACKING = "getMissionTrackingInfo"
-    const val PUT_TRACKING_STEP = "putMissionTrackingStep"
-    const val GET_TRACKING_STEP = "getMissionTrackingStep"
-    const val DEL_TRACKING_STEP = "delMissionTrackingStep"
+    const val DEPARTURE_FROM_HOSPITAL = "departureFromHospital"
+    const val ARRIVAL_ON_SITE = "arrivalOnSite"
+    const val DEPARTURE_FROM_SITE = "departureFromSite"
+    const val ARRIVAL_AT_THE_HOSPITAL = "arrivalAtTheHospital"
 }

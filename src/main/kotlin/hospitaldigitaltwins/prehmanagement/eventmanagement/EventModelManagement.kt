@@ -5,8 +5,17 @@ import java.util.*
 
 
 class EventManagement {
-    fun addEventInfo(event: EventModel)
-    fun getEventInfo(event: EventModel)
+    var eventInfo: EventInfo? = null
+    val missions: List<MissionModel> = ArrayList<MissionModel>
+
+    fun addEventInfo(event: EventInfo) {
+
+    }
+
+    fun getEventInfo(event: EventInfo): EventInfo? {
+        return eventInfo
+    }
+
     fun startMission(): Int {
 
     }
@@ -21,8 +30,6 @@ class EventInfo(
     var missions: List<MissionModel>
 ) {
     fun involvedVeicle(): Int {
-
+        missions
     }
-
-    fun addMission()
 }

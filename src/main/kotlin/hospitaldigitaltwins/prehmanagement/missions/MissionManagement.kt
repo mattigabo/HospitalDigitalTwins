@@ -11,4 +11,7 @@ data class MissionModel(
 )
 
 
-class MissionManagement
+class MissionManagement {
+    lateinit var model: MissionModel
+
+}

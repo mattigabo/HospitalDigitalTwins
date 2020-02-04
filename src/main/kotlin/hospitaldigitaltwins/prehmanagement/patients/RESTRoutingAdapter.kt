@@ -5,8 +5,10 @@ import digitaltwinframework.coreimplementation.restmanagement.AbstractRESTIntera
 class RESTRoutingAdapter : AbstractRESTInteractionAdapter()
 
 object PatientOperationIDS {
-    val ADD_PATIENT = "addPatient"
-    val GET_PATIENTS = "getAllPatients"
+    val GET_PATIENT = "getPatientInfo"
+
+    val SET_MEDICAL_HISTORY = "setMedicalHistory"
+    val GET_MEDICAL_HISTORY = "getMedicalHistory"
 
     val UPDATE_ANAGRAPHIC = "updateAnagraphic"
     val GET_ANAGRAPHIC = "getAnagraphic"
@@ -14,50 +16,35 @@ object PatientOperationIDS {
     val UPDATE_STATUS = "updateStatus"
     val GET_STATUS = "getStatus"
 
+
+    val GET_VITALPARAMETERS_HISTORY = "getVitalParametersHistory"
     val ADD_VITALPARAMETERS = "addVitalParameters"
-    val GET_VITALPARAMETERS = "getAllVitalParameters"
-    val UPDATE_VITALPARAMETER = "updateVitalParameter"
+    val GET_VITALPARAMETERS = "getCurrentVitalParameters"
+
     val GET_VITALPARAMETER = "getVitalParameter"
-    val DEL_VITALPARAMETER = "delVitalParameter"
-    val GET_LAST_VITALPARAMETERS = "getLastVitalParameters"
 
-    val GET_ALL_DRUGS = "getDrugs"
-    val ADD_DRUG = "addDrug"
-    val GET_DRUG = "getDrug"
-    val DEL_DRUG = "delDrug"
+    val GET_ALL_DRUGS = "getAdministrations"
+    val ADD_DRUG = "addAdministration"
 
-    val GET_ALL_MANEUVERS = "getAllManeuvers"
-    val ADD_SIMPLE_MANEUVER = "addSimpleManuver"
-    val GET_SIMPLE_MANEUVER = "getSimpleManeuver"
-    val DEL_SIMPLE_MANEUVER = "delSimpleManeuver"
-    val ADD_PACING_MANEUVER = "addPacingManeuver"
-    val GET_PACING_MANEUVER = "getPacingManeuver"
-    val DEL_PACING_MANEUVER = "delPacingManeuver"
+    val GET_EXECUTED_MANEUVERS = "getExecutedManeuvers"
+    val ADD_MANEUVER = "addManeuver"
 
-    val GET_ALL_TREATMENTS = "getAllTreatments"
-    val ADD_SIMPLE_TREATMENT = "addSimpleTreatment"
-    val GET_SIMPLE_TREATMENT = "getSimpleTreatment"
-    val DEL_SIMPLE_TREATMENT = "delSimpleTreatment"
-    val ADD_TIMED_TREATMENT = "addTimedTreatment"
-    val GET_TIMED_TREATMENT = "getTimedTreatment"
-    val DEL_TIMED_TREATMENT = "delTimedTreatment"
-    val ADD_INJECTION = "addInjectionTreatment"
-    val GET_INJECTION = "getInjectionTreatment"
-    val DEL_INJECTION = "delInjectionTreatment"
-    val ADD_IPPV = "addIppvTreatment"
-    val GET_IPPV = "getIppvTreatment"
-    val DEL_IPPV = "delIppvTreatment"
+    val ADD_TIMED_MANEUVER = "addTimedManeuver"
+    val UPDATE_TIMED_MANEUVER = "updateTimedManeuver"
+    val GET_TIMED_MANEUVER = "getTimedManeuver"
 
     val GET_ALL_COMPLICATIONS = "getAllComplications"
     val ADD_COMPLICATION = "addComplication"
     val GET_COMPLICATION = "getComplication"
-    val DEL_COMPLICATION = "delComplication"
 
     val GET_ALL_NOTES = "getAllNotes"
-    val UPDATE_NOTES = "updateNotes"
+    val ADD_TEXT_NOTE = "addTextNote"
+    val ADD_AUDIO_NOTE = "addAudioNote"
+    val ADD_PHOTO_NOTE = "addPhoto"
+    val ADD_VIDEO_NOTE = "addVideo"
 
-    val GET_ALL_MULTIMEDIA = "getAllMultimedia"
-    val ADD_MULTIMEDIA = "addMultimedia"
-    val GET_MULTIMEDIA = "getMultimedia"
-    val DEL_MULTIMEDIA = "delMultimedia"
+    val GET_TEXT_NOTE = "getTextNote"
+    val GET_AUDIO_NOTE = "getAudioNote"
+    val GET_PHOTO_NOTE = "getPhotos"
+    val GET_VIDEO_NOTE = "getVideos"
 }
