@@ -5,17 +5,19 @@ import io.vertx.core.buffer.Buffer
 import io.vertx.core.eventbus.MessageCodec
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
-import java.net.URI
 
-class UnregisterDTRouterMessageCodec : MessageCodec<RESTServer.UnregisterRouter, RESTServer.UnregisterRouter> {
+/**
+ * Created by Matteo Gabellini on 30/09/2019.
+ */
+class SubrouterMessageCodec : MessageCodec<RESTServer.RegisterSubrouter, RESTServer.RegisterSubrouter> {
 
     override fun systemCodecID(): Byte {
         return -1
     }
 
-    override fun encodeToWire(buffer: Buffer, s: RESTServer.UnregisterRouter) {
+    override fun encodeToWire(buffer: Buffer, s: RESTServer.RegisterSubrouter) {
         val jsonToEncode = JsonObject()
-        jsonToEncode.put("digitalTwinID", s.digitalTwinID)
+        jsonToEncode.put("handlerServiceId", s.handlerServiceId)
         jsonToEncode.put("router", s.router)
 
         // Encode object to string
@@ -29,7 +31,7 @@ class UnregisterDTRouterMessageCodec : MessageCodec<RESTServer.UnregisterRouter,
         buffer.appendString(jsonToStr)
     }
 
-    override fun decodeFromWire(pos: Int, buffer: Buffer): RESTServer.UnregisterRouter {
+    override fun decodeFromWire(pos: Int, buffer: Buffer): RESTServer.RegisterSubrouter {
         // Length of JSON
         val length = buffer.getInt(pos)
 
@@ -38,13 +40,13 @@ class UnregisterDTRouterMessageCodec : MessageCodec<RESTServer.UnregisterRouter,
         val jsonStr = buffer.getString(pos + 4, pos + 4 + length)
         val contentJson = JsonObject(jsonStr)
 
-        val digitalTwinID: URI = URI(contentJson.getString("digitalTwinID"))
+        val handlerServiceId: String = contentJson.getString("handlerServiceId")
         val router: Router = contentJson.getValue("unit") as Router
 
-        return RESTServer.UnregisterRouter(digitalTwinID, router)
+        return RESTServer.RegisterSubrouter(handlerServiceId, router)
     }
 
-    override fun transform(s: RESTServer.UnregisterRouter): RESTServer.UnregisterRouter {
+    override fun transform(s: RESTServer.RegisterSubrouter): RESTServer.RegisterSubrouter {
         return s
     }
 

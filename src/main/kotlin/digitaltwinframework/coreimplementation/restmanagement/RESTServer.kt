@@ -2,11 +2,10 @@ package digitaltwinframework.coreimplementation.restmanagement
 
 import digitaltwinframework.coreimplementation.BasicDigitalTwinRunningEnvironment
 import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses
-import digitaltwinframework.coreimplementation.utils.eventbusutils.messagecodec.DTRouterMessageCodec
+import digitaltwinframework.coreimplementation.utils.eventbusutils.messagecodec.SubrouterMessageCodec
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.http.HttpServer
 import io.vertx.ext.web.Router
-import java.net.URI
 
 /**
  * This class constitute the REST server of a digital twin.
@@ -18,13 +17,13 @@ class RESTServer(val config: RESTServerConfig, val environmentName: String) : Ab
 
     private val eb = BasicDigitalTwinRunningEnvironment.runningInstance!!.vertx.eventBus()
 
-    private var digitalTwinRouters = HashMap<URI, ArrayList<Router>>()
+    private var subrouters = HashMap<String, ArrayList<Router>>()
     private var router = Router.router(this.vertx)
 
     private lateinit var server: HttpServer
 
-    data class DTRouter(val digitalTwinID: URI, val router: Router)
-    data class UnregisterRouter(val digitalTwinID: URI, val router: Router)
+    data class RegisterSubrouter(val handlerServiceId: String, val router: Router)
+    data class UnregisterSubrouter(val handlerServiceId: String, val router: Router)
 
     override fun start() {
         super.start()
@@ -49,31 +48,31 @@ class RESTServer(val config: RESTServerConfig, val environmentName: String) : Ab
 
 
     private fun registerToEventBus() {
-        this.eb.registerDefaultCodec(DTRouter::class.java, DTRouterMessageCodec())
+        this.eb.registerDefaultCodec(RegisterSubrouter::class.java, SubrouterMessageCodec())
         this.eb.consumer<Any>(SystemEventBusAddresses.RESTServer.address) { message ->
             message.body().let {
                 when (it) {
-                    is DTRouter -> this.setSubRouter(it.digitalTwinID, it.router)
-                    is UnregisterRouter -> this.removeSubRouter(it.digitalTwinID, it.router)
+                    is RegisterSubrouter -> this.setSubRouter(it.handlerServiceId, it.router)
+                    is UnregisterSubrouter -> this.removeSubRouter(it.handlerServiceId, it.router)
                 }
             }
         }
     }
 
-    fun setSubRouter(digitalTwinID: URI, requestRouter: Router) {
-        digitalTwinRouters.getOrPut(digitalTwinID, { ArrayList() }).add(requestRouter)
+    fun setSubRouter(handlerServiceId: String, requestRouter: Router) {
+        subrouters.getOrPut(handlerServiceId, { ArrayList() }).add(requestRouter)
 
-        router.mountSubRouter("/" + digitalTwinID.toString(), requestRouter)
+        router.mountSubRouter("/", requestRouter)
 
         println("SUB ROUTER MOUNTED")
         router.routes.forEach { println("Available Route -> ${it.path}") }
     }
 
-    fun removeSubRouter(digitalTwinID: URI, requestRouter: Router) {
-        digitalTwinRouters.get(digitalTwinID)?.let {
+    fun removeSubRouter(handlerServiceId: String, requestRouter: Router) {
+        subrouters.get(handlerServiceId)?.let {
             if (it.contains(requestRouter)) {
                 requestRouter.routes
-                        .map { route -> "/" + digitalTwinID.toString() + "/" + route.path }
+                        .map { route -> "/" + route.path }
                         .forEach { pathToDelete ->
                             router.routes
                                     .stream()

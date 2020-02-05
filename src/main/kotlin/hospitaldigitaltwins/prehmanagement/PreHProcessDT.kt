@@ -2,12 +2,11 @@ package hospitaldigitaltwins.prehmanagement
 
 import digitaltwinframework.DigitalTwin
 import digitaltwinframework.DigitalTwinFactory
-import digitaltwinframework.coreimplementation.AbstractDigitalTwin
+import io.vertx.core.AbstractVerticle
 import java.net.URI
 
-class PreHProcessDT(identifier: URI) : AbstractDigitalTwin(identifier) {
-//DeployVerticleMission
-//DeployVerticlePatients
+class PreHProcessDT(identifier: URI) : AbstractVerticle() {
+
 }
 
 class PreHProcessDTFactory : DigitalTwinFactory {

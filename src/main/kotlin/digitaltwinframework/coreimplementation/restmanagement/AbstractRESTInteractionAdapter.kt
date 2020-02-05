@@ -1,6 +1,5 @@
 package digitaltwinframework.coreimplementation.restmanagement
 
-import digitaltwinframework.DigitalTwin
 import digitaltwinframework.InteractionAdapter
 import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses
 import io.vertx.core.Handler
@@ -16,7 +15,7 @@ import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory
  * request to the digital twin evolution controller
  * */
 
-abstract class AbstractRESTInteractionAdapter(val vertxInstance: Vertx, val thisDT: DigitalTwin) : InteractionAdapter {
+abstract class AbstractRESTInteractionAdapter(val vertxInstance: Vertx, val handlerServiceId: String) : InteractionAdapter {
 
     abstract fun getOpenApiSpec(): String
 
@@ -64,7 +63,7 @@ abstract class AbstractRESTInteractionAdapter(val vertxInstance: Vertx, val this
     private fun registerToTheRunningServer(router: Router) {
         vertxInstance.eventBus()
                 .send(SystemEventBusAddresses.RESTServer.address,
-                        RESTServer.DTRouter(thisDT.identifier, router))
+                        RESTServer.RegisterSubrouter(handlerServiceId, router))
 
     }
 

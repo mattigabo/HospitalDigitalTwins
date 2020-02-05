@@ -1,6 +1,5 @@
 package digitaltwinframework.coreimplementation.restmanagement
 
-import digitaltwinframework.coreimplementation.AbstractDigitalTwin
 import digitaltwinframework.coreimplementation.BasicDigitalTwinRunningEnvironment
 import digitaltwinframework.coreimplementation.Semantics
 import digitaltwinframework.coreimplementation.textualSemantics
@@ -8,6 +7,7 @@ import digitaltwinframework.coreimplementation.utils.ConfigUtils
 import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages.EMPTY_MESSAGE
 import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses.Companion.composeAddress
 import io.vertx.core.Handler
+import io.vertx.core.Vertx
 import io.vertx.ext.web.RoutingContext
 
 /**
@@ -15,19 +15,19 @@ import io.vertx.ext.web.RoutingContext
  * The handler defined in this class will be used by the REST server control flow in order to forward the received
  * request about the core management function, to the specified Digital Twin
  * */
-class CoreManagementApiRESTAdapter(thisDT: AbstractDigitalTwin)
-    : AbstractRESTInteractionAdapter(thisDT.evolutionController.vertx, thisDT) {
+class CoreManagementApiRESTAdapter(vertxInstance: Vertx, handlerServiceId)
+    : AbstractRESTInteractionAdapter(vertxInstance, handlerServiceId) {
 
     override val adapterName: String = "DigitalTwinCoreManagementRESTApi"
     private val apiSpecsPath = ConfigUtils.createUri("/framework/DigitalTwinManagementApi-0.1-OpenApi-Schemas.yaml")
 
     val eventBus = BasicDigitalTwinRunningEnvironment.runningInstance!!.eventBus
 
-    val GET_ID_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.GET_ID)
-    val ADD_LINK_TO_ANOTHER_DT_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.ADD_LINK_TO_ANOTHER_DT)
-    val GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.GET_ALL_LINK_TO_OTHER_DT)
-    val DELETE_LINK_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.DELETE_LINK)
-    val SHUTDOWN_DT_BUS_ADDR = composeAddress(thisDT.EVOLUTION_CONTROLLER_ADDRESS, OperationIDS.SHUTDOWN_DT)
+    val GET_ID_BUS_ADDR = composeAddress(handlerServiceId, OperationIDS.GET_ID)
+    val ADD_LINK_TO_ANOTHER_DT_BUS_ADDR = composeAddress(handlerServiceId, OperationIDS.ADD_LINK_TO_ANOTHER_DT)
+    val GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR = composeAddress(handlerServiceId, OperationIDS.GET_ALL_LINK_TO_OTHER_DT)
+    val DELETE_LINK_BUS_ADDR = composeAddress(handlerServiceId, OperationIDS.DELETE_LINK)
+    val SHUTDOWN_DT_BUS_ADDR = composeAddress(handlerServiceId, OperationIDS.SHUTDOWN_DT)
 
 
     val onIdRequestHandler = Handler<RoutingContext> { routingContext ->

@@ -5,20 +5,16 @@ import io.vertx.core.buffer.Buffer
 import io.vertx.core.eventbus.MessageCodec
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
-import java.net.URI
 
-/**
- * Created by Matteo Gabellini on 30/09/2019.
- */
-class DTRouterMessageCodec : MessageCodec<RESTServer.DTRouter, RESTServer.DTRouter> {
+class UnregisterSubrouterMessageCodec : MessageCodec<RESTServer.UnregisterSubrouter, RESTServer.UnregisterSubrouter> {
 
     override fun systemCodecID(): Byte {
         return -1
     }
 
-    override fun encodeToWire(buffer: Buffer, s: RESTServer.DTRouter) {
+    override fun encodeToWire(buffer: Buffer, s: RESTServer.UnregisterSubrouter) {
         val jsonToEncode = JsonObject()
-        jsonToEncode.put("digitalTwinID", s.digitalTwinID)
+        jsonToEncode.put("handlerServiceId", s.handlerServiceId)
         jsonToEncode.put("router", s.router)
 
         // Encode object to string
@@ -32,7 +28,7 @@ class DTRouterMessageCodec : MessageCodec<RESTServer.DTRouter, RESTServer.DTRout
         buffer.appendString(jsonToStr)
     }
 
-    override fun decodeFromWire(pos: Int, buffer: Buffer): RESTServer.DTRouter {
+    override fun decodeFromWire(pos: Int, buffer: Buffer): RESTServer.UnregisterSubrouter {
         // Length of JSON
         val length = buffer.getInt(pos)
 
@@ -41,13 +37,13 @@ class DTRouterMessageCodec : MessageCodec<RESTServer.DTRouter, RESTServer.DTRout
         val jsonStr = buffer.getString(pos + 4, pos + 4 + length)
         val contentJson = JsonObject(jsonStr)
 
-        val digitalTwinID: URI = URI(contentJson.getString("digitalTwinID"))
+        val handlerServiceId: String = contentJson.getString("handlerServiceId")
         val router: Router = contentJson.getValue("unit") as Router
 
-        return RESTServer.DTRouter(digitalTwinID, router)
+        return RESTServer.UnregisterSubrouter(handlerServiceId, router)
     }
 
-    override fun transform(s: RESTServer.DTRouter): RESTServer.DTRouter {
+    override fun transform(s: RESTServer.UnregisterSubrouter): RESTServer.UnregisterSubrouter {
         return s
     }
 
