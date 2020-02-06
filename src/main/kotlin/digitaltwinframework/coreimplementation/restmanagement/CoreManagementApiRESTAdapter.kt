@@ -15,11 +15,13 @@ import io.vertx.ext.web.RoutingContext
  * The handler defined in this class will be used by the REST server control flow in order to forward the received
  * request about the core management function, to the specified Digital Twin
  * */
-class CoreManagementApiRESTAdapter(vertxInstance: Vertx, handlerServiceId)
-    : AbstractRESTInteractionAdapter(vertxInstance, handlerServiceId) {
+class CoreManagementApiRESTAdapter(vertxInstance: Vertx, handlerServiceId: String) :
+    AbstractRESTInteractionAdapter(vertxInstance, handlerServiceId) {
 
     override val adapterName: String = "DigitalTwinCoreManagementRESTApi"
-    private val apiSpecsPath = ConfigUtils.createUri("/framework/DigitalTwinManagementApi-0.1-OpenApi-Schemas.yaml")
+    override val openApiSpecPath: String
+        get() = ConfigUtils.createUri("/framework/DigitalTwinManagementApi-0.1-OpenApi-Schemas.yaml")
+
 
     val eventBus = BasicDigitalTwinRunningEnvironment.runningInstance!!.eventBus
 
@@ -89,10 +91,6 @@ class CoreManagementApiRESTAdapter(vertxInstance: Vertx, handlerServiceId)
                 sendSuccessResponse(ar.result().body(), routingContext)
             }
         }
-    }
-
-    override fun getOpenApiSpec(): String {
-        return apiSpecsPath
     }
 
     override fun operationCallbackMapping(): Map<String, Handler<RoutingContext>> {

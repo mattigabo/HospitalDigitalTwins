@@ -1,7 +1,6 @@
 package digitaltwinframework.coreimplementation
 
 import digitaltwinframework.DigitalTwin
-import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses
 import java.net.URI
 
 /**
@@ -14,8 +13,7 @@ abstract class AbstractDigitalTwin(override val identifier: URI) : DigitalTwin {
     private var shutdownStarted = false
     val runningEnv = BasicDigitalTwinRunningEnvironment.runningInstance!!
 
-    val evolutionController: BasicEvolutionController = BasicEvolutionController(this)
-    val EVOLUTION_CONTROLLER_ADDRESS = SystemEventBusAddresses.EVOLUTION_CONTROLLER_SUFFIX.preappend(identifier.toString())
+    val evolutionController: CoreManagementEvolutionController = CoreManagementEvolutionController(this)
 
     init {
         runningEnv.vertx.deployVerticle(evolutionController)

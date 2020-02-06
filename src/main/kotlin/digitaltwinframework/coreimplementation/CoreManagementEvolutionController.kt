@@ -9,9 +9,9 @@ import io.vertx.core.eventbus.EventBus
 import io.vertx.core.json.JsonArray
 import java.net.URI
 
-open class BasicEvolutionController(open val thisDT: AbstractDigitalTwin) : AbstractVerticle() {
+open class CoreManagementEvolutionController(open val thisDT: AbstractDigitalTwin) : AbstractVerticle() {
 
-    var coreManagAdapter = CoreManagementApiRESTAdapter(thisDT)
+    var coreManagAdapter = CoreManagementApiRESTAdapter(thisDT.runningEnv.vertx, thisDT.identifier.toString())
 
     val relationManager = RelationManager()
 

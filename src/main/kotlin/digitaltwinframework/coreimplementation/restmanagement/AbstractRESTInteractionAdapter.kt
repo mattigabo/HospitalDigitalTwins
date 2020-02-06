@@ -17,7 +17,7 @@ import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory
 
 abstract class AbstractRESTInteractionAdapter(val vertxInstance: Vertx, val handlerServiceId: String) : InteractionAdapter {
 
-    abstract fun getOpenApiSpec(): String
+    abstract val openApiSpecPath: String
 
     abstract fun operationCallbackMapping(): Map<String, Handler<RoutingContext>>
 
@@ -43,7 +43,7 @@ abstract class AbstractRESTInteractionAdapter(val vertxInstance: Vertx, val hand
     }
 
     fun loadOpenApiSpec() {
-        OpenAPI3RouterFactory.create(vertxInstance, getOpenApiSpec()) { asyncResult ->
+        OpenAPI3RouterFactory.create(vertxInstance, openApiSpecPath) { asyncResult ->
             if (asyncResult.succeeded()) {
                 var routerFactory: OpenAPI3RouterFactory = asyncResult.result()
 
