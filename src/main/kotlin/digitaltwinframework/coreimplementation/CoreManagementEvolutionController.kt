@@ -9,14 +9,15 @@ import io.vertx.core.eventbus.EventBus
 import io.vertx.core.json.JsonArray
 import java.net.URI
 
-open class CoreManagementEvolutionController(open val thisDT: AbstractDigitalTwin) : AbstractVerticle() {
+open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : AbstractVerticle() {
 
-    var coreManagAdapter = CoreManagementApiRESTAdapter(thisDT.runningEnv.vertx, thisDT.identifier.toString())
+    private lateinit var coreManagAdapter: CoreManagementApiRESTAdapter
 
     val relationManager = RelationManager()
 
     override fun start() {
         super.start()
+        coreManagAdapter = CoreManagementApiRESTAdapter(thisDT.runningEnv.vertx, thisDT.identifier.toString())
         this.registerCoreHandlerToEventBus(thisDT.runningEnv.eventBus)
         coreManagAdapter.loadOpenApiSpec()
     }

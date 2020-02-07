@@ -1,6 +1,6 @@
 package digitaltwinframework.coreimplementation.restmanagement
 
-import digitaltwinframework.coreimplementation.BasicDigitalTwinRunningEnvironment
+import digitaltwinframework.coreimplementation.BasicRunningEnvironment
 import digitaltwinframework.coreimplementation.Semantics
 import digitaltwinframework.coreimplementation.textualSemantics
 import digitaltwinframework.coreimplementation.utils.ConfigUtils
@@ -23,7 +23,7 @@ class CoreManagementApiRESTAdapter(vertxInstance: Vertx, handlerServiceId: Strin
         get() = ConfigUtils.createUri("/framework/DigitalTwinManagementApi-0.1-OpenApi-Schemas.yaml")
 
 
-    val eventBus = BasicDigitalTwinRunningEnvironment.runningInstance!!.eventBus
+    val eventBus = BasicRunningEnvironment.runningInstance!!.eventBus
 
     val GET_ID_BUS_ADDR = composeAddress(handlerServiceId, OperationIDS.GET_ID)
     val ADD_LINK_TO_ANOTHER_DT_BUS_ADDR = composeAddress(handlerServiceId, OperationIDS.ADD_LINK_TO_ANOTHER_DT)

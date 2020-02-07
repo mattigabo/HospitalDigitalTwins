@@ -16,9 +16,12 @@ interface Procedure {
     val executionTime: Date
 }
 
-
 interface TimedProcedure : Procedure {
     var endTime: Date?
+}
+
+interface ProcedureFactory<T : Procedure> {
+    fun create(executionTime: Date): T
 }
 
 

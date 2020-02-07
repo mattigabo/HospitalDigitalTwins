@@ -8,6 +8,6 @@ import digitaltwinframework.Model
 class Patient(
     var anagraphic: Anagraphic,
     var medicalHistory: MedicalHistory,
-    //var vitalParameter: List<VitalParameter>,
+    var vitalParameter: ArrayList<VitalParameter<*>>,
     var notes: Notes
 ) : Model

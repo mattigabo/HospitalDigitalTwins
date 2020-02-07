@@ -1,8 +1,6 @@
 package hospitaldigitaltwins.traumamanagement.patient
 
-import digitaltwinframework.InteractionAdapter
-
-class PatientRESTFaceAdapter(thisDT: PatientDT) : InteractionAdapter
+//class PatientRESTFaceAdapter(thisDT: PatientDT) : InteractionAdapter
 
 object OperationIDs {
     const val UPDATE_ANAGRAPHIC = "updateAnagraphic"

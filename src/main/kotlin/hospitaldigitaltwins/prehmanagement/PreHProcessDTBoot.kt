@@ -1,10 +1,12 @@
 package hospitaldigitaltwins.prehmanagement
 
-import digitaltwinframework.coreimplementation.BasicDigitalTwinRunningEnvironment
+import digitaltwinframework.coreimplementation.BasicRunningEnvironment
 import java.net.URI
 
 fun main() {
     val testIdentifier = "testEnvironment"
-    val runningEnv = BasicDigitalTwinRunningEnvironment("PreHDTRunningEnv")
-    runningEnv.executeDigitalTwin(URI("PreHID"), PreHProcessDTFactory())
+
+    BasicRunningEnvironment.boot("PreHDTRunningEnv") {
+        it.executeDigitalTwin(URI("PreHID"), PreHProcessDTFactory())
+    }
 }

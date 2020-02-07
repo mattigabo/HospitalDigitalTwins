@@ -4,7 +4,7 @@ import io.vertx.core.Handler
 import io.vertx.ext.web.RoutingContext
 
 object EventOperationIds {
-    const val POST_EVENT_INFO = "addEventInfo"
+    const val ADD_EVENT_INFO = "addEventInfo"
     const val GET_EVENT_INFO = "getEventInfo"
 
     const val ADD_MISSION = "addMission"
@@ -12,21 +12,21 @@ object EventOperationIds {
 }
 
 object EventRestHandlers {
-    val onAddEventInfo = Handler<RoutingContext> { routingContext ->
 
+    val onAddEventInfo = Handler<RoutingContext> { routingContext ->
+        println("Add Event Info Request")
     }
 
     val onGetEventInfo = Handler<RoutingContext> { routingContext ->
-
+        println("onGetEventInfo")
     }
 
 
     val onGetMissions = Handler<RoutingContext> { routingContext ->
-
+        println("onGetMissions")
     }
 
     val onAddMission = Handler<RoutingContext> { routingContext ->
-
-
+        println("onGetMissions")
     }
 }

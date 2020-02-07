@@ -1,11 +1,14 @@
 package hospitaldigitaltwins.traumamanagement.ontologies
 
-import hospitaldigitaltwins.ontologies.procedures.ManeuverFactory
+import hospitaldigitaltwins.ontologies.procedures.Maneuver
+import hospitaldigitaltwins.ontologies.procedures.ProcedureFactory
+import java.util.*
+
 
 /**
  * Created by Matteo Gabellini on 28/01/2020.
  */
-enum class TraumaManeuvers(override val stringFormat: String) : ManeuverFactory {
+enum class TraumaManeuvers(val stringFormat: String) : ProcedureFactory<Maneuver> {
     OROTRACHEAL_INTUBATION("orotracheal-intubation"),
     PELVIC_BINDER("pelvic-binder"),
     PRESSURE_INFUSER("pressure-infuser"),
@@ -20,4 +23,9 @@ enum class TraumaManeuvers(override val stringFormat: String) : ManeuverFactory 
     override fun toString(): String {
         return this.stringFormat
     }
+
+    override fun create(executionTime: Date): Maneuver {
+        return Maneuver(this.name, executionTime)
+    }
+
 }

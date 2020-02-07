@@ -4,7 +4,10 @@ import java.util.*
 
 open class Maneuver(override val name: String, override val executionTime: Date) : Procedure
 
-interface ManeuverFactory {
-    val stringFormat: String
-}
+open class TimedManeuver(
+    override val name: String,
+    override val executionTime: Date,
+    override var endTime: Date? = null
+) : TimedProcedure
+
 

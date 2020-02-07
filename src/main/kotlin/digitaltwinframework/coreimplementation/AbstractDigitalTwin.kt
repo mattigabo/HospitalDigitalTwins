@@ -10,17 +10,16 @@ import java.net.URI
  * */
 abstract class AbstractDigitalTwin(override val identifier: URI) : DigitalTwin {
 
-    private var shutdownStarted = false
-    val runningEnv = BasicDigitalTwinRunningEnvironment.runningInstance!!
+    val runningEnv = BasicRunningEnvironment.runningInstance!!
 
-    val evolutionController: CoreManagementEvolutionController = CoreManagementEvolutionController(this)
+    val coreManagEvoController: CoreManagementEvolutionController = CoreManagementEvolutionController(this)
 
     init {
-        runningEnv.vertx.deployVerticle(evolutionController)
+        runningEnv.vertx.deployVerticle(coreManagEvoController)
     }
 
     override fun shutdown() {
-        runningEnv.vertx.undeploy(evolutionController.deploymentID())
+        runningEnv.vertx.undeploy(coreManagEvoController.deploymentID())
         runningEnv.shutdown()
     }
 }

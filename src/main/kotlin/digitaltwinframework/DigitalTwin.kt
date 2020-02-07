@@ -4,9 +4,6 @@ import java.net.URI
 import java.time.Instant
 
 interface DigitalTwin : Identifiable<URI> {
-    val metaInfo: MetaInfo
-    val dataModel: Model
-
     /**
      * Stopping the digital twin causes the termination of the evolution of the digital twin and the resource release
      * */

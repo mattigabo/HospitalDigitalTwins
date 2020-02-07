@@ -21,24 +21,21 @@ object MissionOperationIds {
 
 
 object MissionRestHandlers {
+
     val onInfoRequest = Handler<RoutingContext> { routingContext ->
-
-
+        println("onInfoRequest")
     }
 
     val onMedicUpdate = Handler<RoutingContext> { routingContext ->
-
-
+        println("onMedicUpdate")
     }
 
     val onMedicRequest = Handler<RoutingContext> { routingContext ->
-
-
+        println("onMedicRequest")
     }
 
     val onReturnInfoUpdate = Handler<RoutingContext> { routingContext ->
-
-
+        println("onReturnInfoUpdate")
     }
 
     val onReturnInfoRequest = Handler<RoutingContext> { routingContext ->

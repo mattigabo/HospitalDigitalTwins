@@ -7,6 +7,7 @@ import java.net.URI
  * where the digital twin is running (e.g. the process that execute the digital twin)
  * */
 interface DigitalTwinRunningEnvironment {
+    val name: String
     fun executeDigitalTwin(id: URI, factory: DigitalTwinFactory)
     fun shutdown()
 }

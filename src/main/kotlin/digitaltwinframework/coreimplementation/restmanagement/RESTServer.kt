@@ -1,9 +1,10 @@
 package digitaltwinframework.coreimplementation.restmanagement
 
-import digitaltwinframework.coreimplementation.BasicDigitalTwinRunningEnvironment
 import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses
 import digitaltwinframework.coreimplementation.utils.eventbusutils.messagecodec.SubrouterMessageCodec
+import digitaltwinframework.coreimplementation.utils.eventbusutils.messagecodec.UnregisterSubrouterMessageCodec
 import io.vertx.core.AbstractVerticle
+import io.vertx.core.eventbus.EventBus
 import io.vertx.core.http.HttpServer
 import io.vertx.ext.web.Router
 
@@ -15,7 +16,7 @@ import io.vertx.ext.web.Router
 class RESTServer(val config: RESTServerConfig, val environmentName: String) : AbstractVerticle() {
 
 
-    private val eb = BasicDigitalTwinRunningEnvironment.runningInstance!!.vertx.eventBus()
+    private lateinit var eb: EventBus
 
     private var subrouters = HashMap<String, ArrayList<Router>>()
     private var router = Router.router(this.vertx)
@@ -27,7 +28,7 @@ class RESTServer(val config: RESTServerConfig, val environmentName: String) : Ab
 
     override fun start() {
         super.start()
-
+        this.eb = this.vertx.eventBus()
         server = this.vertx.createHttpServer()
         server.requestHandler(router).listen(config.portNumber, config.host) { res ->
             if (res.succeeded()) {
@@ -49,6 +50,8 @@ class RESTServer(val config: RESTServerConfig, val environmentName: String) : Ab
 
     private fun registerToEventBus() {
         this.eb.registerDefaultCodec(RegisterSubrouter::class.java, SubrouterMessageCodec())
+        this.eb.registerDefaultCodec(UnregisterSubrouter::class.java, UnregisterSubrouterMessageCodec())
+        println("RESTServer -> Message codec registered")
         this.eb.consumer<Any>(SystemEventBusAddresses.RESTServer.address) { message ->
             message.body().let {
                 when (it) {

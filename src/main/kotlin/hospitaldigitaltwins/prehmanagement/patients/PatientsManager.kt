@@ -1,5 +1,5 @@
 package hospitaldigitaltwins.prehmanagement.patients
 
-class PatientsManagement {
+class PatientsManager {
     fun addPatient() {}
 }

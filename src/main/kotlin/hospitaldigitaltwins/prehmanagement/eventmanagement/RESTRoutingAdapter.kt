@@ -1,9 +1,7 @@
-package hospitaldigitaltwins.prehmanagement
+package hospitaldigitaltwins.prehmanagement.eventmanagement
 
 import digitaltwinframework.coreimplementation.restmanagement.AbstractRESTInteractionAdapter
 import digitaltwinframework.coreimplementation.utils.ConfigUtils
-import hospitaldigitaltwins.prehmanagement.eventmanagement.EventOperationIds
-import hospitaldigitaltwins.prehmanagement.eventmanagement.EventRestHandlers
 import hospitaldigitaltwins.prehmanagement.missions.MissionOperationIds
 import hospitaldigitaltwins.prehmanagement.missions.MissionRestHandlers
 import io.vertx.core.Handler
@@ -21,13 +19,13 @@ class RESTRoutingAdapter(
     override val adapterName: String
         get() = "PreHDigitalTwinManagementApi"
     override val openApiSpecPath: String
-        get() = ConfigUtils.createUri("/framework/PreHApi-0.1-OpenApi-Schemas.yaml")
+        get() = ConfigUtils.createUri("hospital/PreHApi-OpenApi-Schemas.yml")
 
 
     override fun operationCallbackMapping(): Map<String, Handler<RoutingContext>> {
         return mapOf(
             EventOperationIds.GET_EVENT_INFO to EventRestHandlers.onAddEventInfo,
-            EventOperationIds.POST_EVENT_INFO to EventRestHandlers.onAddEventInfo,
+            EventOperationIds.ADD_EVENT_INFO to EventRestHandlers.onAddEventInfo,
             EventOperationIds.GET_MISSIONS to EventRestHandlers.onGetMissions,
             EventOperationIds.ADD_MISSION to EventRestHandlers.onAddMission,
 
