@@ -68,3 +68,13 @@ abstract class AbstractRESTInteractionAdapter(val vertxInstance: Vertx, val hand
     }
 
 }
+
+object RESTResponseCode {
+    const val OK = 200
+    const val CREATED = 201
+    const val NO_CONTENT = 204
+    const val BAD_PARAMETERS = 400
+    const val NOT_FOUND = 404
+    const val CONFLICT = 409
+    const val INTERNAL_SEVER_ERROR = 500
+}
