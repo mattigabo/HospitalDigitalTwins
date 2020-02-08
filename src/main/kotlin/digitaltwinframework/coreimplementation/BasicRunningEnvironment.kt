@@ -39,6 +39,7 @@ class BasicRunningEnvironment private constructor(override val name: String) : D
         vertx.deployVerticle(restServer) { res ->
             if (res.succeeded()) {
                 System.out.println("REST Server Deployed")
+                closure(this)
             } else {
                 System.out.println("REST Server Deployment failed!")
             }

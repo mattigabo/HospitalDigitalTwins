@@ -7,6 +7,7 @@ import io.vertx.core.AbstractVerticle
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.http.HttpServer
 import io.vertx.ext.web.Router
+import io.vertx.ext.web.RoutingContext
 
 /**
  * This class constitute the REST server of a digital twin.
@@ -21,6 +22,18 @@ class RESTServer(val config: RESTServerConfig, val environmentName: String) : Ab
     private var subrouters = HashMap<String, ArrayList<Router>>()
     private var router = Router.router(this.vertx)
 
+    private var infoRequestHandler = { routingContext: RoutingContext ->
+        val response = routingContext.response()
+        response.putHeader("content-type", "text/json")
+
+        val responseBody = """
+            {
+                "RunningEnvironmentName": "${environmentName}"
+            }
+        """.trimIndent()
+        response.end(responseBody)
+    }
+
     private lateinit var server: HttpServer
 
     data class RegisterSubrouter(val handlerServiceId: String, val router: Router)
@@ -30,6 +43,9 @@ class RESTServer(val config: RESTServerConfig, val environmentName: String) : Ab
         super.start()
         this.eb = this.vertx.eventBus()
         server = this.vertx.createHttpServer()
+
+        router.route().path("/info").handler(infoRequestHandler)
+
         server.requestHandler(router).listen(config.portNumber, config.host) { res ->
             if (res.succeeded()) {
                 println("${environmentName}: Rest Server is now listening!")

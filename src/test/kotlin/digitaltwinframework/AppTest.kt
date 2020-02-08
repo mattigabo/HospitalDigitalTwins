@@ -1,7 +1,6 @@
 package digitaltwinframework
 
 //import digitaltwinframework.coreimplementation.BasicDigitalTwinSystem
-import digitaltwinframework.coreimplementation.BasicRunningEnvironment
 
 class AppTest {
 
@@ -59,7 +58,7 @@ class AppTest {
 
     fun testBasicDigitalTwin() {
         println("Test a basic digital twin boot")
-        BasicRunningEnvironment("testEnvironment")
+        //BasicRunningEnvironment("testEnvironment")
     }
 
 

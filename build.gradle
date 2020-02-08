@@ -12,7 +12,7 @@ repositories {
 }
 
 ext {
-    vertxVersion = '3.8.1'
+    vertxVersion = '3.8.5'
     junitJupiterEngineVersion = '5.4.0'
     mongoClientVersion = '3.8.5'
 }
