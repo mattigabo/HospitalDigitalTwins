@@ -21,27 +21,6 @@ abstract class AbstractRESTInteractionAdapter(val vertxInstance: Vertx, val hand
 
     abstract fun operationCallbackMapping(): Map<String, Handler<RoutingContext>>
 
-
-    fun sendSuccessResponse(response: String, routingContext: RoutingContext) {
-        routingContext
-                .response()
-                .setStatusCode(200)
-                .putHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-                .end(response)
-    }
-
-    fun sendBadRequestResponse(response: String, routingContext: RoutingContext) {
-        routingContext.response().setStatusCode(400).end(response)
-    }
-
-    fun sendNotFoundResponse(response: String, routingContext: RoutingContext) {
-        routingContext.response().setStatusCode(404).end(response)
-    }
-
-    fun sendServerErrorResponse(routingContext: RoutingContext) {
-        routingContext.response().setStatusCode(500).end("Server Error")
-    }
-
     fun loadOpenApiSpec() {
         OpenAPI3RouterFactory.create(vertxInstance, openApiSpecPath) { asyncResult ->
             if (asyncResult.succeeded()) {
@@ -68,6 +47,39 @@ abstract class AbstractRESTInteractionAdapter(val vertxInstance: Vertx, val hand
     }
 
 }
+
+object RESTDefaultResponse {
+
+    fun sendSuccessResponse(response: String, routingContext: RoutingContext) {
+        routingContext
+                .response()
+                .setStatusCode(RESTResponseCode.OK)
+                .putHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+                .end(response)
+    }
+
+    fun sendBadRequestResponse(response: String, routingContext: RoutingContext) {
+        routingContext
+                .response()
+                .setStatusCode(RESTResponseCode.BAD_PARAMETERS)
+                .end(response)
+    }
+
+    fun sendNotFoundResponse(response: String, routingContext: RoutingContext) {
+        routingContext
+                .response()
+                .setStatusCode(RESTResponseCode.NOT_FOUND)
+                .end(response)
+    }
+
+    fun sendServerErrorResponse(routingContext: RoutingContext, messageText: String = "Server Error") {
+        routingContext
+                .response()
+                .setStatusCode(RESTResponseCode.INTERNAL_SEVER_ERROR)
+                .end(messageText)
+    }
+}
+
 
 object RESTResponseCode {
     const val OK = 200

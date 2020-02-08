@@ -1,4 +1,4 @@
 package hospitaldigitaltwins.prehmanagement.missions
 
 
-class MissionManager(var model: MissionModel)
+class MissionService(var model: MissionModel)

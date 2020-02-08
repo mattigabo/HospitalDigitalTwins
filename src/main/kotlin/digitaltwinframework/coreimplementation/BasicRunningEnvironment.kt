@@ -23,14 +23,12 @@ class BasicRunningEnvironment private constructor(override val name: String) : D
             private set
 
         @JvmStatic
-        fun boot(environmentName: String, closure: (DigitalTwinRunningEnvironment) -> Unit): BasicRunningEnvironment {
+        fun boot(environmentName: String, closure: (DigitalTwinRunningEnvironment) -> Unit) {
             runningInstance?.let {
                 closure(it)
-                return it
             }
             runningInstance = BasicRunningEnvironment(environmentName)
             runningInstance!!.startRestServer(closure)
-            return runningInstance!!
         }
     }
 

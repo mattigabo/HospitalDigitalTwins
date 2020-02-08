@@ -1172,14 +1172,14 @@ components:
         address:
           type: string
           example: "Via della Madonnina 123, Cesena (FC) 47521"
-        notes:
-          type: string
-          example: "The patient switches between the state of consciousness and unconsciousness continuously."
         dispatchCode:
           type: string
           example: 'SC01R'
-        secondary:
-          type: boolean
+        emergencyType:
+          type: string
+          enum:
+            - "primary"
+            - "secondary"
         dynamic:
           type: string
           example: "Road accident: pedestrian ran over"

@@ -3,12 +3,11 @@ package hospitaldigitaltwins.prehmanagement
 import digitaltwinframework.DigitalTwin
 import digitaltwinframework.DigitalTwinFactory
 import digitaltwinframework.coreimplementation.AbstractDigitalTwin
-import hospitaldigitaltwins.prehmanagement.eventmanagement.EventEvolutionController
 import java.net.URI
 
 class PreHProcessDT(override val identifier: URI) : AbstractDigitalTwin(identifier) {
 
-    val eventManagEvoController = EventEvolutionController(this)
+    val eventManagEvoController = PreHEvolutionController(this)
 
     init {
         runningEnv.vertx.deployVerticle(eventManagEvoController) { res ->

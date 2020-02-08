@@ -93,14 +93,21 @@ class RESTServer(val config: RESTServerConfig, val environmentName: String) : Ab
                 requestRouter.routes
                         .map { route -> "/" + route.path }
                         .forEach { pathToDelete ->
-                            router.routes
-                                    .stream()
-                                    .filter { route ->
-                                        route.path != null && route.path.startsWith(pathToDelete)
-                                    }.forEach { route -> route.remove() }
+                            deletePath(pathToDelete)
                         }
             }
         }
+    }
+
+
+    private fun deletePath(pathToDelete: String) {
+        router.routes
+                .stream()
+                .filter { route ->
+                    route.path != null && route.path.startsWith(pathToDelete)
+                }.forEach { route ->
+                    route.remove()
+                }
     }
 }
 

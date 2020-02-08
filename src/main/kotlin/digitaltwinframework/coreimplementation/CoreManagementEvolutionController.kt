@@ -13,7 +13,7 @@ open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : 
 
     private lateinit var coreManagAdapter: CoreManagementApiRESTAdapter
 
-    val relationManager = RelationManager()
+    val relationService = RelationService()
 
     override fun start() {
         super.start()
@@ -27,7 +27,7 @@ open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : 
         eb.consumer<Any>(coreManagAdapter.GET_ID_BUS_ADDR) { message ->
             message.reply("""
                    {
-                        "digitalTwinIdentifier":{${thisDT.identifier}}
+                        "digitalTwinIdentifier": ${thisDT.identifier}
                    }
                """.trimIndent())
         }
@@ -36,14 +36,14 @@ open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : 
             when (message.body()) {
                 is CoreManagementSchemas.LinkToAnotherDigitalTwin -> {
                     val link = message.body() as CoreManagementSchemas.LinkToAnotherDigitalTwin
-                    relationManager.addRelation(URI(link.otherDigitalTwin), link.semantic)
+                    relationService.addRelation(URI(link.otherDigitalTwin), link.semantic)
                     message.reply(StandardMessages.OPERATION_EXECUTED_MESSAGE)
                 }
             }
         }
 
         eb.consumer<Any>(coreManagAdapter.GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR) { message ->
-            val reply = JsonArray(relationManager.relationToOtherDT.map { entry ->
+            val reply = JsonArray(relationService.relationToOtherDT.map { entry ->
                 entry.value.map {
                     CoreManagementSchemas.LinkToAnotherDigitalTwin(entry.key.toString(), it)
                 }
@@ -57,9 +57,9 @@ open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : 
             when (message.body()) {
                 is CoreManagementSchemas.LinkToAnotherDigitalTwin -> {
                     val link = message.body() as CoreManagementSchemas.LinkToAnotherDigitalTwin
-                    relationManager.relationToOtherDT.get(URI(link.otherDigitalTwin))?.let {
+                    relationService.relationToOtherDT.get(URI(link.otherDigitalTwin))?.let {
                         if (it.contains(link.semantic)) {
-                            wasDeleted = relationManager.deleteRelation(URI(link.otherDigitalTwin), link.semantic)
+                            wasDeleted = relationService.deleteRelation(URI(link.otherDigitalTwin), link.semantic)
                         }
                     }
                 }

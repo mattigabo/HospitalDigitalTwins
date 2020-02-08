@@ -2,7 +2,7 @@ package digitaltwinframework.coreimplementation
 
 import java.net.URI
 
-class RelationManager {
+class RelationService {
 
     var relationToOtherDT: MutableMap<URI, ArrayList<Semantics>> = HashMap()
 
