@@ -54,14 +54,10 @@ paths:
           application/json:
             schema:
               type: object
-              required:
-                - vehicle
               properties:
-                vehicle:
-                  type: array
-                  items:
-                    allOf:
-                      - $ref: "#/components/schemas/MedicalVehicle"
+                missionInfo:
+                  $ref: "#/components/schemas/MissionBasicInfo"
+
       responses:
         '201':
           description: "mission successfully created"
@@ -1187,8 +1183,22 @@ components:
           type: integer
           example: 1
 
+    MissionBasicInfo:
+      type: object
+      properties:
+        medicName:
+          type: string
+        vehicles:
+          type: array
+          items:
+            allOf:
+              - $ref: "#/components/schemas/MedicalVehicle"
+
     MissionInfo:
       type: object
+      required:
+        - medicName
+        - vehicle
       properties:
         medicName:
           type: string
@@ -1221,7 +1231,7 @@ components:
             - 2
             - 3
             - 4
-        returnHospital:
+        hospital:
           type: string
           enum:
             - "Cesena"

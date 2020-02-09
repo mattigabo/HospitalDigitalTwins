@@ -6,9 +6,12 @@ import hospitaldigitaltwins.prehmanagement.missions.MissionService
 
 class EventService {
 
-    val missionServices: ArrayList<MissionService> = ArrayList<MissionService>()
+    private val missionServices: ArrayList<MissionService> = ArrayList()
 
     private var _eventInfo: EventInfo? = null
+
+    val mission: List<MissionInfo>
+        get() = missionServices.map { it.model.missionInfo }
 
     var eventInfo: EventInfo?
         get() {

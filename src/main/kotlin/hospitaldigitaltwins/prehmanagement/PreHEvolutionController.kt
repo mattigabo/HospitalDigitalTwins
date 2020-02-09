@@ -7,8 +7,10 @@ import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessa
 import hospitaldigitaltwins.prehmanagement.eventmanagement.EventInfo
 import hospitaldigitaltwins.prehmanagement.eventmanagement.EventOperationIds
 import hospitaldigitaltwins.prehmanagement.eventmanagement.EventService
+import hospitaldigitaltwins.prehmanagement.missions.MissionInfo
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.eventbus.EventBus
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 
 
@@ -31,14 +33,36 @@ class PreHEvolutionController(val thisDT: AbstractDigitalTwin) : AbstractVerticl
             } ?: message.fail(500, "EventInfo not inserted")
         }
 
-        eb.consumer<JsonObject>(EventOperationIds.ADD_EVENT_INFO) {
+        eb.consumer<JsonObject>(EventOperationIds.ADD_EVENT_INFO) { message ->
             try {
-                eventService.eventInfo = it.body().mapTo(EventInfo::class.java)
-                it.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
+                eventService.eventInfo = message.body().mapTo(EventInfo::class.java)
+                message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
             } catch (e: IllegalArgumentException) {
                 println(e.message)
                 val failureMessage = StandardMessages.JSON_MALFORMED_MESSAGE_PREFIX + EventInfo::class.java.toString()
-                it.fail(FailureCode.JSON_MALFORMED, failureMessage)
+                message.fail(FailureCode.JSON_MALFORMED, failureMessage)
+            }
+        }
+
+        eb.consumer<JsonObject>(EventOperationIds.GET_MISSIONS) { message ->
+            eventService.mission.let {
+                val response = JsonArray(it.map { missionInfo -> JsonObject.mapFrom(missionInfo) })
+                message.reply(response)
+            }
+        }
+
+        eb.consumer<JsonObject>(EventOperationIds.ADD_MISSION) { message ->
+            try {
+                val mission = MissionInfo(
+                        message.body().getString("medicName"),
+                        message.body().getJsonArray("vehicles").list as ArrayList<String>
+                )
+                eventService.addMission(mission)
+                message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
+            } catch (e: IllegalArgumentException) {
+                println(e.message)
+                val failureMessage = StandardMessages.JSON_MALFORMED_MESSAGE_PREFIX + MissionInfo::class.java.toString()
+                message.fail(FailureCode.JSON_MALFORMED, failureMessage)
             }
         }
     }
