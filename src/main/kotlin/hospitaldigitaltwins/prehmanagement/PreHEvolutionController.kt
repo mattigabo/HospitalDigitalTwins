@@ -8,6 +8,7 @@ import hospitaldigitaltwins.prehmanagement.eventmanagement.EventInfo
 import hospitaldigitaltwins.prehmanagement.eventmanagement.EventOperationIds
 import hospitaldigitaltwins.prehmanagement.eventmanagement.EventService
 import hospitaldigitaltwins.prehmanagement.missions.MissionInfo
+import hospitaldigitaltwins.prehmanagement.missions.MissionOperationIds
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.json.JsonArray
@@ -27,6 +28,10 @@ class PreHEvolutionController(val thisDT: AbstractDigitalTwin) : AbstractVerticl
     }
 
     private fun registerCoreHandlerToEventBus(eb: EventBus) {
+        registerEventInfoConsumers(eb)
+    }
+
+    private fun registerEventInfoConsumers(eb: EventBus) {
         eb.consumer<JsonObject>(EventOperationIds.GET_EVENT_INFO) { message ->
             eventService.eventInfo?.let {
                 message.reply(JsonObject.mapFrom(it))
@@ -45,7 +50,7 @@ class PreHEvolutionController(val thisDT: AbstractDigitalTwin) : AbstractVerticl
         }
 
         eb.consumer<JsonObject>(EventOperationIds.GET_MISSIONS) { message ->
-            eventService.mission.let {
+            eventService.missions.let {
                 val response = JsonArray(it.map { missionInfo -> JsonObject.mapFrom(missionInfo) })
                 message.reply(response)
             }
@@ -57,8 +62,10 @@ class PreHEvolutionController(val thisDT: AbstractDigitalTwin) : AbstractVerticl
                         message.body().getString("medicName"),
                         message.body().getJsonArray("vehicles").list as ArrayList<String>
                 )
-                eventService.addMission(mission)
-                message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
+                val missionId = eventService.addMission(mission)
+                val response = JsonObject()
+                response.put("missionId", missionId)
+                message.reply(response)
             } catch (e: IllegalArgumentException) {
                 println(e.message)
                 val failureMessage = StandardMessages.JSON_MALFORMED_MESSAGE_PREFIX + MissionInfo::class.java.toString()
@@ -67,5 +74,11 @@ class PreHEvolutionController(val thisDT: AbstractDigitalTwin) : AbstractVerticl
         }
     }
 
-
+    private fun registerMissionInfoConsumers(eb: EventBus) {
+        eb.consumer<JsonObject>(MissionOperationIds.GET_MISSION) { message ->
+            eventService.missions.let {
+                message.reply(JsonObject.mapFrom(it))
+            }
+        }
+    }
 }

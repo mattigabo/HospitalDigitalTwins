@@ -67,9 +67,12 @@ paths:
                 type: string
                 format: URI-reference
           content:
-            text/plain:
+            application/json:
               schema:
-                $ref: "#/components/schemas/Identifier"
+                type: object
+                properties:
+                  missionId:
+                    type: integer
         '400':
           description: "bad parameters"
         '500':

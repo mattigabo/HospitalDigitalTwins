@@ -1,6 +1,6 @@
 package hospitaldigitaltwins.prehmanagement.ontologies
 
-import java.util.*
+import java.time.LocalDateTime
 
 /**
  * Created by Matteo Gabellini on 03/02/2020.
@@ -18,12 +18,12 @@ enum class MissionSteps(val text: String) {
     /**
      * Factory method that create a Tracking step instance with the step text from which the method was invoked
      * */
-    fun occurs(occurrenceTime: Date): TrackingStep {
+    fun occurs(occurrenceTime: LocalDateTime): TrackingStep {
         return TrackingStep(
-            this.text,
-            occurrenceTime
+                this.text,
+                occurrenceTime
         )
     }
 }
 
-class TrackingStep(val stepText: String, occurenceTime: Date)
+class TrackingStep(val stepText: String, occurenceTime: LocalDateTime)
