@@ -1,5 +1,6 @@
 package hospitaldigitaltwins.prehmanagement.ontologies
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.LocalDateTime
 
 /**
@@ -26,4 +27,7 @@ enum class MissionSteps(val text: String) {
     }
 }
 
-class TrackingStep(val stepText: String, occurenceTime: LocalDateTime)
+class TrackingStep(
+    @JsonProperty("stepText") val stepText: String,
+    @JsonProperty("occurenceTime") val occurenceTime: LocalDateTime
+)

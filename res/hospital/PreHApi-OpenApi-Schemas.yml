@@ -142,10 +142,12 @@ paths:
         - $ref: "#/components/parameters/mission-id-param"
       requestBody:
         content:
-          text/plain:
+          application/json:
             schema:
-              type: string
-              example: "Marco Benni"
+              type: object
+              properties:
+                medicName:
+                  type: string
       responses:
         '204':
           description: "mission ongoing value successfully updated"
@@ -167,10 +169,12 @@ paths:
         '200':
           description: "ok"
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-                example: "Marco Benni"
+                type: object
+                properties:
+                  medicName:
+                    type: string
         '404':
           description: "mission not found"
         '500':
@@ -1225,7 +1229,8 @@ components:
       type: object
       required:
         - returnCode
-        - returnHospital
+        - hospital
+        - releaseWard
       properties:
         returnCode:
           type: integer
@@ -1242,12 +1247,10 @@ components:
             - "Forlì"
             - "Ravenna"
             - "Rimini"
-        returnReleaseSite:
+        releaseWard:
           description: "the release site inside the Hospital of return"
           type: string
-          enum:
-            - "Emergency Room"
-            - "Surgery"
+          example: "Emergency Room"
 
     TrackingStep:
       type: object
