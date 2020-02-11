@@ -1,11 +1,9 @@
 package hospitaldigitaltwins.prehmanagement.missions
 
+import digitaltwinframework.coreimplementation.restmanagement.AbstractRestHandlers
 import digitaltwinframework.coreimplementation.restmanagement.RESTDefaultResponse
 import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages.EMPTY_MESSAGE
-import io.vertx.core.AsyncResult
 import io.vertx.core.Handler
-import io.vertx.core.Vertx
-import io.vertx.core.eventbus.Message
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 
@@ -26,8 +24,7 @@ object MissionOperationIds {
 }
 
 
-object MissionRestHandlers {
-    val eb = Vertx.currentContext().owner().eventBus()
+object MissionRestHandlers : AbstractRestHandlers() {
 
     val onInfoRequest = Handler<RoutingContext> { routingContext ->
         checkIdAndPerformRequest(
@@ -120,22 +117,5 @@ object MissionRestHandlers {
             )
         } ?: RESTDefaultResponse.sendBadRequestResponse("MissionId not specified", routingContext)
 
-    }
-
-    private fun <T> responseCallBack(routingContext: RoutingContext): Handler<AsyncResult<Message<T>>> {
-        val responseHandler = Handler<AsyncResult<Message<T>>> { ar ->
-            when {
-                ar.succeeded() -> RESTDefaultResponse.sendSuccessResponse(
-                    ar.result().body().toString(),
-                    routingContext
-                )
-                ar.failed() -> RESTDefaultResponse.sendServerErrorResponse(
-                    routingContext,
-                    ar.cause().message!!.toString()
-                )
-                else -> RESTDefaultResponse.sendServerErrorResponse(routingContext)
-            }
-        }
-        return responseHandler
     }
 }

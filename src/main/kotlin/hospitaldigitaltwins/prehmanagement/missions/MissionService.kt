@@ -5,13 +5,17 @@ import digitaltwinframework.coreimplementation.utils.eventbusutils.JsonResponse
 import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages
 import hospitaldigitaltwins.prehmanagement.ontologies.MissionSteps
 import hospitaldigitaltwins.prehmanagement.ontologies.TrackingStep
+import hospitaldigitaltwins.prehmanagement.patients.PatientService
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import java.time.LocalDateTime
 
 
-class MissionService(private var model: MissionModel) {
+class MissionService(var model: MissionModel) {
+
+    val patient: PatientService = PatientService(model.missionId)
+
     val missionInfo: MissionInfo
         get() = model.missionInfo
     var medic: String
@@ -43,12 +47,12 @@ class MissionService(private var model: MissionModel) {
         model.missionInfo.trackingStep.add(MissionSteps.ARRIVAL_IN_HOSPITAL.occurs(LocalDateTime.now()))
     }
 
-    fun registerEventBusConsumers(eb: EventBus, missionId: Int) {
-        eb.consumer<JsonObject>(MissionOperationIds.GET_MISSION + missionId) { message ->
+    fun registerEventBusConsumers(eb: EventBus) {
+        eb.consumer<JsonObject>(MissionOperationIds.GET_MISSION + model.missionId) { message ->
             message.reply(JsonObject.mapFrom(this.missionInfo))
         }
 
-        eb.consumer<JsonObject>(MissionOperationIds.PUT_MEDIC + missionId) { message ->
+        eb.consumer<JsonObject>(MissionOperationIds.PUT_MEDIC + model.missionId) { message ->
             try {
                 this.medic = message.body().getString("medicName")
                 message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
@@ -59,13 +63,13 @@ class MissionService(private var model: MissionModel) {
             }
         }
 
-        eb.consumer<JsonObject>(MissionOperationIds.GET_MEDIC + missionId) { message ->
+        eb.consumer<JsonObject>(MissionOperationIds.GET_MEDIC + model.missionId) { message ->
             val response = JsonObject()
             response.put("medicName", this.medic)
             message.reply(response)
         }
 
-        eb.consumer<JsonObject>(MissionOperationIds.PUT_RETURN_INFO + missionId) { message ->
+        eb.consumer<JsonObject>(MissionOperationIds.PUT_RETURN_INFO + model.missionId) { message ->
             try {
                 this.retutnInfo = message.body().mapTo(MissionReturnInformation::class.java)
                 message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
@@ -77,30 +81,30 @@ class MissionService(private var model: MissionModel) {
             }
         }
 
-        eb.consumer<JsonObject>(MissionOperationIds.GET_RETURN_INFO + missionId) { message ->
+        eb.consumer<JsonObject>(MissionOperationIds.GET_RETURN_INFO + model.missionId) { message ->
             message.reply(JsonObject.mapFrom(this.retutnInfo))
         }
 
-        eb.consumer<JsonObject>(MissionOperationIds.GET_TRACKING + missionId) { message ->
+        eb.consumer<JsonObject>(MissionOperationIds.GET_TRACKING + model.missionId) { message ->
             message.reply(JsonArray(this.tracking.map { JsonObject.mapFrom(it) }))
         }
 
-        eb.consumer<JsonObject>(MissionOperationIds.DEPARTURE_FROM_HOSPITAL + missionId) { message ->
+        eb.consumer<JsonObject>(MissionOperationIds.DEPARTURE_FROM_HOSPITAL + model.missionId) { message ->
             this.onDepartureFromHospital()
             message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
         }
 
-        eb.consumer<JsonObject>(MissionOperationIds.ARRIVAL_ON_SITE + missionId) { message ->
+        eb.consumer<JsonObject>(MissionOperationIds.ARRIVAL_ON_SITE + model.missionId) { message ->
             this.onArrivalOnSite()
             message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
         }
 
-        eb.consumer<JsonObject>(MissionOperationIds.DEPARTURE_FROM_SITE + missionId) { message ->
+        eb.consumer<JsonObject>(MissionOperationIds.DEPARTURE_FROM_SITE + model.missionId) { message ->
             this.onDepartureFromSite()
             message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
         }
 
-        eb.consumer<JsonObject>(MissionOperationIds.ARRIVAL_AT_THE_HOSPITAL + missionId) { message ->
+        eb.consumer<JsonObject>(MissionOperationIds.ARRIVAL_AT_THE_HOSPITAL + model.missionId) { message ->
             this.onArrivalAtTheHospital()
             message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
         }

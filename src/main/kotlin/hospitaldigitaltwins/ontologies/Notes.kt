@@ -5,12 +5,6 @@ import java.util.*
 /**
  * Created by Matteo Gabellini on 2019-08-01.
  */
-class Notes {
-    fun <T> addNote(note: Note<T>) {
-
-    }
-}
-
 interface Note<T> {
     val content: T
     val generationTime: Date

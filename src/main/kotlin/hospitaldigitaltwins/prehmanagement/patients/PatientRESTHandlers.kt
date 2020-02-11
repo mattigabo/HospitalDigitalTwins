@@ -1,6 +1,13 @@
 package hospitaldigitaltwins.prehmanagement.patients
 
-object PatientRESTHandlers {
+import digitaltwinframework.coreimplementation.restmanagement.AbstractRestHandlers
+import digitaltwinframework.coreimplementation.restmanagement.RESTDefaultResponse
+import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages
+import io.vertx.core.Handler
+import io.vertx.core.json.JsonObject
+import io.vertx.ext.web.RoutingContext
+
+object PatientOperationIds {
     val GET_PATIENT = "getPatientInfo"
 
     val SET_MEDICAL_HISTORY = "setMedicalHistory"
@@ -43,4 +50,85 @@ object PatientRESTHandlers {
     val GET_AUDIO_NOTE = "getAudioNote"
     val GET_PHOTO_NOTE = "getPhotos"
     val GET_VIDEO_NOTE = "getVideos"
+}
+
+object PatientRESTHandlers : AbstractRestHandlers() {
+    val onGetPatient = Handler<RoutingContext> { routingContext ->
+        checkIdAndPerformRequest(
+            routingContext,
+            PatientOperationIds.GET_PATIENT,
+            StandardMessages.EMPTY_MESSAGE
+        )
+    }
+
+    val onSetMedicalHistory = Handler<RoutingContext> { routingContext ->
+
+    }
+
+    val onGetMedicalHistory = Handler<RoutingContext> { routingContext ->
+        checkIdAndPerformRequest(
+            routingContext,
+            PatientOperationIds.GET_MEDICAL_HISTORY,
+            StandardMessages.EMPTY_MESSAGE
+        )
+    }
+
+    val onUpdateAnagraphic = Handler<RoutingContext> { routingContext ->
+
+    }
+
+    val onGetAnagraphic = Handler<RoutingContext> { routingContext ->
+
+    }
+
+    val onUpdateStatus = Handler<RoutingContext> { routingContext ->
+
+    }
+
+    val onGetStatus = Handler<RoutingContext> { routingContext ->
+
+    }
+
+    val onGetVitalParametersHistory = Handler<RoutingContext> { routingContext ->
+
+    }
+
+    val onAddVitalParameters = Handler<RoutingContext> { routingContext ->
+
+    }
+
+    val onGetCurrentVitalParameters = Handler<RoutingContext> { routingContext ->
+
+    }
+
+    val onGetVitalParameter = Handler<RoutingContext> { routingContext ->
+
+    }
+
+    val onGetAdministrations = Handler<RoutingContext> { routingContext ->
+
+    }
+
+    val onAddAdministration = Handler<RoutingContext> { routingContext ->
+
+    }
+
+    val onGetExecutedManeuvers = Handler<RoutingContext> { routingContext ->
+
+    }
+
+    val onAddManeuver = Handler<RoutingContext> { routingContext ->
+
+    }
+
+    private fun checkIdAndPerformRequest(routingContext: RoutingContext, busAdrr: String, message: Any) {
+        routingContext.pathParams().get("missionId")?.let {
+            eb.request<JsonObject>(
+                busAdrr + it,
+                message,
+                responseCallBack(routingContext)
+            )
+        } ?: RESTDefaultResponse.sendBadRequestResponse("MissionId not specified", routingContext)
+
+    }
 }

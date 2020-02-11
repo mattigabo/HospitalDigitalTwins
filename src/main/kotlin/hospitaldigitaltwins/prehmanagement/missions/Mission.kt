@@ -1,13 +1,12 @@
 package hospitaldigitaltwins.prehmanagement.missions
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import hospitaldigitaltwins.ontologies.Patient
 import hospitaldigitaltwins.prehmanagement.ontologies.TrackingStep
 
 /**
  * Created by Matteo Gabellini on 06/02/2020.
  */
-data class MissionModel(var missionInfo: MissionInfo, var patient: Patient? = null)
+data class MissionModel(val missionId: Int, val missionInfo: MissionInfo)
 
 data class MissionReturnInformation(
         @JsonProperty("returnCode") var returnCode: Int = 0,

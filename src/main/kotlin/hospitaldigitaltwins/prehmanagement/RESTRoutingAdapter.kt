@@ -6,6 +6,8 @@ import hospitaldigitaltwins.prehmanagement.eventmanagement.EventOperationIds
 import hospitaldigitaltwins.prehmanagement.eventmanagement.EventRestHandlers
 import hospitaldigitaltwins.prehmanagement.missions.MissionOperationIds
 import hospitaldigitaltwins.prehmanagement.missions.MissionRestHandlers
+import hospitaldigitaltwins.prehmanagement.patients.PatientOperationIds
+import hospitaldigitaltwins.prehmanagement.patients.PatientRESTHandlers
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.ext.web.RoutingContext
@@ -26,23 +28,26 @@ class RESTRoutingAdapter(
 
     override fun operationCallbackMapping(): Map<String, Handler<RoutingContext>> {
         return mapOf(
-                EventOperationIds.GET_EVENT_INFO to EventRestHandlers.onGetEventInfo,
-                EventOperationIds.ADD_EVENT_INFO to EventRestHandlers.onAddEventInfo,
-                EventOperationIds.GET_MISSIONS to EventRestHandlers.onGetMissions,
-                EventOperationIds.ADD_MISSION to EventRestHandlers.onAddMission,
+            EventOperationIds.GET_EVENT_INFO to EventRestHandlers.onGetEventInfo,
+            EventOperationIds.ADD_EVENT_INFO to EventRestHandlers.onAddEventInfo,
+            EventOperationIds.GET_MISSIONS to EventRestHandlers.onGetMissions,
+            EventOperationIds.ADD_MISSION to EventRestHandlers.onAddMission,
 
-                MissionOperationIds.GET_MISSION to MissionRestHandlers.onInfoRequest,
-                MissionOperationIds.PUT_MEDIC to MissionRestHandlers.onMedicUpdate,
-                MissionOperationIds.GET_MEDIC to MissionRestHandlers.onMedicRequest,
+            MissionOperationIds.GET_MISSION to MissionRestHandlers.onInfoRequest,
+            MissionOperationIds.PUT_MEDIC to MissionRestHandlers.onMedicUpdate,
+            MissionOperationIds.GET_MEDIC to MissionRestHandlers.onMedicRequest,
 
-                MissionOperationIds.PUT_RETURN_INFO to MissionRestHandlers.onReturnInfoUpdate,
-                MissionOperationIds.GET_RETURN_INFO to MissionRestHandlers.onReturnInfoRequest,
+            MissionOperationIds.PUT_RETURN_INFO to MissionRestHandlers.onReturnInfoUpdate,
+            MissionOperationIds.GET_RETURN_INFO to MissionRestHandlers.onReturnInfoRequest,
 
-                MissionOperationIds.GET_TRACKING to MissionRestHandlers.onTrackingInfoRequest,
-                MissionOperationIds.DEPARTURE_FROM_HOSPITAL to MissionRestHandlers.onDepartureFromHostpital,
-                MissionOperationIds.ARRIVAL_ON_SITE to MissionRestHandlers.onArrivalOnSite,
-                MissionOperationIds.DEPARTURE_FROM_SITE to MissionRestHandlers.onDepartureFromSite,
-                MissionOperationIds.ARRIVAL_AT_THE_HOSPITAL to MissionRestHandlers.onArrivalAtHostpital
+            MissionOperationIds.GET_TRACKING to MissionRestHandlers.onTrackingInfoRequest,
+            MissionOperationIds.DEPARTURE_FROM_HOSPITAL to MissionRestHandlers.onDepartureFromHostpital,
+            MissionOperationIds.ARRIVAL_ON_SITE to MissionRestHandlers.onArrivalOnSite,
+            MissionOperationIds.DEPARTURE_FROM_SITE to MissionRestHandlers.onDepartureFromSite,
+            MissionOperationIds.ARRIVAL_AT_THE_HOSPITAL to MissionRestHandlers.onArrivalAtHostpital,
+
+            PatientOperationIds.GET_PATIENT to PatientRESTHandlers.onGetPatient,
+            PatientOperationIds.GET_MEDICAL_HISTORY to PatientRESTHandlers.onGetMedicalHistory
         )
     }
 }

@@ -28,7 +28,7 @@ class EventService {
         }
 
     fun addMission(missionInfo: MissionInfo): Int {
-        var mission = MissionService(MissionModel(missionInfo))
+        var mission = MissionService(MissionModel(missionServices.size, missionInfo))
         missionServices.add(mission)
         return missionServices.indexOf(mission)
     }
@@ -46,7 +46,8 @@ class EventService {
                 message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
             } catch (e: IllegalArgumentException) {
                 println(e.message)
-                val failureMessage = StandardMessages.JSON_MALFORMED_MESSAGE_PREFIX + EventInfo::class.java.toString()
+                val failureMessage = StandardMessages.JSON_MALFORMED_MESSAGE_PREFIX +
+                        EventInfo::class.java.toString()
                 message.fail(FailureCode.JSON_MALFORMED, failureMessage)
             }
         }
@@ -65,13 +66,15 @@ class EventService {
                     message.body().getJsonArray("vehicles").list as ArrayList<String>
                 )
                 val missionId = this.addMission(mission)
+                this.missionServices.get(missionId).registerEventBusConsumers(eb)
+                this.missionServices.get(missionId).patient.registerEventBusConsumers(eb)
                 val response = JsonObject()
-                this.missionServices.get(missionId).registerEventBusConsumers(eb, missionId)
                 response.put("missionId", missionId)
                 message.reply(response)
             } catch (e: IllegalArgumentException) {
                 println(e.message)
-                val failureMessage = StandardMessages.JSON_MALFORMED_MESSAGE_PREFIX + MissionInfo::class.java.toString()
+                val failureMessage = StandardMessages.JSON_MALFORMED_MESSAGE_PREFIX +
+                        MissionInfo::class.java.toString()
                 message.fail(FailureCode.JSON_MALFORMED, failureMessage)
             }
         }
