@@ -20,3 +20,9 @@ open class Patient(
     @JsonProperty("complications") var complications: ArrayList<Complication> = ArrayList(),
     @JsonProperty("notes") var notes: ArrayList<Note<*>> = ArrayList()
 ) : Model
+
+open class MongoPatient(
+    @JsonProperty("anagraphic") var anagraphic: Anagraphic = Anagraphic(),
+    @JsonProperty("medicalHistory") var medicalHistory: MedicalHistory = MedicalHistory(),
+    @JsonProperty("status") var status: PatientState = PatientState()
+)

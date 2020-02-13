@@ -4,6 +4,7 @@ import digitaltwinframework.coreimplementation.restmanagement.AbstractRestHandle
 import digitaltwinframework.coreimplementation.restmanagement.RESTDefaultResponse
 import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages
 import io.vertx.core.Handler
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 
@@ -54,7 +55,7 @@ object PatientOperationIds {
 
 object PatientRESTHandlers : AbstractRestHandlers() {
     val onGetPatient = Handler<RoutingContext> { routingContext ->
-        checkIdAndPerformRequest(
+        checkIdAndPerformRequest<JsonObject>(
             routingContext,
             PatientOperationIds.GET_PATIENT,
             StandardMessages.EMPTY_MESSAGE
@@ -66,7 +67,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
     }
 
     val onGetMedicalHistory = Handler<RoutingContext> { routingContext ->
-        checkIdAndPerformRequest(
+        checkIdAndPerformRequest<JsonObject>(
             routingContext,
             PatientOperationIds.GET_MEDICAL_HISTORY,
             StandardMessages.EMPTY_MESSAGE
@@ -90,11 +91,20 @@ object PatientRESTHandlers : AbstractRestHandlers() {
     }
 
     val onGetVitalParametersHistory = Handler<RoutingContext> { routingContext ->
-
+        checkIdAndPerformRequest<JsonArray>(
+            routingContext,
+            PatientOperationIds.GET_VITALPARAMETERS_HISTORY,
+            StandardMessages.EMPTY_MESSAGE
+        )
     }
 
     val onAddVitalParameters = Handler<RoutingContext> { routingContext ->
-
+        val vitalParameters = routingContext.bodyAsJsonArray
+        checkIdAndPerformRequest<JsonArray>(
+            routingContext,
+            PatientOperationIds.ADD_VITALPARAMETERS,
+            vitalParameters
+        )
     }
 
     val onGetCurrentVitalParameters = Handler<RoutingContext> { routingContext ->
@@ -102,6 +112,10 @@ object PatientRESTHandlers : AbstractRestHandlers() {
     }
 
     val onGetVitalParameter = Handler<RoutingContext> { routingContext ->
+
+    }
+
+    val onGetVitalParameters = Handler<RoutingContext> { routingContext ->
 
     }
 
@@ -121,13 +135,11 @@ object PatientRESTHandlers : AbstractRestHandlers() {
 
     }
 
-    private fun checkIdAndPerformRequest(routingContext: RoutingContext, busAdrr: String, message: Any) {
+    private fun <T> checkIdAndPerformRequest(routingContext: RoutingContext, busAdrr: String, message: Any) {
         routingContext.pathParams().get("missionId")?.let {
-            eb.request<JsonObject>(
-                busAdrr + it,
-                message,
-                responseCallBack(routingContext)
-            )
+
+            eb.request<T>(busAdrr + it, message, responseCallBack(routingContext))
+
         } ?: RESTDefaultResponse.sendBadRequestResponse("MissionId not specified", routingContext)
 
     }

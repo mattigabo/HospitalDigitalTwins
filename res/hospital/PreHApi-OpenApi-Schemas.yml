@@ -1373,7 +1373,7 @@ components:
         name:
           type: string
         value:
-          type: object
+          type: string
         acquisitionTime:
           $ref: "#/components/schemas/GenerationTime"
 

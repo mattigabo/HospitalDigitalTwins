@@ -47,7 +47,14 @@ class RESTRoutingAdapter(
             MissionOperationIds.ARRIVAL_AT_THE_HOSPITAL to MissionRestHandlers.onArrivalAtHostpital,
 
             PatientOperationIds.GET_PATIENT to PatientRESTHandlers.onGetPatient,
-            PatientOperationIds.GET_MEDICAL_HISTORY to PatientRESTHandlers.onGetMedicalHistory
+            PatientOperationIds.GET_MEDICAL_HISTORY to PatientRESTHandlers.onGetMedicalHistory,
+            PatientOperationIds.GET_ANAGRAPHIC to PatientRESTHandlers.onGetAnagraphic,
+            PatientOperationIds.GET_STATUS to PatientRESTHandlers.onGetStatus,
+            PatientOperationIds.GET_VITALPARAMETERS_HISTORY to PatientRESTHandlers.onGetVitalParametersHistory,
+            PatientOperationIds.GET_VITALPARAMETER to PatientRESTHandlers.onGetVitalParameter,
+            PatientOperationIds.GET_VITALPARAMETERS to PatientRESTHandlers.onGetVitalParameters,
+            PatientOperationIds.ADD_VITALPARAMETERS to PatientRESTHandlers.onAddVitalParameters
+
         )
     }
 }
