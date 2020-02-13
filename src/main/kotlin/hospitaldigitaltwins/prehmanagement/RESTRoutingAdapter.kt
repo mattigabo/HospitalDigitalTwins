@@ -51,10 +51,10 @@ class RESTRoutingAdapter(
             PatientOperationIds.GET_ANAGRAPHIC to PatientRESTHandlers.onGetAnagraphic,
             PatientOperationIds.GET_STATUS to PatientRESTHandlers.onGetStatus,
             PatientOperationIds.GET_VITALPARAMETERS_HISTORY to PatientRESTHandlers.onGetVitalParametersHistory,
-            PatientOperationIds.GET_VITALPARAMETER to PatientRESTHandlers.onGetVitalParameter,
-            PatientOperationIds.GET_VITALPARAMETERS to PatientRESTHandlers.onGetVitalParameters,
+            PatientOperationIds.GET_VITALPARAMETER to PatientRESTHandlers.onGetCurrentVitalParameter,
+            PatientOperationIds.GET_VITALPARAMETER_HISTORY to PatientRESTHandlers.onGetVitalParameterHistory,
+            PatientOperationIds.GET_VITALPARAMETERS to PatientRESTHandlers.onGetCurrentVitalParameters,
             PatientOperationIds.ADD_VITALPARAMETERS to PatientRESTHandlers.onAddVitalParameters
-
         )
     }
 }

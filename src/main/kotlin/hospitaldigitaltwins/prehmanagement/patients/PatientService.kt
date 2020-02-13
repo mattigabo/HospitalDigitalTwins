@@ -3,20 +3,19 @@ package hospitaldigitaltwins.prehmanagement.patients
 import digitaltwinframework.coreimplementation.utils.eventbusutils.FailureCode.PROBLEM_WITH_MONGODB
 import digitaltwinframework.coreimplementation.utils.eventbusutils.JsonResponse
 import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages
-import hospitaldigitaltwins.ontologies.Anagraphic
-import hospitaldigitaltwins.ontologies.MedicalHistory
-import hospitaldigitaltwins.ontologies.MongoPatient
-import hospitaldigitaltwins.ontologies.Patient
+import hospitaldigitaltwins.ontologies.*
 import hospitaldigitaltwins.prehmanagement.ontologies.PatientState
 import io.vertx.core.*
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.eventbus.Message
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
+import io.vertx.ext.mongo.FindOptions
 import io.vertx.ext.mongo.MongoClient
 import io.vertx.kotlin.core.json.get
 import io.vertx.kotlin.core.json.json
 import io.vertx.kotlin.core.json.obj
+import java.util.*
 
 class PatientService(private val missionId: Int) {
     lateinit var mongoClient: MongoClient
@@ -36,7 +35,15 @@ class PatientService(private val missionId: Int) {
                     res.succeeded() -> {
                         var jobjRes = JsonObject(res.result().get(0).toString())
                         jobjRes.remove("_id")
-                        var result = jobjRes.mapTo(Patient::class.java)
+                        var partialResult = jobjRes.mapTo(MongoPatient::class.java)
+                        var result = Patient(
+                            partialResult.anagraphic,
+                            partialResult.medicalHistory,
+                            partialResult.status,
+                            ArrayList(),
+                            ArrayList(),
+                            ArrayList()
+                        )
                         promise.complete(result)
                     }
                     else -> {
@@ -139,9 +146,36 @@ class PatientService(private val missionId: Int) {
             }
         }
 
+        eb.consumer<String>(PatientOperationIds.GET_VITALPARAMETER + missionId) { message ->
+            val vitalParameterName = message.body()
+            this.getCurrentVitalParameter(vitalParameterName).future().onComplete { ar ->
+                when {
+                    ar.succeeded() -> message.reply(ar.result())
+                    else -> message.fail(PROBLEM_WITH_MONGODB, ar.cause().toString())
+                }
+            }
+        }
+
+        eb.consumer<JsonArray>(PatientOperationIds.GET_VITALPARAMETERS + missionId) { message ->
+            var resultList: JsonArray = JsonArray()
+            this.getCurrentVitalParameters(resultList).onComplete {
+                message.reply(resultList)
+            }
+        }
+
+        eb.consumer<String>(PatientOperationIds.GET_VITALPARAMETER_HISTORY + missionId) { message ->
+            val vitalParameterName = message.body()
+            this.getVitalParameterHistory(vitalParameterName).future().onComplete { ar ->
+                when {
+                    ar.succeeded() -> message.reply(ar.result())
+                    else -> message.fail(PROBLEM_WITH_MONGODB, ar.cause().toString())
+                }
+            }
+        }
+
         eb.consumer<JsonArray>(PatientOperationIds.ADD_VITALPARAMETERS + missionId) { message ->
             val addingFuture = message.body().map { addVitalPatameter(it as JsonObject).future() }.toList()
-            CompositeFuture.all(addingFuture).onComplete {
+            CompositeFuture.join(addingFuture).onComplete {
                 message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
             }
         }
@@ -179,6 +213,70 @@ class PatientService(private val missionId: Int) {
     /*fun setStatus(value: PatientState) : Promise<String>{
 
     }*/
+
+    fun getCurrentVitalParameters(resultList: JsonArray): CompositeFuture {
+        var futures = VitalParametersNames.asNameList().map {
+            getCurrentVitalParameter(it).future()
+        }
+        futures.forEach {
+            it.onComplete { res ->
+                if (res.result().toString() != "{}") {
+                    resultList.add(res.result())
+                }
+            }
+        }
+        return CompositeFuture.all(futures)
+    }
+
+    fun getCurrentVitalParameter(parameterName: String): Promise<JsonObject> {
+        var promise: Promise<JsonObject> = Promise.promise()
+        var searchField = json { obj("name" to parameterName) }
+        var findOption = FindOptions()
+        val sortStrategy = JsonObject()
+        sortStrategy.put("acquisitionTime", -1)
+        findOption.sort = sortStrategy
+        patientId?.let {
+            mongoClient.findWithOptions(vitalParametersCollection, searchField, findOption) { res ->
+                when {
+                    res.succeeded() -> {
+                        try {
+                            var jobjResult = JsonObject(res.result().get(0).toString())
+                            jobjResult.remove("_id")
+                            promise.complete(jobjResult)
+                        } catch (e: IndexOutOfBoundsException) {
+                            promise.complete(JsonObject())
+                        }
+                    }
+                    else -> {
+                        println(res.cause())
+                        promise.fail(res.cause())
+                    }
+                }
+            }
+        } ?: promise.fail(IllegalStateException())
+        return promise
+    }
+
+    fun getVitalParameterHistory(vitalParameterName: String): Promise<JsonArray> {
+        var promise: Promise<JsonArray> = Promise.promise()
+        var searchQuery = json { obj("name" to vitalParameterName) }
+        patientId?.let {
+            mongoClient.find(vitalParametersCollection, searchQuery) { res ->
+                when {
+                    res.succeeded() -> {
+                        var jArrayRes = JsonArray(res.result())
+                        jArrayRes.forEach { (it as JsonObject).remove("_id") }
+                        promise.complete(jArrayRes)
+                    }
+                    else -> {
+                        println(res.cause())
+                        promise.fail(res.cause())
+                    }
+                }
+            }
+        } ?: promise.fail(IllegalStateException())
+        return promise
+    }
 
     fun getAllVitalParametersHistory(): Promise<JsonArray> {
         var promise: Promise<JsonArray> = Promise.promise()
@@ -221,6 +319,5 @@ class PatientService(private val missionId: Int) {
         } ?: promise.fail(IllegalStateException())
         return promise
     }
-
 
 }

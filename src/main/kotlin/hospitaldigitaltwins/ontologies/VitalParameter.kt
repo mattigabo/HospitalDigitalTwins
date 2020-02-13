@@ -28,4 +28,27 @@ object VitalParametersNames {
     const val LEFT_PHOTO_REACTIVE = "left photo reactive"
     const val RIGHT_PHOTO_REACTIVE = "right photo reactive"
     const val TEMPERATURE = "temperature"
+
+    fun asNameList(): List<String> {
+        return arrayListOf(
+            PHOTO_REACTIVE,
+            PUPILS_DIAMETER,
+            RESPIRATORY_TRACT,
+            BREATHING_RATE,
+            OXYGEN_SATURATION,
+            HEARTBEAT_RATE,
+            HEARTBEAT_TYPE,
+            BLOOD_PRESSURE,
+            CAP_REFILL_TIME,
+            SKIN_COLOR,
+            EYE_OPENING,
+            VERBAL_RESPONSE,
+            MOTOR_RESPONSE,
+            LEFT_PUPIL,
+            RIGHT_PUPIL,
+            LEFT_PHOTO_REACTIVE,
+            RIGHT_PHOTO_REACTIVE,
+            TEMPERATURE
+        )
+    }
 }

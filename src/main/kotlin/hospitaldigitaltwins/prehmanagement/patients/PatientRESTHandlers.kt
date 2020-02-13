@@ -26,6 +26,7 @@ object PatientOperationIds {
     val GET_VITALPARAMETERS = "getCurrentVitalParameters"
 
     val GET_VITALPARAMETER = "getVitalParameter"
+    val GET_VITALPARAMETER_HISTORY = "getVitalParameterHistory"
 
     val GET_ALL_DRUGS = "getAdministrations"
     val ADD_DRUG = "addAdministration"
@@ -108,15 +109,31 @@ object PatientRESTHandlers : AbstractRestHandlers() {
     }
 
     val onGetCurrentVitalParameters = Handler<RoutingContext> { routingContext ->
-
+        checkIdAndPerformRequest<JsonArray>(
+            routingContext,
+            PatientOperationIds.GET_VITALPARAMETERS,
+            StandardMessages.EMPTY_MESSAGE
+        )
     }
 
-    val onGetVitalParameter = Handler<RoutingContext> { routingContext ->
-
+    val onGetCurrentVitalParameter = Handler<RoutingContext> { routingContext ->
+        routingContext.pathParams().get("vitalParametersName")?.let {
+            checkIdAndPerformRequest<String>(
+                routingContext,
+                PatientOperationIds.GET_VITALPARAMETER,
+                it
+            )
+        } ?: RESTDefaultResponse.sendBadRequestResponse("vitalParametersName not specified", routingContext)
     }
 
-    val onGetVitalParameters = Handler<RoutingContext> { routingContext ->
-
+    val onGetVitalParameterHistory = Handler<RoutingContext> { routingContext ->
+        routingContext.pathParams().get("vitalParametersName")?.let {
+            checkIdAndPerformRequest<String>(
+                routingContext,
+                PatientOperationIds.GET_VITALPARAMETER_HISTORY,
+                it
+            )
+        } ?: RESTDefaultResponse.sendBadRequestResponse("vitalParametersName not specified", routingContext)
     }
 
     val onGetAdministrations = Handler<RoutingContext> { routingContext ->
@@ -141,6 +158,5 @@ object PatientRESTHandlers : AbstractRestHandlers() {
             eb.request<T>(busAdrr + it, message, responseCallBack(routingContext))
 
         } ?: RESTDefaultResponse.sendBadRequestResponse("MissionId not specified", routingContext)
-
     }
 }

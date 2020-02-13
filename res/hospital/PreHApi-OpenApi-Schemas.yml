@@ -559,6 +559,28 @@ paths:
         '500':
           description: "server error"
 
+  '/missions/{missionId}/patient/vital-parameters/{vitalParametersName}/history':
+    get:
+      tags:
+        - "Patient Vital Parameter"
+      description: "By passing in the mission's identifier and the parameter name, you can search for its history of values."
+      operationId: getVitalParameterHistory
+      parameters:
+        - $ref: "#/components/parameters/mission-id-param"
+        - $ref: "#/components/parameters/vital-parameters-name-param"
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VitalParameter"
+        '404':
+          description: "vital parameter not found"
+        '500':
+          description: "server error"
 
   '/missions/{missionId}/patient/administration':
     post:
