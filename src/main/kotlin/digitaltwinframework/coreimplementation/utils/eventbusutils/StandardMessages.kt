@@ -13,4 +13,5 @@ data class JsonResponse(@JsonProperty("operationResult") val operationResult: St
 object FailureCode {
     const val JSON_MALFORMED = 1
     const val PROBLEM_WITH_MONGODB = 2
+    const val PROBLEM_IN_MISSION_CREATION = 3
 }

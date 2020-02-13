@@ -6,6 +6,7 @@ import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessa
 import hospitaldigitaltwins.prehmanagement.missions.MissionInfo
 import hospitaldigitaltwins.prehmanagement.missions.MissionModel
 import hospitaldigitaltwins.prehmanagement.missions.MissionService
+import io.vertx.core.Promise
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
@@ -27,10 +28,15 @@ class EventService {
             _eventInfo = value
         }
 
-    fun addMission(missionInfo: MissionInfo): Int {
-        var mission = MissionService(MissionModel(missionServices.size, missionInfo))
-        missionServices.add(mission)
-        return missionServices.indexOf(mission)
+    fun addMission(missionInfo: MissionInfo): Promise<Int> {
+        var result = Promise.promise<Int>()
+        MissionService.createMission(MissionModel(missionServices.size, missionInfo)).future().onComplete {
+            missionServices.add(it.result())
+            result.complete(missionServices.indexOf(it.result()))
+        }.onFailure {
+            result.fail(it)
+        }
+        return result
     }
 
     fun registerEventBusConsumers(eb: EventBus) {
@@ -65,12 +71,15 @@ class EventService {
                     message.body().getString("medicName"),
                     message.body().getJsonArray("vehicles").list as ArrayList<String>
                 )
-                val missionId = this.addMission(mission)
-                this.missionServices.get(missionId).registerEventBusConsumers(eb)
-                this.missionServices.get(missionId).patient.registerEventBusConsumers(eb)
-                val response = JsonObject()
-                response.put("missionId", missionId)
-                message.reply(response)
+                this.addMission(mission).future().onComplete {
+                    this.missionServices.get(it.result()).registerEventBusConsumers(eb)
+                    this.missionServices.get(it.result()).patient.registerEventBusConsumers(eb)
+                    val response = JsonObject()
+                    response.put("missionId", it.result())
+                    message.reply(response)
+                }.onFailure {
+                    message.fail(FailureCode.PROBLEM_IN_MISSION_CREATION, it.toString())
+                }
             } catch (e: IllegalArgumentException) {
                 println(e.message)
                 val failureMessage = StandardMessages.JSON_MALFORMED_MESSAGE_PREFIX +

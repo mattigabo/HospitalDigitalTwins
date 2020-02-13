@@ -1,31 +1,32 @@
 package hospitaldigitaltwins.prehmanagement.patients
 
 import digitaltwinframework.coreimplementation.utils.eventbusutils.FailureCode.PROBLEM_WITH_MONGODB
-import digitaltwinframework.coreimplementation.utils.eventbusutils.JsonResponse
-import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages
-import hospitaldigitaltwins.ontologies.*
+import hospitaldigitaltwins.ontologies.Anagraphic
+import hospitaldigitaltwins.ontologies.MedicalHistory
+import hospitaldigitaltwins.ontologies.MongoPatient
+import hospitaldigitaltwins.ontologies.Patient
 import hospitaldigitaltwins.prehmanagement.ontologies.PatientState
-import io.vertx.core.*
+import io.vertx.core.AsyncResult
+import io.vertx.core.Handler
+import io.vertx.core.Promise
+import io.vertx.core.Vertx
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.eventbus.Message
-import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
-import io.vertx.ext.mongo.FindOptions
 import io.vertx.ext.mongo.MongoClient
 import io.vertx.kotlin.core.json.get
-import io.vertx.kotlin.core.json.json
-import io.vertx.kotlin.core.json.obj
 import java.util.*
 
-class PatientService(private val missionId: Int) {
+class PatientService private constructor(val missionId: Int, creationPromise: Promise<PatientService>) {
     lateinit var mongoClient: MongoClient
     private var patientCollection = "patients"
-    private lateinit var vitalParametersCollection: String
+    private lateinit var vitalParametersManagement: VitalParametersManagement
     private lateinit var maneuversCollection: String
     private lateinit var administrationsCollection: String
     private val searchQuery = JsonObject()
 
-    private var patientId: String? = null
+    var patientId: String? = null
+        private set
 
     val patient: Promise<Patient>
         get() {
@@ -62,30 +63,36 @@ class PatientService(private val missionId: Int) {
                 result.succeeded() -> {
                     config.mergeIn(JsonObject(result.result().toString()))
                     mongoClient = MongoClient.createShared(Vertx.currentContext().owner(), config)
-                    this.createPatient()
+                    this.createPatient().future().onComplete {
+                        println(it)
+                        creationPromise.complete(this)
+                    }
                 }
-                else -> println(result.cause())
+                else -> creationPromise.fail(result.cause())
             }
         }
     }
 
-    private fun createPatient() {
+    private fun createPatient(): Promise<String> {
+        val mongoCreationPromise = Promise.promise<String>()
         var emptyPatient = JsonObject.mapFrom(MongoPatient())
         mongoClient.save(patientCollection, emptyPatient) { res ->
             when {
                 res.succeeded() -> {
                     this.patientId = res.result()
 
-                    vitalParametersCollection = "vitalParametersMeasurementOf" + this.patientId
+                    var vitalParamCollection = "vitalParametersMeasurementOf" + this.patientId
+                    vitalParametersManagement = VitalParametersManagement(this, vitalParamCollection)
                     maneuversCollection = "maneuversCollectionOf" + this.patientId
                     administrationsCollection = "administrationsCollectionOf" + this.patientId
 
                     searchQuery.put("_id", patientId)
-                    println("Saved patient with id ${patientId}")
+                    mongoCreationPromise.complete("Saved patient with id ${patientId}")
                 }
-                else -> res.cause().printStackTrace()
+                else -> mongoCreationPromise.fail(res.cause())
             }
         }
+        return mongoCreationPromise
     }
 
     private fun <T> executeDistinctQuery(fieldName: String, destinationClass: Class<T>): Promise<T> {
@@ -137,48 +144,7 @@ class PatientService(private val missionId: Int) {
             this.getStatus().future().onComplete(onPromiseCompleteHandler<PatientState>(message))
         }
 
-        eb.consumer<JsonArray>(PatientOperationIds.GET_VITALPARAMETERS_HISTORY + missionId) { message ->
-            this.getAllVitalParametersHistory().future().onComplete { ar ->
-                when {
-                    ar.succeeded() -> message.reply(ar.result())
-                    else -> message.fail(PROBLEM_WITH_MONGODB, ar.cause().toString())
-                }
-            }
-        }
-
-        eb.consumer<String>(PatientOperationIds.GET_VITALPARAMETER + missionId) { message ->
-            val vitalParameterName = message.body()
-            this.getCurrentVitalParameter(vitalParameterName).future().onComplete { ar ->
-                when {
-                    ar.succeeded() -> message.reply(ar.result())
-                    else -> message.fail(PROBLEM_WITH_MONGODB, ar.cause().toString())
-                }
-            }
-        }
-
-        eb.consumer<JsonArray>(PatientOperationIds.GET_VITALPARAMETERS + missionId) { message ->
-            var resultList: JsonArray = JsonArray()
-            this.getCurrentVitalParameters(resultList).onComplete {
-                message.reply(resultList)
-            }
-        }
-
-        eb.consumer<String>(PatientOperationIds.GET_VITALPARAMETER_HISTORY + missionId) { message ->
-            val vitalParameterName = message.body()
-            this.getVitalParameterHistory(vitalParameterName).future().onComplete { ar ->
-                when {
-                    ar.succeeded() -> message.reply(ar.result())
-                    else -> message.fail(PROBLEM_WITH_MONGODB, ar.cause().toString())
-                }
-            }
-        }
-
-        eb.consumer<JsonArray>(PatientOperationIds.ADD_VITALPARAMETERS + missionId) { message ->
-            val addingFuture = message.body().map { addVitalPatameter(it as JsonObject).future() }.toList()
-            CompositeFuture.join(addingFuture).onComplete {
-                message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
-            }
-        }
+        this.vitalParametersManagement.registerEventBusConsumers(eb)
     }
 
     private fun <T> onPromiseCompleteHandler(message: Message<JsonObject>): Handler<AsyncResult<T>> {
@@ -214,110 +180,12 @@ class PatientService(private val missionId: Int) {
 
     }*/
 
-    fun getCurrentVitalParameters(resultList: JsonArray): CompositeFuture {
-        var futures = VitalParametersNames.asNameList().map {
-            getCurrentVitalParameter(it).future()
+    companion object {
+        fun createPatient(missionId: Int): Promise<PatientService> {
+            val patientPromise = Promise.promise<PatientService>()
+            PatientService(missionId, patientPromise)
+            return patientPromise
         }
-        futures.forEach {
-            it.onComplete { res ->
-                if (res.result().toString() != "{}") {
-                    resultList.add(res.result())
-                }
-            }
-        }
-        return CompositeFuture.all(futures)
-    }
-
-    fun getCurrentVitalParameter(parameterName: String): Promise<JsonObject> {
-        var promise: Promise<JsonObject> = Promise.promise()
-        var searchField = json { obj("name" to parameterName) }
-        var findOption = FindOptions()
-        val sortStrategy = JsonObject()
-        sortStrategy.put("acquisitionTime", -1)
-        findOption.sort = sortStrategy
-        patientId?.let {
-            mongoClient.findWithOptions(vitalParametersCollection, searchField, findOption) { res ->
-                when {
-                    res.succeeded() -> {
-                        try {
-                            var jobjResult = JsonObject(res.result().get(0).toString())
-                            jobjResult.remove("_id")
-                            promise.complete(jobjResult)
-                        } catch (e: IndexOutOfBoundsException) {
-                            promise.complete(JsonObject())
-                        }
-                    }
-                    else -> {
-                        println(res.cause())
-                        promise.fail(res.cause())
-                    }
-                }
-            }
-        } ?: promise.fail(IllegalStateException())
-        return promise
-    }
-
-    fun getVitalParameterHistory(vitalParameterName: String): Promise<JsonArray> {
-        var promise: Promise<JsonArray> = Promise.promise()
-        var searchQuery = json { obj("name" to vitalParameterName) }
-        patientId?.let {
-            mongoClient.find(vitalParametersCollection, searchQuery) { res ->
-                when {
-                    res.succeeded() -> {
-                        var jArrayRes = JsonArray(res.result())
-                        jArrayRes.forEach { (it as JsonObject).remove("_id") }
-                        promise.complete(jArrayRes)
-                    }
-                    else -> {
-                        println(res.cause())
-                        promise.fail(res.cause())
-                    }
-                }
-            }
-        } ?: promise.fail(IllegalStateException())
-        return promise
-    }
-
-    fun getAllVitalParametersHistory(): Promise<JsonArray> {
-        var promise: Promise<JsonArray> = Promise.promise()
-        var emptyQuery = json { obj() }
-        patientId?.let {
-            mongoClient.find(vitalParametersCollection, emptyQuery) { res ->
-                when {
-                    res.succeeded() -> {
-                        var jArrayRes = JsonArray(res.result())
-                        jArrayRes.forEach { (it as JsonObject).remove("_id") }
-                        promise.complete(jArrayRes)
-                    }
-                    else -> {
-                        println(res.cause())
-                        promise.fail(res.cause())
-                    }
-                }
-            }
-        } ?: promise.fail(IllegalStateException())
-        return promise
-    }
-
-    fun addVitalPatameter(vitalParameter: JsonObject): Promise<String> {
-        var promise: Promise<String> = Promise.promise()
-        patientId?.let {
-            mongoClient.save(vitalParametersCollection, vitalParameter) { res ->
-                when {
-                    res.succeeded() -> {
-                        val parameterID = res.result()
-                        println("Saved vital parameter with id ${parameterID}")
-                        promise.complete()
-                    }
-                    else -> {
-                        res.cause().printStackTrace()
-                        println(res.cause())
-                        promise.fail(res.cause())
-                    }
-                }
-            }
-        } ?: promise.fail(IllegalStateException())
-        return promise
     }
 
 }

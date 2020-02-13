@@ -6,15 +6,14 @@ import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessa
 import hospitaldigitaltwins.prehmanagement.ontologies.MissionSteps
 import hospitaldigitaltwins.prehmanagement.ontologies.TrackingStep
 import hospitaldigitaltwins.prehmanagement.patients.PatientService
+import io.vertx.core.Promise
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import java.time.LocalDateTime
 
 
-class MissionService(var model: MissionModel) {
-
-    val patient: PatientService = PatientService(model.missionId)
+class MissionService private constructor(var model: MissionModel, val patient: PatientService) {
 
     val missionInfo: MissionInfo
         get() = model.missionInfo
@@ -107,6 +106,16 @@ class MissionService(var model: MissionModel) {
         eb.consumer<JsonObject>(MissionOperationIds.ARRIVAL_AT_THE_HOSPITAL + model.missionId) { message ->
             this.onArrivalAtTheHospital()
             message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
+        }
+    }
+
+    companion object {
+        fun createMission(model: MissionModel): Promise<MissionService> {
+            var missionPromise = Promise.promise<MissionService>()
+            PatientService.createPatient(model.missionId).future().onComplete {
+                missionPromise.complete(MissionService(model, it.result()))
+            }
+            return missionPromise
         }
     }
 }
