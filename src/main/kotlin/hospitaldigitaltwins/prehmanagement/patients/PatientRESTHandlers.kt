@@ -11,7 +11,7 @@ import io.vertx.ext.web.RoutingContext
 object PatientOperationIds {
     val GET_PATIENT = "getPatientInfo"
 
-    val SET_MEDICAL_HISTORY = "setMedicalHistory"
+    val UPDATE_MEDICAL_HISTORY = "setMedicalHistory"
     val GET_MEDICAL_HISTORY = "getMedicalHistory"
 
     val UPDATE_ANAGRAPHIC = "updateAnagraphic"
@@ -63,8 +63,13 @@ object PatientRESTHandlers : AbstractRestHandlers() {
         )
     }
 
-    val onSetMedicalHistory = Handler<RoutingContext> { routingContext ->
-
+    val onUpdateMedicalHistory = Handler<RoutingContext> { routingContext ->
+        val medicalHistory = routingContext.bodyAsJson
+        checkIdAndPerformRequest<JsonArray>(
+            routingContext,
+            PatientOperationIds.UPDATE_MEDICAL_HISTORY,
+            medicalHistory
+        )
     }
 
     val onGetMedicalHistory = Handler<RoutingContext> { routingContext ->
@@ -76,19 +81,37 @@ object PatientRESTHandlers : AbstractRestHandlers() {
     }
 
     val onUpdateAnagraphic = Handler<RoutingContext> { routingContext ->
-
+        val anagraphic = routingContext.bodyAsJson
+        checkIdAndPerformRequest<JsonArray>(
+            routingContext,
+            PatientOperationIds.UPDATE_ANAGRAPHIC,
+            anagraphic
+        )
     }
 
     val onGetAnagraphic = Handler<RoutingContext> { routingContext ->
-
+        checkIdAndPerformRequest<JsonObject>(
+            routingContext,
+            PatientOperationIds.GET_ANAGRAPHIC,
+            StandardMessages.EMPTY_MESSAGE
+        )
     }
 
     val onUpdateStatus = Handler<RoutingContext> { routingContext ->
-
+        val status = routingContext.bodyAsJson
+        checkIdAndPerformRequest<JsonArray>(
+            routingContext,
+            PatientOperationIds.UPDATE_STATUS,
+            status
+        )
     }
 
     val onGetStatus = Handler<RoutingContext> { routingContext ->
-
+        checkIdAndPerformRequest<JsonObject>(
+            routingContext,
+            PatientOperationIds.GET_STATUS,
+            StandardMessages.EMPTY_MESSAGE
+        )
     }
 
     val onGetVitalParametersHistory = Handler<RoutingContext> { routingContext ->

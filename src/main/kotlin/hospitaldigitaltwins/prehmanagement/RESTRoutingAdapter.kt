@@ -54,7 +54,8 @@ class RESTRoutingAdapter(
             PatientOperationIds.GET_VITALPARAMETER to PatientRESTHandlers.onGetCurrentVitalParameter,
             PatientOperationIds.GET_VITALPARAMETER_HISTORY to PatientRESTHandlers.onGetVitalParameterHistory,
             PatientOperationIds.GET_VITALPARAMETERS to PatientRESTHandlers.onGetCurrentVitalParameters,
-            PatientOperationIds.ADD_VITALPARAMETERS to PatientRESTHandlers.onAddVitalParameters
+            PatientOperationIds.ADD_VITALPARAMETERS to PatientRESTHandlers.onAddVitalParameters,
+            PatientOperationIds.UPDATE_MEDICAL_HISTORY to PatientRESTHandlers.onUpdateMedicalHistory
         )
     }
 }

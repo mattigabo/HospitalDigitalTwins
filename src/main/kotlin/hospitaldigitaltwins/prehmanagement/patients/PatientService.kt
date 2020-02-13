@@ -1,15 +1,14 @@
 package hospitaldigitaltwins.prehmanagement.patients
 
+import digitaltwinframework.coreimplementation.utils.eventbusutils.FailureCode
 import digitaltwinframework.coreimplementation.utils.eventbusutils.FailureCode.PROBLEM_WITH_MONGODB
+import digitaltwinframework.coreimplementation.utils.eventbusutils.JsonResponse
 import hospitaldigitaltwins.ontologies.Anagraphic
 import hospitaldigitaltwins.ontologies.MedicalHistory
 import hospitaldigitaltwins.ontologies.MongoPatient
 import hospitaldigitaltwins.ontologies.Patient
 import hospitaldigitaltwins.prehmanagement.ontologies.PatientState
-import io.vertx.core.AsyncResult
-import io.vertx.core.Handler
-import io.vertx.core.Promise
-import io.vertx.core.Vertx
+import io.vertx.core.*
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.eventbus.Message
 import io.vertx.core.json.JsonObject
@@ -113,18 +112,18 @@ class PatientService private constructor(val missionId: Int, creationPromise: Pr
         return promise
     }
 
-    private fun updateField(newField: JsonObject): Promise<String> {
+    private fun updateField(newField: JsonObject): Future<String> {
         var promise: Promise<String> = Promise.promise()
         var update = JsonObject()
         update.put("\$set", newField)
         mongoClient.updateCollection(patientCollection, searchQuery, update) { res ->
             when {
-                res.succeeded() -> promise.complete()
+                res.succeeded() -> promise.complete("Update complete!")
                 res.failed() -> promise.fail(res.cause())
                 else -> promise.fail("Error during update")
             }
         }
-        return promise
+        return promise.future()
     }
 
     fun registerEventBusConsumers(eb: EventBus) {
@@ -136,12 +135,27 @@ class PatientService private constructor(val missionId: Int, creationPromise: Pr
             this.getMedicalHistory().future().onComplete(onPromiseCompleteHandler<MedicalHistory>(message))
         }
 
+        eb.consumer<JsonObject>(PatientOperationIds.UPDATE_MEDICAL_HISTORY + missionId) { message ->
+            val medicalHistory = message.body().mapTo(MedicalHistory::class.java)
+            this.setMedicalHistory(medicalHistory).onComplete {
+                message.reply(JsonObject.mapFrom(JsonResponse(it.result())))
+            }.onFailure {
+                message.fail(FailureCode.PROBLEM_IN_PATIENT_FIELD_UPDATE, it.toString())
+            }
+        }
+
         eb.consumer<JsonObject>(PatientOperationIds.GET_ANAGRAPHIC + missionId) { message ->
             this.getAnagraphic().future().onComplete(onPromiseCompleteHandler<Anagraphic>(message))
         }
 
+        eb.consumer<JsonObject>(PatientOperationIds.UPDATE_ANAGRAPHIC + missionId) { message ->
+        }
+
         eb.consumer<JsonObject>(PatientOperationIds.GET_STATUS + missionId) { message ->
             this.getStatus().future().onComplete(onPromiseCompleteHandler<PatientState>(message))
+        }
+
+        eb.consumer<JsonObject>(PatientOperationIds.UPDATE_STATUS + missionId) { message ->
         }
 
         this.vitalParametersManagement.registerEventBusConsumers(eb)
@@ -160,9 +174,15 @@ class PatientService private constructor(val missionId: Int, creationPromise: Pr
         return executeDistinctQuery("medicalHistory", MedicalHistory::class.java)
     }
 
-    /* fun setMedicalHistory(value: MedicalHistory) : Promise<String> {
-
-     }*/
+    fun setMedicalHistory(value: MedicalHistory): Future<String> {
+        var updatePromise = Promise.promise<String>()
+        val update = JsonObject()
+        update.put("medicalHistory", JsonObject.mapFrom(value))
+        this.updateField(update).onComplete {
+            updatePromise.complete(it.result())
+        }.onFailure { updatePromise.fail(it.cause) }
+        return updatePromise.future()
+    }
 
     fun getAnagraphic(): Promise<Anagraphic> {
         return executeDistinctQuery("anagraphic", Anagraphic::class.java)

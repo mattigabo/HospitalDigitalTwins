@@ -14,4 +14,5 @@ object FailureCode {
     const val JSON_MALFORMED = 1
     const val PROBLEM_WITH_MONGODB = 2
     const val PROBLEM_IN_MISSION_CREATION = 3
+    const val PROBLEM_IN_PATIENT_FIELD_UPDATE = 4
 }
