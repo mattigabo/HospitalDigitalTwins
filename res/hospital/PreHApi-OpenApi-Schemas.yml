@@ -675,7 +675,7 @@ paths:
         - $ref: "#/components/parameters/mission-id-param"
       requestBody:
         content:
-          plain/text:
+          application/json:
             schema:
               $ref: "#/components/schemas/Maneuver"
       responses:
@@ -721,7 +721,7 @@ paths:
         '500':
           description: "server error"
 
-  '/missions/{missionId}/patient/maneuver/timed/{maneuverName}':
+  '/missions/{missionId}/patient/maneuver/timed/{maneuverId}':
     patch:
       tags:
         - "Patient maneuvers"
@@ -729,7 +729,7 @@ paths:
       operationId: updateTimedManeuver
       parameters:
         - $ref: "#/components/parameters/mission-id-param"
-        - $ref: "#/components/parameters/maneuver-name-param"
+        - $ref: "#/components/parameters/maneuver-id-param"
       requestBody:
         content:
           application/json:
@@ -752,7 +752,7 @@ paths:
       operationId: getTimedManeuver
       parameters:
         - $ref: "#/components/parameters/mission-id-param"
-        - $ref: "#/components/parameters/maneuver-name-param"
+        - $ref: "#/components/parameters/maneuver-id-param"
       responses:
         '200':
           description: "ok"
@@ -1137,10 +1137,10 @@ components:
       schema:
         $ref: "#/components/schemas/Identifier"
 
-    maneuver-name-param:
+    maneuver-id-param:
       in: path
-      name: "maneuverName"
-      description: "name of the desired maneuver"
+      name: "maneuverId"
+      description: "id of the maneuver"
       required: true
       schema:
         type: string
@@ -1503,7 +1503,3 @@ components:
       type: string
       format: base64
       example: "SW5kaWEgVGVhbSB3aWxsIHdpbiB0aGUgQ3Vw3aWxsIHdpbiB05kaWEgVGVh"
-# Added by API Auto Mocking Plugin
-servers:
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/mattigabo/PreHProcessDigitalTwinApi/1.0.0

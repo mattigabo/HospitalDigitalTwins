@@ -50,12 +50,25 @@ class RESTRoutingAdapter(
             PatientOperationIds.GET_MEDICAL_HISTORY to PatientRESTHandlers.onGetMedicalHistory,
             PatientOperationIds.GET_ANAGRAPHIC to PatientRESTHandlers.onGetAnagraphic,
             PatientOperationIds.GET_STATUS to PatientRESTHandlers.onGetStatus,
+
             PatientOperationIds.GET_VITALPARAMETERS_HISTORY to PatientRESTHandlers.onGetVitalParametersHistory,
             PatientOperationIds.GET_VITALPARAMETER to PatientRESTHandlers.onGetCurrentVitalParameter,
             PatientOperationIds.GET_VITALPARAMETER_HISTORY to PatientRESTHandlers.onGetVitalParameterHistory,
             PatientOperationIds.GET_VITALPARAMETERS to PatientRESTHandlers.onGetCurrentVitalParameters,
             PatientOperationIds.ADD_VITALPARAMETERS to PatientRESTHandlers.onAddVitalParameters,
-            PatientOperationIds.UPDATE_MEDICAL_HISTORY to PatientRESTHandlers.onUpdateMedicalHistory
+
+            PatientOperationIds.UPDATE_MEDICAL_HISTORY to PatientRESTHandlers.onUpdateMedicalHistory,
+            PatientOperationIds.UPDATE_ANAGRAPHIC to PatientRESTHandlers.onUpdateAnagraphic,
+            PatientOperationIds.UPDATE_STATUS to PatientRESTHandlers.onUpdateStatus,
+
+            PatientOperationIds.ADD_ADMINISTRATION to PatientRESTHandlers.onAddAdministration,
+            PatientOperationIds.GET_ALL_ADMINISTRATION to PatientRESTHandlers.onGetAdministrations,
+
+            PatientOperationIds.GET_EXECUTED_MANEUVERS to PatientRESTHandlers.onGetExecutedManeuvers,
+            PatientOperationIds.ADD_MANEUVER to PatientRESTHandlers.onAddManeuver,
+            PatientOperationIds.GET_TIMED_MANEUVER to PatientRESTHandlers.onGetTimedManeuver,
+            PatientOperationIds.ADD_TIMED_MANEUVER to PatientRESTHandlers.onAddTimedManeuver,
+            PatientOperationIds.UPDATE_TIMED_MANEUVER to PatientRESTHandlers.onUpdateTimedManeuver
         )
     }
 }

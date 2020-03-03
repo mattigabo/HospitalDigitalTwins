@@ -28,8 +28,8 @@ object PatientOperationIds {
     val GET_VITALPARAMETER = "getVitalParameter"
     val GET_VITALPARAMETER_HISTORY = "getVitalParameterHistory"
 
-    val GET_ALL_DRUGS = "getAdministrations"
-    val ADD_DRUG = "addAdministration"
+    val GET_ALL_ADMINISTRATION = "getAdministrations"
+    val ADD_ADMINISTRATION = "addAdministration"
 
     val GET_EXECUTED_MANEUVERS = "getExecutedManeuvers"
     val ADD_MANEUVER = "addManeuver"
@@ -160,19 +160,68 @@ object PatientRESTHandlers : AbstractRestHandlers() {
     }
 
     val onGetAdministrations = Handler<RoutingContext> { routingContext ->
-
+        checkIdAndPerformRequest<JsonArray>(
+            routingContext,
+            PatientOperationIds.GET_ALL_ADMINISTRATION,
+            StandardMessages.EMPTY_MESSAGE
+        )
     }
 
     val onAddAdministration = Handler<RoutingContext> { routingContext ->
-
+        val administration = routingContext.bodyAsJson
+        checkIdAndPerformRequest<JsonObject>(
+            routingContext,
+            PatientOperationIds.ADD_ADMINISTRATION,
+            administration
+        )
     }
 
     val onGetExecutedManeuvers = Handler<RoutingContext> { routingContext ->
-
+        checkIdAndPerformRequest<JsonArray>(
+            routingContext,
+            PatientOperationIds.GET_EXECUTED_MANEUVERS,
+            StandardMessages.EMPTY_MESSAGE
+        )
     }
 
     val onAddManeuver = Handler<RoutingContext> { routingContext ->
+        val maneuver = routingContext.bodyAsJson
+        checkIdAndPerformRequest<JsonObject>(
+            routingContext,
+            PatientOperationIds.ADD_MANEUVER,
+            maneuver
+        )
+    }
 
+    val onGetTimedManeuver = Handler<RoutingContext> { routingContext ->
+        routingContext.pathParams().get("maneuverId")?.let {
+            checkIdAndPerformRequest<String>(
+                routingContext,
+                PatientOperationIds.GET_EXECUTED_MANEUVERS,
+                it
+            )
+        } ?: RESTDefaultResponse.sendBadRequestResponse("Maneuver ID not specified", routingContext)
+    }
+
+    val onAddTimedManeuver = Handler<RoutingContext> { routingContext ->
+        val timedManeuver = routingContext.bodyAsJson
+        checkIdAndPerformRequest<JsonObject>(
+            routingContext,
+            PatientOperationIds.ADD_MANEUVER,
+            timedManeuver
+        )
+    }
+
+    val onUpdateTimedManeuver = Handler<RoutingContext> { routingContext ->
+        routingContext.pathParams().get("maneuverId")?.let {
+            val timedManeuver = routingContext.bodyAsJson
+            timedManeuver.put("maneuverId", it)
+            checkIdAndPerformRequest<JsonObject>(
+                routingContext,
+                PatientOperationIds.UPDATE_TIMED_MANEUVER,
+                timedManeuver
+            )
+        } ?: RESTDefaultResponse.sendBadRequestResponse("Maneuver ID not specified", routingContext)
     }
 
     private fun <T> checkIdAndPerformRequest(routingContext: RoutingContext, busAdrr: String, message: Any) {

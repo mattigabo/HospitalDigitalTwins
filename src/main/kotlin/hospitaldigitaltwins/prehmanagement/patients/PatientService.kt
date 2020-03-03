@@ -11,17 +11,18 @@ import hospitaldigitaltwins.prehmanagement.ontologies.PatientState
 import io.vertx.core.*
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.eventbus.Message
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.mongo.MongoClient
 import io.vertx.kotlin.core.json.get
-import java.util.*
 
 class PatientService private constructor(val missionId: Int, creationPromise: Promise<PatientService>) {
     lateinit var mongoClient: MongoClient
     private var patientCollection = "patients"
     private lateinit var vitalParametersManagement: VitalParametersManagement
     private lateinit var maneuversCollection: String
-    private lateinit var administrationsCollection: String
+    private lateinit var administrationsManagement: AdministrationsManagement
+    private lateinit var maneuversManagement: ManeuversManagement
     private val searchQuery = JsonObject()
 
     var patientId: String? = null
@@ -36,15 +37,18 @@ class PatientService private constructor(val missionId: Int, creationPromise: Pr
                         var jobjRes = JsonObject(res.result().get(0).toString())
                         jobjRes.remove("_id")
                         var partialResult = jobjRes.mapTo(MongoPatient::class.java)
-                        var result = Patient(
-                            partialResult.anagraphic,
-                            partialResult.medicalHistory,
-                            partialResult.status,
-                            ArrayList(),
-                            ArrayList(),
-                            ArrayList()
-                        )
-                        promise.complete(result)
+                        var resultList = JsonArray()
+                        this.vitalParametersManagement.getCurrentVitalParameters().onComplete {
+                            var result = Patient(
+                                partialResult.anagraphic,
+                                partialResult.medicalHistory,
+                                partialResult.status,
+                                ArrayList(),
+                                ArrayList(),
+                                ArrayList()
+                            )
+                            promise.complete(result)
+                        }
                     }
                     else -> {
                         println(res.cause())
@@ -81,9 +85,11 @@ class PatientService private constructor(val missionId: Int, creationPromise: Pr
                     this.patientId = res.result()
 
                     var vitalParamCollection = "vitalParametersMeasurementOf" + this.patientId
+                    var administrationCollection = "administrationsCollectionOf" + this.patientId
+                    var maneuversCollection = "maneuversCollectionOf" + this.patientId
                     vitalParametersManagement = VitalParametersManagement(this, vitalParamCollection)
-                    maneuversCollection = "maneuversCollectionOf" + this.patientId
-                    administrationsCollection = "administrationsCollectionOf" + this.patientId
+                    maneuversManagement = ManeuversManagement(this, maneuversCollection)
+                    administrationsManagement = AdministrationsManagement(this, administrationCollection)
 
                     searchQuery.put("_id", patientId)
                     mongoCreationPromise.complete("Saved patient with id ${patientId}")
@@ -149,6 +155,12 @@ class PatientService private constructor(val missionId: Int, creationPromise: Pr
         }
 
         eb.consumer<JsonObject>(PatientOperationIds.UPDATE_ANAGRAPHIC + missionId) { message ->
+            val anagraphic = message.body().mapTo(Anagraphic::class.java)
+            this.setAnagraphic(anagraphic).onComplete {
+                message.reply(JsonObject.mapFrom(JsonResponse(it.result())))
+            }.onFailure {
+                message.fail(FailureCode.PROBLEM_IN_PATIENT_FIELD_UPDATE, it.toString())
+            }
         }
 
         eb.consumer<JsonObject>(PatientOperationIds.GET_STATUS + missionId) { message ->
@@ -156,9 +168,17 @@ class PatientService private constructor(val missionId: Int, creationPromise: Pr
         }
 
         eb.consumer<JsonObject>(PatientOperationIds.UPDATE_STATUS + missionId) { message ->
+            val patientState = message.body().mapTo(PatientState::class.java)
+            this.setStatus(patientState).onComplete {
+                message.reply(JsonObject.mapFrom(JsonResponse(it.result())))
+            }.onFailure {
+                message.fail(FailureCode.PROBLEM_IN_PATIENT_FIELD_UPDATE, it.toString())
+            }
         }
 
         this.vitalParametersManagement.registerEventBusConsumers(eb)
+        this.administrationsManagement.registerEventBusConsumers(eb)
+        this.maneuversManagement.registerEventBusConsumers(eb)
     }
 
     private fun <T> onPromiseCompleteHandler(message: Message<JsonObject>): Handler<AsyncResult<T>> {
@@ -175,30 +195,30 @@ class PatientService private constructor(val missionId: Int, creationPromise: Pr
     }
 
     fun setMedicalHistory(value: MedicalHistory): Future<String> {
-        var updatePromise = Promise.promise<String>()
         val update = JsonObject()
         update.put("medicalHistory", JsonObject.mapFrom(value))
-        this.updateField(update).onComplete {
-            updatePromise.complete(it.result())
-        }.onFailure { updatePromise.fail(it.cause) }
-        return updatePromise.future()
+        return this.updateField(update)
     }
 
     fun getAnagraphic(): Promise<Anagraphic> {
         return executeDistinctQuery("anagraphic", Anagraphic::class.java)
     }
 
-    /*fun	setAnagraphic(value: Anagraphic): Promise<String>{
-
-    }*/
+    fun setAnagraphic(value: Anagraphic): Future<String> {
+        val update = JsonObject()
+        update.put("anagraphic", JsonObject.mapFrom(value))
+        return this.updateField(update)
+    }
 
     fun getStatus(): Promise<PatientState> {
         return executeDistinctQuery("status", PatientState::class.java)
     }
 
-    /*fun setStatus(value: PatientState) : Promise<String>{
-
-    }*/
+    fun setStatus(value: PatientState): Future<String> {
+        val update = JsonObject()
+        update.put("status", JsonObject.mapFrom(value))
+        return this.updateField(update)
+    }
 
     companion object {
         fun createPatient(missionId: Int): Promise<PatientService> {
@@ -207,5 +227,4 @@ class PatientService private constructor(val missionId: Int, creationPromise: Pr
             return patientPromise
         }
     }
-
 }

@@ -5,6 +5,7 @@ import digitaltwinframework.coreimplementation.utils.eventbusutils.JsonResponse
 import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages
 import hospitaldigitaltwins.ontologies.VitalParametersNames
 import io.vertx.core.CompositeFuture
+import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.json.JsonArray
@@ -39,8 +40,8 @@ class VitalParametersManagement(var patientService: PatientService, val vitalPar
         }
 
         eb.consumer<JsonArray>(PatientOperationIds.GET_VITALPARAMETERS + patientService.missionId) { message ->
-            var resultList: JsonArray = JsonArray()
-            this.getCurrentVitalParameters(resultList).onComplete {
+            this.getCurrentVitalParameters().onComplete {
+                var resultList: JsonArray = it.result()
                 message.reply(resultList)
             }
         }
@@ -63,7 +64,9 @@ class VitalParametersManagement(var patientService: PatientService, val vitalPar
         }
     }
 
-    fun getCurrentVitalParameters(resultList: JsonArray): CompositeFuture {
+    fun getCurrentVitalParameters(): Future<JsonArray> {
+        var resultList: JsonArray = JsonArray()
+        var result = Promise.promise<JsonArray>()
         var futures = VitalParametersNames.asNameList().map {
             getCurrentVitalParameter(it).future()
         }
@@ -74,7 +77,10 @@ class VitalParametersManagement(var patientService: PatientService, val vitalPar
                 }
             }
         }
-        return CompositeFuture.all(futures)
+        CompositeFuture.all(futures).onComplete {
+            result.complete(resultList)
+        }
+        return result.future()
     }
 
     fun getCurrentVitalParameter(parameterName: String): Promise<JsonObject> {
