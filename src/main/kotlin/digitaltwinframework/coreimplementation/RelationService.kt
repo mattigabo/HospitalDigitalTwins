@@ -5,6 +5,7 @@ import java.net.URI
 class RelationService {
 
     var relationToOtherDT: MutableMap<URI, ArrayList<Semantics>> = HashMap()
+        private set
 
     fun addRelation(digitalTwinId: URI, semantic: Semantics) {
         if (this.relationToOtherDT.containsKey(digitalTwinId)) {

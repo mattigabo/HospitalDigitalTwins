@@ -53,15 +53,18 @@ paths:
         '500':
           description: "server error"
 
-  /links/{linkToDelete}:
+  /links/:
     delete:
       tags:
         - "Management"
         - "SemanticLink"
-      description: "Delete the link to antoher digital twin passing the link identifier"
+      description: "Delete the link to another digital twin passing the link"
       operationId: deleteLink
-      parameters:
-        - $ref: "#/components/parameters/link-to-delete-param"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/linkToAnotherDigitalTwin"
       responses:
         '204':
           description: "link successfully deleted"

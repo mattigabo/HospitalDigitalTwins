@@ -1,16 +1,15 @@
 package digitaltwinframework.coreimplementation.restmanagement
 
 import digitaltwinframework.coreimplementation.BasicRunningEnvironment
-import digitaltwinframework.coreimplementation.Semantics
-import digitaltwinframework.coreimplementation.restmanagement.RESTDefaultResponse.sendNotFoundResponse
 import digitaltwinframework.coreimplementation.restmanagement.RESTDefaultResponse.sendServerErrorResponse
 import digitaltwinframework.coreimplementation.restmanagement.RESTDefaultResponse.sendSuccessResponse
-import digitaltwinframework.coreimplementation.textualSemantics
 import digitaltwinframework.coreimplementation.utils.ConfigUtils
 import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages.EMPTY_MESSAGE
 import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses.Companion.composeAddress
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
+import io.vertx.core.json.JsonArray
+import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 
 /**
@@ -35,74 +34,17 @@ class CoreManagementApiRESTAdapter(vertxInstance: Vertx, handlerServiceId: Strin
     val SHUTDOWN_DT_BUS_ADDR = composeAddress(handlerServiceId, OperationIDS.SHUTDOWN_DT)
 
 
-    val onIdRequestHandler = Handler<RoutingContext> { routingContext ->
-        eventBus.request<String>(GET_ID_BUS_ADDR, "") { ar ->
-            if (ar.succeeded()) {
-                sendSuccessResponse(ar.result().body(), routingContext)
-            } else if (ar.failed()) {
-                sendServerErrorResponse(routingContext)
-            }
-        }
-    }
-
-    val addLinkToAnotherDTHandler = Handler<RoutingContext> { routingContext ->
-        val requestContentJson = routingContext.bodyAsJson
-        val linkToDT = CoreManagementSchemas.LinkToAnotherDigitalTwin(
-                requestContentJson.getString("otherDigitalTwin"),
-                textualSemantics(requestContentJson.getString("semantic"))
-        )
-
-        eventBus.request<String>(ADD_LINK_TO_ANOTHER_DT_BUS_ADDR, linkToDT) { ar ->
-            if (ar.succeeded()) {
-                sendSuccessResponse(ar.result().body(), routingContext)
-            } else if (ar.failed()) {
-                sendServerErrorResponse(routingContext)
-            }
-        }
-    }
-
-    val onGetAllLinksToOtherDTHandler = Handler<RoutingContext> { routingContext ->
-        eventBus.request<String>(GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR, EMPTY_MESSAGE) { ar ->
-            if (ar.succeeded()) {
-                sendSuccessResponse(ar.result().body(), routingContext)
-            } else if (ar.failed()) {
-                sendServerErrorResponse(routingContext)
-            }
-        }
-    }
-
-    val onDeleteLinkHandler = Handler<RoutingContext> { routingContext ->
-        val requestContentJson = routingContext.bodyAsJson
-        val linkToDT = CoreManagementSchemas.LinkToAnotherDigitalTwin(
-                requestContentJson.getString("otherDigitalTwin"),
-                textualSemantics(requestContentJson.getString("semantic")
-                )
-        )
-
-        eventBus.request<String>(DELETE_LINK_BUS_ADDR, linkToDT) { ar ->
-            if (ar.succeeded()) {
-                sendSuccessResponse(ar.result().body(), routingContext)
-            } else if (ar.failed()) {
-                sendNotFoundResponse("link not found", routingContext)
-            }
-        }
-    }
-
-    val onShutdownDTHandler = Handler<RoutingContext> { routingContext ->
-        eventBus.request<String>(SHUTDOWN_DT_BUS_ADDR, EMPTY_MESSAGE) { ar ->
-            if (ar.succeeded()) {
-                sendSuccessResponse(ar.result().body(), routingContext)
-            }
-        }
-    }
-
     override fun operationCallbackMapping(): Map<String, Handler<RoutingContext>> {
         return mapOf(
-                OperationIDS.GET_ID to onIdRequestHandler,
-                OperationIDS.ADD_LINK_TO_ANOTHER_DT to addLinkToAnotherDTHandler,
-                OperationIDS.GET_ALL_LINK_TO_OTHER_DT to onGetAllLinksToOtherDTHandler,
-                OperationIDS.DELETE_LINK to onDeleteLinkHandler,
-                OperationIDS.SHUTDOWN_DT to onShutdownDTHandler
+            OperationIDS.GET_ID to CoreRestHandlers.onIdRequestHandler(GET_ID_BUS_ADDR),
+            OperationIDS.ADD_LINK_TO_ANOTHER_DT to CoreRestHandlers.addLinkToAnotherDTHandler(
+                ADD_LINK_TO_ANOTHER_DT_BUS_ADDR
+            ),
+            OperationIDS.GET_ALL_LINK_TO_OTHER_DT to CoreRestHandlers.onGetAllLinksToOtherDTHandler(
+                GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR
+            ),
+            OperationIDS.DELETE_LINK to CoreRestHandlers.onDeleteLinkHandler(DELETE_LINK_BUS_ADDR),
+            OperationIDS.SHUTDOWN_DT to CoreRestHandlers.onShutdownDTHandler(SHUTDOWN_DT_BUS_ADDR)
         )
     }
 
@@ -117,7 +59,45 @@ class CoreManagementApiRESTAdapter(vertxInstance: Vertx, handlerServiceId: Strin
     }
 }
 
+object CoreRestHandlers : AbstractRestHandlers() {
+    val onIdRequestHandler: (String) -> Handler<RoutingContext> = { busAddr ->
+        Handler<RoutingContext> { routingContext ->
+            eb.request<String>(busAddr, "") { ar ->
+                if (ar.succeeded()) {
+                    sendSuccessResponse(ar.result().body(), routingContext)
+                } else if (ar.failed()) {
+                    sendServerErrorResponse(routingContext)
+                }
+            }
+        }
+    }
 
-object CoreManagementSchemas {
-    data class LinkToAnotherDigitalTwin(val otherDigitalTwin: String, val semantic: Semantics)
+    val addLinkToAnotherDTHandler: (String) -> Handler<RoutingContext> = { busAddr ->
+        Handler<RoutingContext> { routingContext ->
+            val requestContentJson = routingContext.bodyAsJson
+            val linkToDT = routingContext.bodyAsJson
+
+            eb.request<JsonObject>(busAddr, linkToDT, responseCallBack(routingContext))
+        }
+    }
+
+    val onGetAllLinksToOtherDTHandler: (String) -> Handler<RoutingContext> = { busAddr ->
+        Handler<RoutingContext> { routingContext ->
+            eb.request<JsonArray>(busAddr, EMPTY_MESSAGE, responseCallBack(routingContext))
+        }
+    }
+
+    val onDeleteLinkHandler: (String) -> Handler<RoutingContext> = { busAddr ->
+        Handler<RoutingContext> { routingContext ->
+            val requestContentJson = routingContext.bodyAsJson
+
+            eb.request<JsonObject>(busAddr, requestContentJson, responseCallBack(routingContext))
+        }
+    }
+
+    val onShutdownDTHandler: (String) -> Handler<RoutingContext> = { busAddr ->
+        Handler<RoutingContext> { routingContext ->
+            eb.request<String>(busAddr, EMPTY_MESSAGE, responseCallBack(routingContext))
+        }
+    }
 }

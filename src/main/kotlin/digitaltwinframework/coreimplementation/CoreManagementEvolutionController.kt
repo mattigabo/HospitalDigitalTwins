@@ -1,12 +1,13 @@
 package digitaltwinframework.coreimplementation
 
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import digitaltwinframework.coreimplementation.restmanagement.CoreManagementApiRESTAdapter
-import digitaltwinframework.coreimplementation.restmanagement.CoreManagementSchemas
 import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.json.JsonArray
+import io.vertx.core.json.JsonObject
 import java.net.URI
 
 open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : AbstractVerticle() {
@@ -25,45 +26,49 @@ open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : 
     private fun registerCoreHandlerToEventBus(eb: EventBus) {
 
         eb.consumer<Any>(coreManagAdapter.GET_ID_BUS_ADDR) { message ->
-            message.reply("""
+            message.reply(
+                """
                    {
                         "digitalTwinIdentifier": ${thisDT.identifier}
                    }
-               """.trimIndent())
+               """.trimIndent()
+            )
         }
 
-        eb.consumer<Any>(coreManagAdapter.ADD_LINK_TO_ANOTHER_DT_BUS_ADDR) { message ->
-            when (message.body()) {
-                is CoreManagementSchemas.LinkToAnotherDigitalTwin -> {
-                    val link = message.body() as CoreManagementSchemas.LinkToAnotherDigitalTwin
-                    relationService.addRelation(URI(link.otherDigitalTwin), link.semantic)
-                    message.reply(StandardMessages.OPERATION_EXECUTED_MESSAGE)
-                }
-            }
+        eb.consumer<JsonObject>(coreManagAdapter.ADD_LINK_TO_ANOTHER_DT_BUS_ADDR) { message ->
+            var link = CoreManagementSchemas.LinkToAnotherDigitalTwin(
+                message.body().getString("otherDigitalTwin"),
+                TextualSemantics(message.body().getJsonObject("semantic").getString("description"))
+            )
+
+            relationService.addRelation(URI(link.otherDigitalTwin), link.semantic)
+            message.reply(StandardMessages.OPERATION_EXECUTED_MESSAGE)
         }
 
-        eb.consumer<Any>(coreManagAdapter.GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR) { message ->
-            val reply = JsonArray(relationService.relationToOtherDT.map { entry ->
-                entry.value.map {
-                    CoreManagementSchemas.LinkToAnotherDigitalTwin(entry.key.toString(), it)
+        eb.consumer<JsonArray>(coreManagAdapter.GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR) { message ->
+            val links = relationService.relationToOtherDT
+                .flatMap { entry ->
+                    entry.value.map {
+                        CoreManagementSchemas.LinkToAnotherDigitalTwin(entry.key.toString(), it)
+                    }
                 }
-            }.toList())
+            val reply = JsonArray(links.map { JsonObject.mapFrom(it) })
 
             message.reply(reply)
         }
 
-        eb.consumer<Any>(coreManagAdapter.DELETE_LINK_BUS_ADDR) { message ->
+        eb.consumer<JsonObject>(coreManagAdapter.DELETE_LINK_BUS_ADDR) { message ->
+            val linkToDT = CoreManagementSchemas.LinkToAnotherDigitalTwin(
+                message.body().getString("otherDigitalTwin"),
+                TextualSemantics(message.body().getJsonObject("semantic").getString("description"))
+            )
             var wasDeleted = false
-            when (message.body()) {
-                is CoreManagementSchemas.LinkToAnotherDigitalTwin -> {
-                    val link = message.body() as CoreManagementSchemas.LinkToAnotherDigitalTwin
-                    relationService.relationToOtherDT.get(URI(link.otherDigitalTwin))?.let {
-                        if (it.contains(link.semantic)) {
-                            wasDeleted = relationService.deleteRelation(URI(link.otherDigitalTwin), link.semantic)
-                        }
-                    }
+            relationService.relationToOtherDT.get(URI(linkToDT.otherDigitalTwin))?.let {
+                if (it.contains(linkToDT.semantic)) {
+                    wasDeleted = relationService.deleteRelation(URI(linkToDT.otherDigitalTwin), linkToDT.semantic)
                 }
             }
+
             message.reply(wasDeleted)
         }
 
@@ -78,4 +83,12 @@ open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : 
         super.stop()
         println("Evolution Controller Termination")
     }
+}
+
+
+object CoreManagementSchemas {
+    data class LinkToAnotherDigitalTwin(
+        @JsonProperty("otherDigitalTwin") val otherDigitalTwin: String,
+        @JsonProperty("semantic") val semantic: Semantics
+    )
 }

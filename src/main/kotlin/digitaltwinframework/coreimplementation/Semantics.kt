@@ -14,6 +14,6 @@ abstract class SemanticRelation<T> : HasSemantics {
     abstract var second: T
 }
 
-data class textualSemantics(val description: String) : Semantics
+data class TextualSemantics(val description: String) : Semantics
 
 abstract class DigitalTwinRelation<URI>
