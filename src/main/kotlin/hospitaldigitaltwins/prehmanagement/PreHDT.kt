@@ -5,7 +5,7 @@ import digitaltwinframework.DigitalTwinFactory
 import digitaltwinframework.coreimplementation.AbstractDigitalTwin
 import java.net.URI
 
-class PreHProcessDT(override val identifier: URI) : AbstractDigitalTwin(identifier) {
+class PreHDT(override val identifier: URI) : AbstractDigitalTwin(identifier) {
 
     val eventManagEvoController = PreHEvolutionController(this)
 
@@ -26,6 +26,6 @@ class PreHProcessDT(override val identifier: URI) : AbstractDigitalTwin(identifi
 }
 
 
-class PreHProcessDTFactory : DigitalTwinFactory {
-    override fun create(id: URI): DigitalTwin = PreHProcessDT(id)
+class PreHDTFactory : DigitalTwinFactory {
+    override fun create(id: URI): DigitalTwin = PreHDT(id)
 }

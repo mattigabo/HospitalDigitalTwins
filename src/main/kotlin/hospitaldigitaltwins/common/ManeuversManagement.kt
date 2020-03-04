@@ -1,4 +1,4 @@
-package hospitaldigitaltwins.prehmanagement.patients
+package hospitaldigitaltwins.common
 
 import digitaltwinframework.coreimplementation.utils.eventbusutils.FailureCode
 import digitaltwinframework.coreimplementation.utils.eventbusutils.JsonResponse
@@ -15,10 +15,10 @@ import io.vertx.kotlin.core.json.obj
 /**
  * Created by Matteo Gabellini on 13/02/2020.
  */
-class ManeuversManagement(var patientService: PatientService, val maneuversCollection: String) {
+class ManeuversManagement(var patientService: AbstractPatientService, val maneuversCollection: String) {
 
     fun registerEventBusConsumers(eb: EventBus) {
-        eb.consumer<JsonArray>(PatientOperationIds.GET_EXECUTED_MANEUVERS + patientService.missionId) { message ->
+        eb.consumer<JsonArray>(PatientOperationIds.GET_EXECUTED_MANEUVERS + patientService.busAddrSuffix) { message ->
             this.getExecutedManeuver().onComplete { ar ->
                 when {
                     ar.succeeded() -> message.reply(ar.result())
@@ -27,7 +27,7 @@ class ManeuversManagement(var patientService: PatientService, val maneuversColle
             }
         }
 
-        eb.consumer<String>(PatientOperationIds.GET_TIMED_MANEUVER + patientService.missionId) { message ->
+        eb.consumer<String>(PatientOperationIds.GET_TIMED_MANEUVER + patientService.busAddrSuffix) { message ->
             val maneuverId = message.body()
             this.getTimedManeuver(maneuverId).onComplete { ar ->
                 when {
@@ -37,14 +37,14 @@ class ManeuversManagement(var patientService: PatientService, val maneuversColle
             }
         }
 
-        eb.consumer<JsonObject>(PatientOperationIds.ADD_MANEUVER + patientService.missionId) { message ->
+        eb.consumer<JsonObject>(PatientOperationIds.ADD_MANEUVER + patientService.busAddrSuffix) { message ->
             val addingFuture = addManeuver(message.body())
             addingFuture.onComplete {
                 message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
             }
         }
 
-        eb.consumer<JsonObject>(PatientOperationIds.ADD_TIMED_MANEUVER + patientService.missionId) { message ->
+        eb.consumer<JsonObject>(PatientOperationIds.ADD_TIMED_MANEUVER + patientService.busAddrSuffix) { message ->
             val addingFuture = addTimedManeuver(message.body())
             addingFuture.onComplete {
                 val response = JsonObject()
@@ -53,11 +53,11 @@ class ManeuversManagement(var patientService: PatientService, val maneuversColle
             }
         }
 
-        eb.consumer<JsonObject>(PatientOperationIds.UPDATE_TIMED_MANEUVER + patientService.missionId) { message ->
-            val missionId = message.body().getString("maneuverId")
+        eb.consumer<JsonObject>(PatientOperationIds.UPDATE_TIMED_MANEUVER + patientService.busAddrSuffix) { message ->
+            val busAddrSuffix = message.body().getString("maneuverId")
             val updatedManeuver = message.body().copy()
             updatedManeuver.remove("maneuverId")
-            val updatingFuture = updateTimedManeuver(missionId, updatedManeuver)
+            val updatingFuture = updateTimedManeuver(busAddrSuffix, updatedManeuver)
             updatingFuture.onComplete {
                 message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
             }

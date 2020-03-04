@@ -2,12 +2,12 @@ package hospitaldigitaltwins.prehmanagement
 
 import digitaltwinframework.coreimplementation.restmanagement.AbstractRESTInteractionAdapter
 import digitaltwinframework.coreimplementation.utils.ConfigUtils
+import hospitaldigitaltwins.common.PatientOperationIds
+import hospitaldigitaltwins.common.PatientRESTHandlers
 import hospitaldigitaltwins.prehmanagement.eventmanagement.EventOperationIds
 import hospitaldigitaltwins.prehmanagement.eventmanagement.EventRestHandlers
 import hospitaldigitaltwins.prehmanagement.missions.MissionOperationIds
 import hospitaldigitaltwins.prehmanagement.missions.MissionRestHandlers
-import hospitaldigitaltwins.prehmanagement.patients.PatientOperationIds
-import hospitaldigitaltwins.prehmanagement.patients.PatientRESTHandlers
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.ext.web.RoutingContext

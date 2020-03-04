@@ -1,4 +1,4 @@
-package hospitaldigitaltwins.prehmanagement.patients
+package hospitaldigitaltwins.common
 
 import digitaltwinframework.coreimplementation.utils.eventbusutils.FailureCode
 import digitaltwinframework.coreimplementation.utils.eventbusutils.JsonResponse
@@ -17,10 +17,10 @@ import io.vertx.kotlin.core.json.obj
 /**
  * Created by Matteo Gabellini on 13/02/2020.
  */
-class VitalParametersManagement(var patientService: PatientService, val vitalParametersCollection: String) {
+class VitalParametersManagement(var patientService: AbstractPatientService, val vitalParametersCollection: String) {
 
     fun registerEventBusConsumers(eb: EventBus) {
-        eb.consumer<JsonArray>(PatientOperationIds.GET_VITALPARAMETERS_HISTORY + patientService.missionId) { message ->
+        eb.consumer<JsonArray>(PatientOperationIds.GET_VITALPARAMETERS_HISTORY + patientService.busAddrSuffix) { message ->
             this.getAllVitalParametersHistory().future().onComplete { ar ->
                 when {
                     ar.succeeded() -> message.reply(ar.result())
@@ -29,7 +29,7 @@ class VitalParametersManagement(var patientService: PatientService, val vitalPar
             }
         }
 
-        eb.consumer<String>(PatientOperationIds.GET_VITALPARAMETER + patientService.missionId) { message ->
+        eb.consumer<String>(PatientOperationIds.GET_VITALPARAMETER + patientService.busAddrSuffix) { message ->
             val vitalParameterName = message.body()
             this.getCurrentVitalParameter(vitalParameterName).future().onComplete { ar ->
                 when {
@@ -39,14 +39,14 @@ class VitalParametersManagement(var patientService: PatientService, val vitalPar
             }
         }
 
-        eb.consumer<JsonArray>(PatientOperationIds.GET_VITALPARAMETERS + patientService.missionId) { message ->
+        eb.consumer<JsonArray>(PatientOperationIds.GET_VITALPARAMETERS + patientService.busAddrSuffix) { message ->
             this.getCurrentVitalParameters().onComplete {
                 var resultList: JsonArray = it.result()
                 message.reply(resultList)
             }
         }
 
-        eb.consumer<String>(PatientOperationIds.GET_VITALPARAMETER_HISTORY + patientService.missionId) { message ->
+        eb.consumer<String>(PatientOperationIds.GET_VITALPARAMETER_HISTORY + patientService.busAddrSuffix) { message ->
             val vitalParameterName = message.body()
             this.getVitalParameterHistory(vitalParameterName).future().onComplete { ar ->
                 when {
@@ -56,7 +56,7 @@ class VitalParametersManagement(var patientService: PatientService, val vitalPar
             }
         }
 
-        eb.consumer<JsonArray>(PatientOperationIds.ADD_VITALPARAMETERS + patientService.missionId) { message ->
+        eb.consumer<JsonArray>(PatientOperationIds.ADD_VITALPARAMETERS + patientService.busAddrSuffix) { message ->
             val addingFuture = message.body().map { addVitalPatameter(it as JsonObject).future() }.toList()
             CompositeFuture.join(addingFuture).onComplete {
                 message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))

@@ -1,4 +1,4 @@
-package hospitaldigitaltwins.prehmanagement.patients
+package hospitaldigitaltwins.common
 
 import digitaltwinframework.coreimplementation.restmanagement.AbstractRestHandlers
 import digitaltwinframework.coreimplementation.restmanagement.RESTDefaultResponse
