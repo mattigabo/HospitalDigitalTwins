@@ -10,7 +10,7 @@ class PreHEvolutionController(val thisDT: AbstractDigitalTwin) : AbstractVerticl
 
     val eventService = EventService()
 
-    var restRoutingAdapter = PreHRESTRoutingAdapter(thisDT.runningEnv.vertx, thisDT.identifier.toString())
+    var restRoutingAdapter = PreHRestRoutingAdapter(thisDT.runningEnv.vertx, thisDT.identifier.toString())
 
     override fun start() {
         super.start()

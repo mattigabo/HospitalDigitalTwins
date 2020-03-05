@@ -14,7 +14,8 @@ import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory
  * The handler defined in the classes that implement this class will be used by the REST server control flow in order to forward the received
  * request to the digital twin evolution controller
  * */
-abstract class AbstractRESTInteractionAdapter(val vertxInstance: Vertx, val handlerServiceId: String) : InteractionAdapter {
+abstract class AbstractRestInteractionAdapter(val vertxInstance: Vertx, val handlerServiceId: String) :
+    InteractionAdapter {
 
     abstract val openApiSpecPath: String
 
@@ -40,8 +41,10 @@ abstract class AbstractRESTInteractionAdapter(val vertxInstance: Vertx, val hand
 
     private fun registerToTheRunningServer(router: Router) {
         vertxInstance.eventBus()
-                .send(SystemEventBusAddresses.RESTServer.address,
-                        RESTServer.RegisterSubrouter(handlerServiceId, router))
+                .send(
+                    SystemEventBusAddresses.RESTServer.address,
+                    RestServer.RegisterSubrouter(handlerServiceId, router)
+                )
 
     }
 

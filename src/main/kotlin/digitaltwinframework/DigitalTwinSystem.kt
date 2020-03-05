@@ -1,12 +1,12 @@
 package digitaltwinframework
 
-import digitaltwinframework.coreimplementation.restmanagement.RESTServer
+import digitaltwinframework.coreimplementation.restmanagement.RestServer
 
 interface DigitalTwinSystem {
 
     val name: String
 
-    fun RESTServerInstance(): RESTServer
+    fun RESTServerInstance(): RestServer
 
     fun shutdown()
 }

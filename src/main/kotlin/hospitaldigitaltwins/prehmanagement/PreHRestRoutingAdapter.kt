@@ -1,12 +1,12 @@
 package hospitaldigitaltwins.prehmanagement
 
-import digitaltwinframework.coreimplementation.restmanagement.AbstractRESTInteractionAdapter
+import digitaltwinframework.coreimplementation.restmanagement.AbstractRestInteractionAdapter
 import digitaltwinframework.coreimplementation.utils.ConfigUtils
 import hospitaldigitaltwins.prehmanagement.eventmanagement.EventOperationIds
 import hospitaldigitaltwins.prehmanagement.eventmanagement.EventRestHandlers
 import hospitaldigitaltwins.prehmanagement.missions.MissionOperationIds
 import hospitaldigitaltwins.prehmanagement.missions.MissionRestHandlers
-import hospitaldigitaltwins.prehmanagement.patients.PatientRESTHandlers
+import hospitaldigitaltwins.prehmanagement.patients.PatientRestHandlers
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.ext.web.RoutingContext
@@ -14,10 +14,10 @@ import io.vertx.ext.web.RoutingContext
 /**
  * Created by Matteo Gabellini on 06/02/2020.
  */
-class PreHRESTRoutingAdapter(
+class PreHRestRoutingAdapter(
     vertxInstance: Vertx,
     handlerServiceId: String
-) : AbstractRESTInteractionAdapter(vertxInstance, handlerServiceId) {
+) : AbstractRestInteractionAdapter(vertxInstance, handlerServiceId) {
 
     override val adapterName: String
         get() = "PreHDigitalTwinManagementApi"
@@ -45,7 +45,7 @@ class PreHRESTRoutingAdapter(
             MissionOperationIds.DEPARTURE_FROM_SITE to MissionRestHandlers.onDepartureFromSite,
             MissionOperationIds.ARRIVAL_AT_THE_HOSPITAL to MissionRestHandlers.onArrivalAtHostpital
         )
-        val result = HashMap(PatientRESTHandlers.callBackMapping())
+        val result = HashMap(PatientRestHandlers.callBackMapping())
         result.putAll(partialCallbackMapping)
         return result
     }

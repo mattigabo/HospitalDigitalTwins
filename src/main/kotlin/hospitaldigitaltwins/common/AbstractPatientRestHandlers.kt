@@ -8,7 +8,7 @@ import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 
-abstract class AbstractPatientRESTHandlers : AbstractRestHandlers() {
+abstract class AbstractPatientRestHandlers : AbstractRestHandlers() {
     val onGetPatient = Handler<RoutingContext> { routingContext ->
         performRequest<JsonObject>(
             routingContext,

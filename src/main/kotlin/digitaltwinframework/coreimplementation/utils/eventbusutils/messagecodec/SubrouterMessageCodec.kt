@@ -1,6 +1,6 @@
 package digitaltwinframework.coreimplementation.utils.eventbusutils.messagecodec
 
-import digitaltwinframework.coreimplementation.restmanagement.RESTServer
+import digitaltwinframework.coreimplementation.restmanagement.RestServer
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.eventbus.MessageCodec
 import io.vertx.core.json.JsonObject
@@ -9,13 +9,13 @@ import io.vertx.ext.web.Router
 /**
  * Created by Matteo Gabellini on 30/09/2019.
  */
-class SubrouterMessageCodec : MessageCodec<RESTServer.RegisterSubrouter, RESTServer.RegisterSubrouter> {
+class SubrouterMessageCodec : MessageCodec<RestServer.RegisterSubrouter, RestServer.RegisterSubrouter> {
 
     override fun systemCodecID(): Byte {
         return -1
     }
 
-    override fun encodeToWire(buffer: Buffer, s: RESTServer.RegisterSubrouter) {
+    override fun encodeToWire(buffer: Buffer, s: RestServer.RegisterSubrouter) {
         val jsonToEncode = JsonObject()
         jsonToEncode.put("handlerServiceId", s.handlerServiceId)
         jsonToEncode.put("router", s.router)
@@ -31,7 +31,7 @@ class SubrouterMessageCodec : MessageCodec<RESTServer.RegisterSubrouter, RESTSer
         buffer.appendString(jsonToStr)
     }
 
-    override fun decodeFromWire(pos: Int, buffer: Buffer): RESTServer.RegisterSubrouter {
+    override fun decodeFromWire(pos: Int, buffer: Buffer): RestServer.RegisterSubrouter {
         // Length of JSON
         val length = buffer.getInt(pos)
 
@@ -43,10 +43,10 @@ class SubrouterMessageCodec : MessageCodec<RESTServer.RegisterSubrouter, RESTSer
         val handlerServiceId: String = contentJson.getString("handlerServiceId")
         val router: Router = contentJson.getValue("unit") as Router
 
-        return RESTServer.RegisterSubrouter(handlerServiceId, router)
+        return RestServer.RegisterSubrouter(handlerServiceId, router)
     }
 
-    override fun transform(s: RESTServer.RegisterSubrouter): RESTServer.RegisterSubrouter {
+    override fun transform(s: RestServer.RegisterSubrouter): RestServer.RegisterSubrouter {
         return s
     }
 

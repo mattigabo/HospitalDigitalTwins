@@ -18,7 +18,7 @@ import io.vertx.ext.web.RoutingContext
  * request about the core management function, to the specified Digital Twin
  * */
 class CoreManagementApiRESTAdapter(vertxInstance: Vertx, handlerServiceId: String) :
-    AbstractRESTInteractionAdapter(vertxInstance, handlerServiceId) {
+    AbstractRestInteractionAdapter(vertxInstance, handlerServiceId) {
 
     override val adapterName: String = "DigitalTwinCoreManagementRESTApi"
     override val openApiSpecPath: String
@@ -74,9 +74,7 @@ object CoreRestHandlers : AbstractRestHandlers() {
 
     val addLinkToAnotherDTHandler: (String) -> Handler<RoutingContext> = { busAddr ->
         Handler<RoutingContext> { routingContext ->
-            val requestContentJson = routingContext.bodyAsJson
             val linkToDT = routingContext.bodyAsJson
-
             eb.request<JsonObject>(busAddr, linkToDT, responseCallBack(routingContext))
         }
     }
@@ -90,7 +88,6 @@ object CoreRestHandlers : AbstractRestHandlers() {
     val onDeleteLinkHandler: (String) -> Handler<RoutingContext> = { busAddr ->
         Handler<RoutingContext> { routingContext ->
             val requestContentJson = routingContext.bodyAsJson
-
             eb.request<JsonObject>(busAddr, requestContentJson, responseCallBack(routingContext))
         }
     }

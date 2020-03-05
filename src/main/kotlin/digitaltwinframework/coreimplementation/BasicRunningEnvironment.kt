@@ -4,7 +4,7 @@ import digitaltwinframework.DigitalTwin
 import digitaltwinframework.DigitalTwinFactory
 import digitaltwinframework.DigitalTwinRunningEnvironment
 import digitaltwinframework.coreimplementation.restmanagement.DevelopmentConfigurations
-import digitaltwinframework.coreimplementation.restmanagement.RESTServer
+import digitaltwinframework.coreimplementation.restmanagement.RestServer
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.Vertx
@@ -17,7 +17,7 @@ class BasicRunningEnvironment private constructor(override val name: String) : D
 
     val vertx = Vertx.vertx()
     val eventBus = vertx.eventBus()
-    private var restServer: RESTServer? = null
+    private var restServer: RestServer? = null
     private var encapsulatedDT: DigitalTwin? = null
 
     companion object {
@@ -41,7 +41,7 @@ class BasicRunningEnvironment private constructor(override val name: String) : D
 
     private fun startRestServer(): Future<String> {
         val serverBootPromise = Promise.promise<String>()
-        restServer = RESTServer(DevelopmentConfigurations.basicConfig, name)
+        restServer = RestServer(DevelopmentConfigurations.basicConfig, name)
         vertx.deployVerticle(restServer) { res ->
             if (res.succeeded()) {
                 serverBootPromise.complete("REST Server Deployed")

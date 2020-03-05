@@ -14,7 +14,7 @@ import io.vertx.ext.web.RoutingContext
  * If multiple digital twins run on a single machine the REST server instance is one
  * and each digital twin register wich message want to receive from it
  * */
-class RESTServer(val config: RESTServerConfig, val environmentName: String) : AbstractVerticle() {
+class RestServer(val config: RESTServerConfig, val environmentName: String) : AbstractVerticle() {
 
 
     private lateinit var eb: EventBus
