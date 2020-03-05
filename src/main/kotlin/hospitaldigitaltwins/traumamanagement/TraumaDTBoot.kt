@@ -1,7 +1,6 @@
 package hospitaldigitaltwins.traumamanagement
 
 import digitaltwinframework.coreimplementation.BasicRunningEnvironment
-import hospitaldigitaltwins.prehmanagement.PreHDTFactory
 import java.net.URI
 
 /**
@@ -11,6 +10,6 @@ fun main(args: Array<String>) {
     val testIdentifier = "testEnvironment"
 
     BasicRunningEnvironment.boot("TraumaDTRunningEnv").onComplete {
-        it.result().executeDigitalTwin(URI("TraumaID"), PreHDTFactory())
+        it.result().executeDigitalTwin(URI("TraumaID"), TraumaDTFactory())
     }.onFailure { it.printStackTrace() }
 }

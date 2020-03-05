@@ -1,0 +1,1194 @@
+openapi: "3.0.2"
+
+info:
+  title: "Trauma Digital Twin API"
+  version: "1.0.0"
+  description: |
+    <p>A RESTful API to interact with the Digital Twin of the Trauma Process.</p>
+
+paths:
+  '/traumaleader':
+    post:
+      tags:
+        - "TraumaLeader"
+      description: "Updates the assigned medic for the mission."
+      operationId: setTraumaLeader
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                medicName:
+                  type: string
+      responses:
+        '204':
+          description: "mission ongoing value successfully updated"
+        '400':
+          description: "bad parameters"
+        '404':
+          description: "mission not found"
+        '500':
+          description: "server error"
+
+    get:
+      tags:
+        - "TraumaLeader"
+      description: "Retrieves the medic name assigned to the mission."
+      operationId: "getTraumaLeader"
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  medicName:
+                    type: string
+        '404':
+          description: "mission not found"
+        '500':
+          description: "server error"
+
+  '/final-destination':
+    post:
+      tags:
+        - "FinalDestination"
+      description: "Set the final patient destination."
+      operationId: setFinalDestination
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FinalDestination"
+      responses:
+        '204':
+          description: "mission return information successfully updated"
+        '400':
+          description: "bad request"
+        '404':
+          description: "mission not found"
+        '500':
+          description: "server error"
+
+    get:
+      tags:
+        - "FinalDestination"
+      description: "Retrieves the return information about the mission."
+      operationId: getFinalDestination
+      responses:
+        '200':
+          description: "mission return information successfully retrieved"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinalDestination"
+        '204':
+          description: "no content"
+        '404':
+          description: "mission not found"
+        '500':
+          description: "server error"
+
+  '/locations':
+    get:
+      tags:
+        - "Location"
+      description: "Retrieves the visited location."
+      operationId: getLocations
+      responses:
+        '200':
+          description: "tracking information successfully retrieved"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Locations"
+        '204':
+          description: "no content"
+        '404':
+          description: "mission not found"
+        '500':
+          description: "server error"
+
+  '/locations/entry':
+    post:
+      tags:
+        - "Location"
+      description: "Notify the crew departure from the hospital."
+      operationId: entryInLocation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LocationChange"
+      responses:
+        '204':
+          description: "mission tracking step successfully added"
+        '400':
+          description: "bad parameters"
+        '404':
+          description: "mission not found"
+        '500':
+          description: "server error"
+
+  '/locations/exit':
+    post:
+      tags:
+        - "Location"
+      description: "Notify the crew departure from the hospital."
+      operationId: exitFromLocation
+      responses:
+        '204':
+          description: "mission tracking successfully updated"
+        '400':
+          description: "bad parameters"
+        '404':
+          description: "mission not found"
+        '500':
+          description: "server error"
+
+  '/take-patient-in-charge':
+    post:
+      tags:
+        - "Patient"
+      description: "Notifies the taking charge of the patient"
+      operationId: takePatientInCharge
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                medicName:
+                  type: string
+      responses:
+        '204':
+          description: "mission ongoing value successfully updated"
+        '400':
+          description: "bad parameters"
+        '404':
+          description: "mission not found"
+        '500':
+          description: "server error"
+
+
+
+  '/patient':
+    get:
+      tags:
+        - "Patient"
+      description: "Get the associated patient of the mission with the info relative to his current state."
+      operationId: getPatientInfo
+      responses:
+        '200':
+          description: "ok"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/PatientCurrentState"
+        '404':
+          description: "mission not found or patient not yet registered"
+        '500':
+          description: "server error"
+
+  '/patient/medicalhistory':
+    put:
+      tags:
+        - "Patient Medical History"
+      description: "Updates the medical history of the patient."
+      operationId: "setMedicalHistory"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatientMediacalHistory"
+      responses:
+        '204':
+          description: "anagraphic data successfully updated"
+        '400':
+          description: "bad request"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+    get:
+      tags:
+        - "Patient Medical History"
+      description: "By passing in the mission's identifier, you can retreive the associated patient's medical history information."
+      operationId: getMedicalHistory
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientMediacalHistory"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+
+  '/patient/anagraphic':
+    put:
+      tags:
+        - "Patients Anagraphic"
+      description: "Updates the anagraphic data of the patient associated to the mission."
+      operationId: updateAnagraphic
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Anagraphic"
+      responses:
+        '204':
+          description: "anagraphic data successfully updated"
+        '400':
+          description: "bad request"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+    get:
+      tags:
+        - "Patients Anagraphic"
+      description: "By passing in the mission's identifier, you can retreive the associated patient's anagraphic information."
+      operationId: getAnagraphic
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Anagraphic"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+  '/patient/status':
+    put:
+      tags:
+        - "Patient Status"
+      description: "Updates the patient's status."
+      operationId: updateStatus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatientStatus"
+      responses:
+        '204':
+          description: "patient's status successfully updated"
+        '400':
+          description: "bad request"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+    get:
+      tags:
+        - "Patient Status"
+      description: "By passing in the mission's identifier, you can search for its patient status."
+      operationId: getStatus
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientStatus"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+  '/patient/vital-parameters/history':
+    get:
+      tags:
+        - "Patient Vital Parameter"
+      description: "By passing in the patient's identifier, you can search for its vital parameters' history."
+      operationId: getVitalParametersHistory
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VitalParameters"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+  '/patient/vital-parameters':
+    post:
+      tags:
+        - "Patient Vital Parameter"
+      description: "Submit a new snapshot of the patient's vital parameters."
+      operationId: addVitalParameters
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VitalParameters"
+      responses:
+        '201':
+          description: "patient's vital parameters successfully uploaded"
+          headers:
+            Location:
+              schema:
+                type: string
+                format: URI-reference
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Identifier"
+        '400':
+          description: "bad request"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+    get:
+      tags:
+        - "Patient Vital Parameters"
+      description: "By passing in the mission's identifier, you can search for its patient's latest vital parameters registered."
+      operationId: getCurrentVitalParameters
+      responses:
+        '201':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VitalParameters"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+  '/patient/vital-parameters/{vitalParametersName}':
+    get:
+      tags:
+        - "Patient Vital Parameter"
+      description: "By passing in the mission's identifier and the parameter name, you can search for its patient's latest vital parameter's value registered."
+      operationId: getVitalParameter
+      parameters:
+        - $ref: "#/components/parameters/vital-parameters-name-param"
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VitalParameter"
+        '404':
+          description: "vital parameter not found"
+        '500':
+          description: "server error"
+
+  '/patient/vital-parameters/{vitalParametersName}/history':
+    get:
+      tags:
+        - "Patient Vital Parameter"
+      description: "By passing in the mission's identifier and the parameter name, you can search for its history of values."
+      operationId: getVitalParameterHistory
+      parameters:
+        - $ref: "#/components/parameters/vital-parameters-name-param"
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VitalParameter"
+        '404':
+          description: "vital parameter not found"
+        '500':
+          description: "server error"
+
+  '/patient/administration':
+    post:
+      tags:
+        - "Patient Administration"
+      description: "Register a new drug administration for the patient."
+      operationId: addAdministration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Administration"
+      responses:
+        '201':
+          description: "patient's drug administered successfully"
+          headers:
+            Location:
+              schema:
+                type: string
+                format: URI-reference
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Identifier"
+        '400':
+          description: "bad request"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+  '/patient/administrations':
+    get:
+      tags:
+        - "Patient Administration"
+      description: "Retrieve all the drugs administered to the patient."
+      operationId: getAdministrations
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: "#/components/schemas/Administration"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+
+  '/patient/executed-maneuvers':
+    get:
+      tags:
+        - "Patient maneuvers"
+      description: "Retrieves the summary of all the maneuvers performed on the patient."
+      operationId: getExecutedManeuvers
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  maneuver:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Maneuver"
+        '204':
+          description: "no content: no maneuvers executed on the requested patient"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+  '/patient/maneuver/':
+    post:
+      tags:
+        - "Patient maneuvers"
+      description: "Registers a maneuvere"
+      operationId: addManeuver
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Maneuver"
+      responses:
+        '201':
+          description: "patient's maneuver execution registered successfully"
+        '400':
+          description: "bad request"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+
+  '/patient/maneuver/timed':
+    post:
+      tags:
+        - "Patient maneuvers"
+      description: "Records a new timed maneuver for a patient. If the manevuer will be registered succesfully, the relative id will be returned"
+      operationId: addTimedManeuver
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TimedManeuver"
+      responses:
+        '201':
+          description: "patient's treatment registered successfully"
+          headers:
+            Location:
+              schema:
+                type: string
+                format: URI-reference
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Identifier"
+        '400':
+          description: "bad request"
+        '404':
+          description: "treatment not found"
+        '500':
+          description: "server error"
+
+  '/patient/maneuver/timed/{maneuverId}':
+    patch:
+      tags:
+        - "Patient maneuvers"
+      description: "Updates a timed maneuver for a patient; especially useful to specify the ending time of the treatment."
+      operationId: updateTimedManeuver
+      parameters:
+        - $ref: "#/components/parameters/maneuver-id-param"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TimedManeuver"
+      responses:
+        '200':
+          description: "patient's treatment updated successfully"
+        '400':
+          description: "bad request"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+    get:
+      tags:
+        - "Patient maneuvers"
+      description: "Retrieve a particular timed maneuver for a patient."
+      operationId: getTimedManeuver
+      parameters:
+        - $ref: "#/components/parameters/maneuver-id-param"
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimedManeuver"
+        '404':
+          description: "treatment not found"
+        '500':
+          description: "server error"
+
+
+
+  '/patient/complications':
+    get:
+      tags:
+        - "Patient complication"
+      description: "Retrieve all the complicaitons happened for a patient."
+      operationId: getAllComplications
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Complication"
+        '404':
+          description: "treatment not found"
+        '500':
+          description: "server error"
+
+
+
+  '/patient/notes':
+    get:
+      tags:
+        - "Patient notes"
+      description: "By passing in the patient's identifier, you can retrieve the textual notes associated with him/her."
+      responses:
+        '200':
+          description: "ok"
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+  '/patient/notes/text-note':
+    post:
+      tags:
+        - "Patient notes"
+      description: "By passing in the patient's identifier, you can add a multimedia note associated with him/her between: images, audio, video."
+      operationId: addTextNote
+      parameters:
+        - $ref: "#/components/parameters/multimedia-param"
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              $ref: "#/components/schemas/MultimediaContent"
+      responses:
+        '201':
+          description: "multimedia successfully uploaded"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Identifier"
+        '400':
+          description: "bad request"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+  '/patient/notes/text-notes':
+    get:
+      tags:
+        - "Patient notes"
+      description: "By passing in the patient's identifier, you can retrieve all the multimedia notes choosing between: images, audio, video"
+      operationId: getAllTextNotes
+      parameters:
+        - $ref: "#/components/parameters/multimedia-param"
+      responses:
+        '201':
+          description: "multimedia note successfully uploaded"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      $ref: "#/components/schemas/Identifier"
+                    content:
+                      $ref: "#/components/schemas/MultimediaContent"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+  '/patient/notes/audio-note':
+    post:
+      tags:
+        - "Patient notes"
+      description: "By passing in the patient's identifier, you can add a multimedia note associated with him/her between: images, audio, video."
+      operationId: addAudioNote
+      parameters:
+        - $ref: "#/components/parameters/multimedia-param"
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              $ref: "#/components/schemas/MultimediaContent"
+      responses:
+        '201':
+          description: "multimedia successfully uploaded"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Identifier"
+        '400':
+          description: "bad request"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+  '/patient/notes/audio-notes':
+    get:
+      tags:
+        - "Patient notes"
+      description: "By passing in the patient's identifier, you can retrieve all the multimedia notes choosing between: images, audio, video"
+      operationId: getAllAudioNotes
+      parameters:
+        - $ref: "#/components/parameters/multimedia-param"
+      responses:
+        '201':
+          description: "multimedia note successfully uploaded"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      $ref: "#/components/schemas/Identifier"
+                    content:
+                      $ref: "#/components/schemas/MultimediaContent"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+  '/patient/notes/photo':
+    post:
+      tags:
+        - "Patient notes"
+      description: "By passing in the patient's identifier, you can add a multimedia note associated with him/her between: images, audio, video."
+      operationId: addPhoto
+      parameters:
+        - $ref: "#/components/parameters/multimedia-param"
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              $ref: "#/components/schemas/MultimediaContent"
+      responses:
+        '201':
+          description: "multimedia successfully uploaded"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Identifier"
+        '400':
+          description: "bad request"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+  '/patient/notes/photos':
+    get:
+      tags:
+        - "Patient notes"
+      description: "By passing in the patient's identifier, you can retrieve all the multimedia notes choosing between: images, audio, video"
+      operationId: getAllPhotos
+      parameters:
+        - $ref: "#/components/parameters/multimedia-param"
+      responses:
+        '201':
+          description: "multimedia note successfully uploaded"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      $ref: "#/components/schemas/Identifier"
+                    content:
+                      $ref: "#/components/schemas/MultimediaContent"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+  '/patient/notes/video':
+    post:
+      tags:
+        - "Patient notes"
+      description: "By passing in the patient's identifier, you can add a multimedia note associated with him/her between: images, audio, video."
+      operationId: addVideo
+      parameters:
+        - $ref: "#/components/parameters/multimedia-param"
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              $ref: "#/components/schemas/MultimediaContent"
+      responses:
+        '201':
+          description: "multimedia successfully uploaded"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Identifier"
+        '400':
+          description: "bad request"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+
+  '/patient/notes/videos':
+    get:
+      tags:
+        - "Patient notes"
+      description: "By passing in the patient's identifier, you can retrieve all the multimedia notes choosing between: images, audio, video"
+      operationId: getAllVideos
+      parameters:
+        - $ref: "#/components/parameters/multimedia-param"
+      responses:
+        '201':
+          description: "multimedia note successfully uploaded"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      $ref: "#/components/schemas/Identifier"
+                    content:
+                      $ref: "#/components/schemas/MultimediaContent"
+        '404':
+          description: "patient not found"
+        '500':
+          description: "server error"
+components:
+  parameters:
+    tracking-step-param:
+      in: path
+      name: "trackingStep"
+      description: "the name of the single tracking step during a mission"
+      required: true
+      schema:
+        type: string
+        enum:
+          - "crew-departure"
+          - "arrival-onsite"
+          - "departure-onsite"
+          - "landing-helipad"
+          - "arrival-er"
+
+    patient-id-param:
+      in: path
+      name: "patientId"
+      description: "identifier of the patient"
+      required: true
+      schema:
+        $ref: "#/components/schemas/Identifier"
+
+    vital-parameters-name-param:
+      in: path
+      name: "vitalParametersName"
+      description: "Name of a certain the vital parameters"
+      required: true
+      schema:
+        type: string
+
+    drug-id-param:
+      in: path
+      name: "drugId"
+      description: "identifier of a certain drug admnistration"
+      required: true
+      schema:
+        $ref: "#/components/schemas/Identifier"
+
+    maneuver-id-param:
+      in: path
+      name: "maneuverId"
+      description: "id of the maneuver"
+      required: true
+      schema:
+        type: string
+
+    complication-param:
+      in: path
+      name: "complication"
+      description: "name of the desired complication"
+      required: true
+      schema:
+        $ref: "#/components/schemas/ComplicationName"
+
+    multimedia-id-param:
+      in: path
+      name: "multimediaId"
+      description: "identifier of the multimedia file"
+      required: true
+      schema:
+        $ref: "#/components/schemas/Identifier"
+
+    multimedia-param:
+      in: path
+      name: "multimedia"
+      description: "multimedia types"
+      required: true
+      schema:
+        type: string
+        enum:
+          - "images"
+          - "audio"
+          - "video"
+
+  schemas:
+    Identifier:
+      type: string
+      example: "d290f1ee-6c54-4b01-90e6-d701748f0851"
+
+    GenerationTime:
+      type: string
+      format: date-time
+      example: '2019-07-13T11:05:11'
+      description: "The timestamp relative to the moment when the resource is generated. Could be used when is useful to consider the freshness of a resource (e.g. in vital parameters analisys)"
+
+    EventInformation:
+      type: object
+      required:
+        - callTime
+        - address
+      properties:
+        callTime:
+          type: string
+          format: date-time
+          example: '2019-07-13T11:05:11'
+        address:
+          type: string
+          example: "Via della Madonnina 123, Cesena (FC) 47521"
+        dispatchCode:
+          type: string
+          example: 'SC01R'
+        emergencyType:
+          type: string
+          enum:
+            - "primary"
+            - "secondary"
+        dynamic:
+          type: string
+          example: "Road accident: pedestrian ran over"
+        patientsNumber:
+          type: integer
+          example: 1
+
+
+    FinalDestination:
+      type: string
+
+
+    LocationChange:
+      type: object
+      required:
+        - datetime
+      properties:
+        roomName:
+          type: string
+        datetime:
+          type: string
+          format: date-time
+          example: '2019-04-12T23:20:50'
+
+    Locations:
+      type: array
+      items:
+        allOf:
+          - $ref: "#/components/schemas/LocationChange"
+
+    PatientCurrentState:
+      type: object
+      properties:
+        anagraphic:
+          $ref: '#/components/schemas/Anagraphic'
+        state:
+          $ref: '#/components/schemas/PatientStatus'
+        medical-history:
+          $ref: '#/components/schemas/PatientMediacalHistory'
+        vital-parameters:
+          $ref: '#/components/schemas/VitalParameters'
+        complications:
+          $ref: '#/components/schemas/Complications'
+
+    Anagraphic:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "John"
+        surname:
+          type: string
+          example: "Doe"
+        residency:
+          type: string
+          example: "Via della Madonnina 123, Arezzo"
+        birthPlace:
+          type: string
+          example: "Cesena"
+        birthDate:
+          type: string
+          format: date
+          example: "1985-04-12"
+        gender:
+          type: string
+          example: "M"
+
+    PatientMediacalHistory:
+      type: object
+      properties:
+        anticoagulants:
+          type: boolean
+          example: false
+        antiplatelets:
+          type: boolean
+          example: false
+        nao:
+          type: boolean
+          example: false
+
+    StatusInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "thoraxDeformities"
+
+    PatientStatus:
+      type: object
+      properties:
+        traumaType:
+          type: string
+          example: "closed trauma"
+        helmetSeatbelt:
+          type: boolean
+          example: true
+        externalHaemorrhage:
+          type: boolean
+          example: false
+        tachypneaDyspnoea:
+          type: boolean
+          example: true
+        thoraxDeformities:
+          type: boolean
+          example: false
+        deformedPelvis:
+          type: boolean
+          example: false
+        otorrhagia:
+          type: boolean
+          example: true
+        paraparesis:
+          type: boolean
+          example: false
+        tetraparesis:
+          type: boolean
+          example: false
+        paraesthesia:
+          type: boolean
+          example: false
+        time:
+          type: string
+          format: date-time
+          example: '2019-07-12T12:20:50'
+
+    VitalParameter:
+      type: object
+      required:
+        - acquisitionTime
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+        acquisitionTime:
+          $ref: "#/components/schemas/GenerationTime"
+
+    VitalParameters:
+      type: array
+      items:
+        allOf:
+          - $ref: "#/components/schemas/VitalParameter"
+
+    Administration:
+      type: object
+      required:
+        - drug
+        - quantity
+        - measurementUnit
+        - time
+      properties:
+        drug:
+          type: string
+          enum:
+            - "crystalloids"
+            - "mannitol"
+            - "hypertonic-solution"
+            - "packed-red-blood-cells"
+            - "fibrinogen"
+            - "succinylcholine"
+            - "midazolam"
+            - "fentanyl"
+            - "ketamine"
+            - "curare"
+            - "tranexamic-acid"
+          example: "crystalloids"
+        quantity:
+          type: number
+          example: 500
+        measurementUnit:
+          type: string
+          example: "ml"
+        time:
+          type: string
+          format: date-time
+          example: '2019-07-13T13:21:50'
+
+
+    Maneuver:
+      type: object
+      required:
+        - name
+        - time
+      properties:
+        name:
+          type: string
+        time:
+          type: string
+          format: date-time
+          example: '2019-07-25T17:01:50'
+
+    TimedManeuver:
+      type: object
+      properties:
+        name:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+          example: '2019-07-13T12:21:50'
+        endTime:
+          type: string
+          format: date-time
+          example: '2019-07-13T12:23:12'
+
+
+    Complications:
+      type: array
+      items:
+        allOf:
+          - $ref: "#/components/schemas/Complication"
+
+    Complication:
+      type: object
+      required:
+        - name
+        - time
+      properties:
+        name:
+          $ref: "#/components/schemas/ComplicationName"
+        time:
+          type: string
+          format: date-time
+          example: '2019-07-23T12:21:59'
+
+    ComplicationName:
+      type: string
+      enum:
+        - "impaired-consciousness"
+        - "anisocoria-mydriasis"
+        - "respiratory-failure"
+        - "cardiocirculatory-shock"
+        - "landing-in-itinere"
+        - "death-in-itinere"
+        - "death-in-ps"
+      example: "respiratory-failure"
+
+    MultimediaContent:
+      type: string
+      format: base64
+      example: "SW5kaWEgVGVhbSB3aWxsIHdpbiB0aGUgQ3Vw3aWxsIHdpbiB05kaWEgVGVh"

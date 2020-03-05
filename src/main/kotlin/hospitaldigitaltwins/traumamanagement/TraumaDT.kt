@@ -5,7 +5,13 @@ import digitaltwinframework.DigitalTwinFactory
 import digitaltwinframework.coreimplementation.AbstractDigitalTwin
 import java.net.URI
 
-class TraumaDT(override val identifier: URI) : AbstractDigitalTwin(identifier)
+class TraumaDT(override val identifier: URI) : AbstractDigitalTwin(identifier) {
+
+    init {
+
+    }
+
+}
 
 class TraumaDTFactory : DigitalTwinFactory {
     override fun create(id: URI): DigitalTwin = TraumaDT(id)
