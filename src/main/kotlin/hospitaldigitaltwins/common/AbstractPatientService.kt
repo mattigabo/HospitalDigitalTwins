@@ -7,9 +7,11 @@ import hospitaldigitaltwins.ontologies.MedicalHistory
 import hospitaldigitaltwins.ontologies.MongoPatient
 import hospitaldigitaltwins.ontologies.Patient
 import hospitaldigitaltwins.prehmanagement.ontologies.PatientState
-import io.vertx.core.*
+import io.vertx.core.CompositeFuture
+import io.vertx.core.Future
+import io.vertx.core.Promise
+import io.vertx.core.Vertx
 import io.vertx.core.eventbus.EventBus
-import io.vertx.core.eventbus.Message
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.mongo.MongoClient
@@ -120,11 +122,11 @@ abstract class AbstractPatientService(mongoConfigPath: String) : AbstractMongoCl
 
     fun registerEventBusConsumers(eb: EventBus) {
         eb.consumer<JsonObject>(PatientOperationIds.GET_PATIENT + busAddrSuffix) { message ->
-            this.patient.future().onComplete(onPromiseCompleteHandler<Patient>(message))
+            this.patient.future().onComplete(onOperationCompleteHandler<Patient>(message))
         }
 
         eb.consumer<JsonObject>(PatientOperationIds.GET_MEDICAL_HISTORY + busAddrSuffix) { message ->
-            this.getMedicalHistory().onComplete(onPromiseCompleteHandler<MedicalHistory>(message))
+            this.getMedicalHistory().onComplete(onOperationCompleteHandler<MedicalHistory>(message))
         }
 
         eb.consumer<JsonObject>(PatientOperationIds.UPDATE_MEDICAL_HISTORY + busAddrSuffix) { message ->
@@ -137,7 +139,7 @@ abstract class AbstractPatientService(mongoConfigPath: String) : AbstractMongoCl
         }
 
         eb.consumer<JsonObject>(PatientOperationIds.GET_ANAGRAPHIC + busAddrSuffix) { message ->
-            this.getAnagraphic().onComplete(onPromiseCompleteHandler<Anagraphic>(message))
+            this.getAnagraphic().onComplete(onOperationCompleteHandler<Anagraphic>(message))
         }
 
         eb.consumer<JsonObject>(PatientOperationIds.UPDATE_ANAGRAPHIC + busAddrSuffix) { message ->
@@ -150,7 +152,7 @@ abstract class AbstractPatientService(mongoConfigPath: String) : AbstractMongoCl
         }
 
         eb.consumer<JsonObject>(PatientOperationIds.GET_STATUS + busAddrSuffix) { message ->
-            this.getStatus().onComplete(onPromiseCompleteHandler<PatientState>(message))
+            this.getStatus().onComplete(onOperationCompleteHandler<PatientState>(message))
         }
 
         eb.consumer<JsonObject>(PatientOperationIds.UPDATE_STATUS + busAddrSuffix) { message ->
@@ -165,15 +167,6 @@ abstract class AbstractPatientService(mongoConfigPath: String) : AbstractMongoCl
         this.vitalParametersManagement.registerEventBusConsumers(eb)
         this.administrationsManagement.registerEventBusConsumers(eb)
         this.maneuversManagement.registerEventBusConsumers(eb)
-    }
-
-    private fun <T> onPromiseCompleteHandler(message: Message<JsonObject>): Handler<AsyncResult<T>> {
-        return Handler<AsyncResult<T>> { ar: AsyncResult<T> ->
-            when {
-                ar.succeeded() -> message.reply(JsonObject.mapFrom(ar.result()))
-                else -> message.fail(FailureCode.PROBLEM_WITH_MONGODB, ar.cause().toString())
-            }
-        }
     }
 
     fun getMedicalHistory(): Future<MedicalHistory> {

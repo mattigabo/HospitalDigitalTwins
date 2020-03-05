@@ -100,11 +100,11 @@ components:
       type: object
       required:
         - otherDigitalTwin
-        - semantic
+        - relation
       properties:
         otherDigitalTwin:
           $ref: "#/components/schemas/digitalTwinIdentifier"
-        semantic:
+        relation:
           type: object
 
     links:

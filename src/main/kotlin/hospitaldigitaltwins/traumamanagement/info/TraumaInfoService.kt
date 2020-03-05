@@ -58,23 +58,26 @@ class TraumaInfoService(
 
     fun registerEventBusConsumers(eb: EventBus) {
         eb.consumer<JsonObject>(TraumaTeamOperationIds.ACTIVATE_TRAUMA_TEAM) { message ->
-
+            val traumaTeamInfo = message.body().mapTo(TraumaTeamInfo::class.java)
+            this.activateTraumaTeam(traumaTeamInfo).onComplete(onOperationCompleteHandler(message))
         }
 
         eb.consumer<JsonObject>(TraumaTeamOperationIds.GET_ACTIVATION_INFO) { message ->
-
+            this.getActivationInfo().onComplete(onOperationCompleteHandler(message))
         }
 
         eb.consumer<JsonObject>(TraumaTeamOperationIds.TAKE_PATIENT_IN_CHARGE) { message ->
-
+            val psCode = message.body().getInteger("psCode")
+            this.takePatientInCharge(psCode).onComplete(onOperationCompleteHandler(message))
         }
 
         eb.consumer<JsonObject>(FinalDestinationOperationIds.SET_FINAL_DESTINATION) { message ->
-
+            val finalDestination = message.body().getString("finalDestination")
+            this.setFinalDestination(finalDestination).onComplete(onOperationCompleteHandler(message))
         }
 
         eb.consumer<JsonObject>(FinalDestinationOperationIds.GET_FINAL_DESTINATION) { message ->
-
+            this.getFinalDestination().onComplete(onOperationCompleteHandler(message))
         }
     }
 
@@ -92,6 +95,10 @@ class TraumaInfoService(
 
     fun setFinalDestination(finalDestination: String): Future<String> {
         return this.updateField("finalDestination", JsonObject.mapFrom(finalDestination))
+    }
+
+    fun getFinalDestination(): Future<String> {
+        return executeDistinctQuery("finalDestination", String::class.java)
     }
 }
 

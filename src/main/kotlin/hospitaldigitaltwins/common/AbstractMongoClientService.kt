@@ -1,7 +1,11 @@
 package hospitaldigitaltwins.common
 
+import digitaltwinframework.coreimplementation.utils.eventbusutils.FailureCode
+import io.vertx.core.AsyncResult
 import io.vertx.core.Future
+import io.vertx.core.Handler
 import io.vertx.core.Promise
+import io.vertx.core.eventbus.Message
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.mongo.MongoClient
 import io.vertx.kotlin.core.json.get
@@ -57,5 +61,15 @@ abstract class AbstractMongoClientService(mongoConfigPath: String) {
             }
         }
         return promise.future()
+    }
+
+
+    protected fun <T> onOperationCompleteHandler(message: Message<JsonObject>): Handler<AsyncResult<T>> {
+        return Handler<AsyncResult<T>> { ar: AsyncResult<T> ->
+            when {
+                ar.succeeded() -> message.reply(JsonObject.mapFrom(ar.result()))
+                else -> message.fail(FailureCode.PROBLEM_WITH_MONGODB, ar.cause().toString())
+            }
+        }
     }
 }
