@@ -1,8 +1,6 @@
 package digitaltwinframework.coreimplementation.restmanagement
 
 import digitaltwinframework.coreimplementation.BasicRunningEnvironment
-import digitaltwinframework.coreimplementation.restmanagement.RESTDefaultResponse.sendServerErrorResponse
-import digitaltwinframework.coreimplementation.restmanagement.RESTDefaultResponse.sendSuccessResponse
 import digitaltwinframework.coreimplementation.utils.ConfigUtils
 import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages.EMPTY_MESSAGE
 import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses.Companion.composeAddress
@@ -59,42 +57,36 @@ class CoreManagementApiRESTAdapter(vertxInstance: Vertx, handlerServiceId: Strin
     }
 }
 
-object CoreRestHandlers : AbstractRestHandlers() {
+object CoreRestHandlers {
     val onIdRequestHandler: (String) -> Handler<RoutingContext> = { busAddr ->
         Handler<RoutingContext> { routingContext ->
-            eb.request<String>(busAddr, "") { ar ->
-                if (ar.succeeded()) {
-                    sendSuccessResponse(ar.result().body(), routingContext)
-                } else if (ar.failed()) {
-                    sendServerErrorResponse(routingContext)
-                }
-            }
+            EventBusRestRequestForwarder.performRequest<String>(routingContext, busAddr, EMPTY_MESSAGE)
         }
     }
 
     val addLinkToAnotherDTHandler: (String) -> Handler<RoutingContext> = { busAddr ->
         Handler<RoutingContext> { routingContext ->
             val linkToDT = routingContext.bodyAsJson
-            eb.request<JsonObject>(busAddr, linkToDT, responseCallBack(routingContext))
+            EventBusRestRequestForwarder.performRequest<JsonObject>(routingContext, busAddr, linkToDT)
         }
     }
 
     val onGetAllLinksToOtherDTHandler: (String) -> Handler<RoutingContext> = { busAddr ->
         Handler<RoutingContext> { routingContext ->
-            eb.request<JsonArray>(busAddr, EMPTY_MESSAGE, responseCallBack(routingContext))
+            EventBusRestRequestForwarder.performRequest<JsonArray>(routingContext, busAddr, EMPTY_MESSAGE)
         }
     }
 
     val onDeleteLinkHandler: (String) -> Handler<RoutingContext> = { busAddr ->
         Handler<RoutingContext> { routingContext ->
             val requestContentJson = routingContext.bodyAsJson
-            eb.request<JsonObject>(busAddr, requestContentJson, responseCallBack(routingContext))
+            EventBusRestRequestForwarder.performRequest<JsonObject>(routingContext, busAddr, requestContentJson)
         }
     }
 
     val onShutdownDTHandler: (String) -> Handler<RoutingContext> = { busAddr ->
         Handler<RoutingContext> { routingContext ->
-            eb.request<String>(busAddr, EMPTY_MESSAGE, responseCallBack(routingContext))
+            EventBusRestRequestForwarder.performRequest<String>(routingContext, busAddr, EMPTY_MESSAGE)
         }
     }
 }

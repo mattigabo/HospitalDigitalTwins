@@ -7,20 +7,33 @@ info:
     <p>A RESTful API to interact with the Digital Twin of the Trauma Process.</p>
 
 paths:
-  '/traumaleader':
+  '/trauma-info':
+    get:
+      tags:
+        - "TraumaInfo"
+      description: "Retrieves the basic trauma information."
+      operationId: getBasicInfo
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TraumaInfo"
+        '500':
+          description: "server error"
+
+  '/trauma-team-activation':
     post:
       tags:
-        - "TraumaLeader"
-      description: "Updates the assigned medic for the mission."
-      operationId: setTraumaLeader
+        - "TraumaTeamActivation"
+      description: "Notify the Trauma Team Activation."
+      operationId: activateTraumaTeam
       requestBody:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                medicName:
-                  type: string
+              $ref: "#/components/schemas/TraumaTeamInfo"
       responses:
         '204':
           description: "mission ongoing value successfully updated"
@@ -33,19 +46,16 @@ paths:
 
     get:
       tags:
-        - "TraumaLeader"
-      description: "Retrieves the medic name assigned to the mission."
-      operationId: "getTraumaLeader"
+        - "TraumaTeamActivation"
+      description: "Retrieves the trauma team activation info."
+      operationId: getActivationInfo
       responses:
         '200':
           description: "ok"
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  medicName:
-                    type: string
+                $ref: "#/components/schemas/TraumaTeamInfo"
         '404':
           description: "mission not found"
         '500':
@@ -64,7 +74,7 @@ paths:
               $ref: "#/components/schemas/FinalDestination"
       responses:
         '204':
-          description: "mission return information successfully updated"
+          description: "final destination information successfully updated"
         '400':
           description: "bad request"
         '404':
@@ -75,19 +85,17 @@ paths:
     get:
       tags:
         - "FinalDestination"
-      description: "Retrieves the return information about the mission."
+      description: "Retrieves the final patient destination."
       operationId: getFinalDestination
       responses:
         '200':
-          description: "mission return information successfully retrieved"
+          description: "final destination information successfully retrieved"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/FinalDestination"
         '204':
           description: "no content"
-        '404':
-          description: "mission not found"
         '500':
           description: "server error"
 
@@ -99,15 +107,13 @@ paths:
       operationId: getLocations
       responses:
         '200':
-          description: "tracking information successfully retrieved"
+          description: "locations information successfully retrieved"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Locations"
         '204':
           description: "no content"
-        '404':
-          description: "mission not found"
         '500':
           description: "server error"
 
@@ -115,7 +121,7 @@ paths:
     post:
       tags:
         - "Location"
-      description: "Notify the crew departure from the hospital."
+      description: "Notify the entry in a new room."
       operationId: entryInLocation
       requestBody:
         content:
@@ -124,11 +130,9 @@ paths:
               $ref: "#/components/schemas/LocationChange"
       responses:
         '204':
-          description: "mission tracking step successfully added"
+          description: "location step successfully added"
         '400':
           description: "bad parameters"
-        '404':
-          description: "mission not found"
         '500':
           description: "server error"
 
@@ -136,11 +140,11 @@ paths:
     post:
       tags:
         - "Location"
-      description: "Notify the crew departure from the hospital."
+      description: "Notify the exit from a room."
       operationId: exitFromLocation
       responses:
         '204':
-          description: "mission tracking successfully updated"
+          description: "location successfully updated"
         '400':
           description: "bad parameters"
         '404':
@@ -151,7 +155,7 @@ paths:
   '/take-patient-in-charge':
     post:
       tags:
-        - "Patient"
+        - "TraumaTeam"
       description: "Notifies the taking charge of the patient"
       operationId: takePatientInCharge
       requestBody:
@@ -160,15 +164,13 @@ paths:
             schema:
               type: object
               properties:
-                medicName:
-                  type: string
+                psCode:
+                  type: number
       responses:
         '204':
-          description: "mission ongoing value successfully updated"
+          description: "Patient taken in charge"
         '400':
           description: "bad parameters"
-        '404':
-          description: "mission not found"
         '500':
           description: "server error"
 
@@ -178,7 +180,7 @@ paths:
     get:
       tags:
         - "Patient"
-      description: "Get the associated patient of the mission with the info relative to his current state."
+      description: "Get the associated patient of the trauma with the info relative to his current state."
       operationId: getPatientInfo
       responses:
         '200':
@@ -188,7 +190,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/PatientCurrentState"
         '404':
-          description: "mission not found or patient not yet registered"
+          description: "patient not yet registered"
         '500':
           description: "server error"
 
@@ -197,15 +199,15 @@ paths:
       tags:
         - "Patient Medical History"
       description: "Updates the medical history of the patient."
-      operationId: "setMedicalHistory"
+      operationId: setMedicalHistory
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PatientMediacalHistory"
+              $ref: "#/components/schemas/PatientMedicalHistory"
       responses:
         '204':
-          description: "anagraphic data successfully updated"
+          description: "medical history data successfully updated"
         '400':
           description: "bad request"
         '404':
@@ -224,7 +226,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PatientMediacalHistory"
+                $ref: "#/components/schemas/PatientMedicalHistory"
         '404':
           description: "patient not found"
         '500':
@@ -930,34 +932,36 @@ components:
       example: '2019-07-13T11:05:11'
       description: "The timestamp relative to the moment when the resource is generated. Could be used when is useful to consider the freshness of a resource (e.g. in vital parameters analisys)"
 
-    EventInformation:
+    TraumaInfo:
+      type: object
+      properties:
+        truamaTeam:
+          $ref: '#/components/schemas/TraumaTeamInfo'
+        psCode:
+          type: number
+        finalDestination:
+          $ref: '#/components/schemas/FinalDestination'
+
+    AssociatedPreHDT:
+      type: object
+      properties:
+        preHDTId:
+          type: string
+        missionId:
+          type: string
+
+    TraumaTeamInfo:
       type: object
       required:
-        - callTime
-        - address
+        - traumaLeaderName
+        - activation
       properties:
-        callTime:
+        traumaLeaderName:
+          type: string
+        activation:
           type: string
           format: date-time
-          example: '2019-07-13T11:05:11'
-        address:
-          type: string
-          example: "Via della Madonnina 123, Cesena (FC) 47521"
-        dispatchCode:
-          type: string
-          example: 'SC01R'
-        emergencyType:
-          type: string
-          enum:
-            - "primary"
-            - "secondary"
-        dynamic:
-          type: string
-          example: "Road accident: pedestrian ran over"
-        patientsNumber:
-          type: integer
-          example: 1
-
+          example: '2019-04-12T23:20:50'
 
     FinalDestination:
       type: string
@@ -989,7 +993,7 @@ components:
         state:
           $ref: '#/components/schemas/PatientStatus'
         medical-history:
-          $ref: '#/components/schemas/PatientMediacalHistory'
+          $ref: '#/components/schemas/PatientMedicalHistory'
         vital-parameters:
           $ref: '#/components/schemas/VitalParameters'
         complications:
@@ -1018,7 +1022,7 @@ components:
           type: string
           example: "M"
 
-    PatientMediacalHistory:
+    PatientMedicalHistory:
       type: object
       properties:
         anticoagulants:
@@ -1030,13 +1034,6 @@ components:
         nao:
           type: boolean
           example: false
-
-    StatusInfo:
-      type: object
-      properties:
-        name:
-          type: string
-          example: "thoraxDeformities"
 
     PatientStatus:
       type: object

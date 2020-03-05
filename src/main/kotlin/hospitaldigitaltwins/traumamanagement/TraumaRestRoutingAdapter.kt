@@ -2,11 +2,11 @@ package hospitaldigitaltwins.traumamanagement
 
 import digitaltwinframework.coreimplementation.restmanagement.AbstractRestInteractionAdapter
 import digitaltwinframework.coreimplementation.utils.ConfigUtils
-import hospitaldigitaltwins.prehmanagement.eventmanagement.EventOperationIds
-import hospitaldigitaltwins.prehmanagement.eventmanagement.EventRestHandlers
 import hospitaldigitaltwins.prehmanagement.missions.MissionOperationIds
 import hospitaldigitaltwins.prehmanagement.missions.MissionRestHandlers
 import hospitaldigitaltwins.prehmanagement.patients.PatientRestHandlers
+import hospitaldigitaltwins.traumamanagement.location.LocationOperationIds
+import hospitaldigitaltwins.traumamanagement.location.LocationRestHandlers
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.ext.web.RoutingContext
@@ -14,7 +14,7 @@ import io.vertx.ext.web.RoutingContext
 /**
  * Created by Matteo Gabellini on 05/03/2020.
  */
-class PreHRESTRoutingAdapter(
+class TraumaRestRoutingAdapter(
     vertxInstance: Vertx,
     handlerServiceId: String
 ) : AbstractRestInteractionAdapter(vertxInstance, handlerServiceId) {
@@ -27,10 +27,9 @@ class PreHRESTRoutingAdapter(
 
     override fun operationCallbackMapping(): Map<String, Handler<RoutingContext>> {
         val partialCallbackMapping = mapOf(
-            EventOperationIds.GET_EVENT_INFO to EventRestHandlers.onGetEventInfo,
-            EventOperationIds.ADD_EVENT_INFO to EventRestHandlers.onAddEventInfo,
-            EventOperationIds.GET_MISSIONS to EventRestHandlers.onGetMissions,
-            EventOperationIds.ADD_MISSION to EventRestHandlers.onAddMission,
+            LocationOperationIds.GET_LOCATIONS to LocationRestHandlers.onGetLocations,
+            LocationOperationIds.ENTRY_IN_LOCATION to LocationRestHandlers.onEntryInLocation,
+            LocationOperationIds.EXIT_FROM_LOCATION to LocationRestHandlers.onExitFromLocation,
 
             MissionOperationIds.GET_MISSION to MissionRestHandlers.onInfoRequest,
             MissionOperationIds.PUT_MEDIC to MissionRestHandlers.onMedicUpdate,

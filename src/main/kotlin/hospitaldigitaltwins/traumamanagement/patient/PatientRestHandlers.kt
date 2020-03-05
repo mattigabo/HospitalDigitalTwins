@@ -1,5 +1,6 @@
 package hospitaldigitaltwins.traumamanagement.patient
 
+import digitaltwinframework.coreimplementation.restmanagement.EventBusRestRequestForwarder
 import hospitaldigitaltwins.common.AbstractPatientRestHandlers
 import io.vertx.ext.web.RoutingContext
 
@@ -8,6 +9,6 @@ import io.vertx.ext.web.RoutingContext
  */
 class PatientRestHandlers : AbstractPatientRestHandlers() {
     override fun <T> performRequest(routingContext: RoutingContext, busAdrr: String, message: Any) {
-        eb.request<T>(busAdrr, message, responseCallBack(routingContext))
+        return EventBusRestRequestForwarder.performRequest<T>(routingContext, busAdrr, message)
     }
 }

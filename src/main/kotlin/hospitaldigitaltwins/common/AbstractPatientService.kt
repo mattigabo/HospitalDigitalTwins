@@ -13,15 +13,12 @@ import io.vertx.core.eventbus.Message
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.mongo.MongoClient
-import io.vertx.kotlin.core.json.get
 
 /**
  * Created by Matteo Gabellini on 04/03/2020.
  */
-abstract class AbstractPatientService(var mongoConfigPath: String) {
-    lateinit var mongoClient: MongoClient
+abstract class AbstractPatientService(mongoConfigPath: String) : AbstractMongoClientService(mongoConfigPath) {
 
-    abstract var patientCollection: String
     abstract var busAddrSuffix: String
     private var basicPatientInitPromise: Promise<AbstractPatientService> = Promise.promise()
     protected val basicPatientInitFuture: Future<AbstractPatientService> = basicPatientInitPromise.future()
@@ -29,8 +26,6 @@ abstract class AbstractPatientService(var mongoConfigPath: String) {
     protected lateinit var vitalParametersManagement: VitalParametersManagement
     protected lateinit var administrationsManagement: AdministrationsManagement
     protected lateinit var maneuversManagement: ManeuversManagement
-
-    protected val emptySearchQuery = JsonObject()
 
 
     var patientId: String? = null
@@ -46,7 +41,7 @@ abstract class AbstractPatientService(var mongoConfigPath: String) {
                 var vitalPar = it.result().resultAt<JsonArray>(0)
                 var administrations = it.result().resultAt<JsonArray>(1)
                 var maneuvers = it.result().resultAt<JsonArray>(2)
-                mongoClient.find(patientCollection, emptySearchQuery) { res ->
+                mongoClient.find(collection, emptySearchQuery) { res ->
                     when {
                         res.succeeded() -> {
                             var jobjRes = JsonObject(res.result().get(0).toString())
@@ -93,7 +88,7 @@ abstract class AbstractPatientService(var mongoConfigPath: String) {
     private fun createPatientOnMongo(): Promise<String> {
         val mongoCreationPromise = Promise.promise<String>()
         var emptyPatient = JsonObject.mapFrom(MongoPatient())
-        mongoClient.save(patientCollection, emptyPatient) { res ->
+        mongoClient.save(collection, emptyPatient) { res ->
             when {
                 res.succeeded() -> {
                     this.patientId = res.result()
@@ -123,50 +118,13 @@ abstract class AbstractPatientService(var mongoConfigPath: String) {
         return mongoCreationPromise
     }
 
-    private fun <T> executeDistinctQuery(fieldName: String, destinationClass: Class<T>): Promise<T> {
-        var promise: Promise<T> = Promise.promise()
-        mongoClient.distinctWithQuery(
-            patientCollection,
-            fieldName,
-            JsonObject::class.java.name,
-            emptySearchQuery
-        ) { res ->
-            when {
-                res.succeeded() -> {
-                    var jobjRes = res.result().get<JsonObject>(0)
-                    var result = jobjRes.mapTo(destinationClass)
-                    promise.complete(result)
-                }
-                else -> {
-                    println(res.cause())
-                    promise.fail(res.cause())
-                }
-            }
-        }
-        return promise
-    }
-
-    private fun updateField(newField: JsonObject): Future<String> {
-        var promise: Promise<String> = Promise.promise()
-        var update = JsonObject()
-        update.put("\$set", newField)
-        mongoClient.updateCollection(patientCollection, emptySearchQuery, update) { res ->
-            when {
-                res.succeeded() -> promise.complete("Update complete!")
-                res.failed() -> promise.fail(res.cause())
-                else -> promise.fail("Error during update")
-            }
-        }
-        return promise.future()
-    }
-
     fun registerEventBusConsumers(eb: EventBus) {
         eb.consumer<JsonObject>(PatientOperationIds.GET_PATIENT + busAddrSuffix) { message ->
             this.patient.future().onComplete(onPromiseCompleteHandler<Patient>(message))
         }
 
         eb.consumer<JsonObject>(PatientOperationIds.GET_MEDICAL_HISTORY + busAddrSuffix) { message ->
-            this.getMedicalHistory().future().onComplete(onPromiseCompleteHandler<MedicalHistory>(message))
+            this.getMedicalHistory().onComplete(onPromiseCompleteHandler<MedicalHistory>(message))
         }
 
         eb.consumer<JsonObject>(PatientOperationIds.UPDATE_MEDICAL_HISTORY + busAddrSuffix) { message ->
@@ -179,7 +137,7 @@ abstract class AbstractPatientService(var mongoConfigPath: String) {
         }
 
         eb.consumer<JsonObject>(PatientOperationIds.GET_ANAGRAPHIC + busAddrSuffix) { message ->
-            this.getAnagraphic().future().onComplete(onPromiseCompleteHandler<Anagraphic>(message))
+            this.getAnagraphic().onComplete(onPromiseCompleteHandler<Anagraphic>(message))
         }
 
         eb.consumer<JsonObject>(PatientOperationIds.UPDATE_ANAGRAPHIC + busAddrSuffix) { message ->
@@ -192,7 +150,7 @@ abstract class AbstractPatientService(var mongoConfigPath: String) {
         }
 
         eb.consumer<JsonObject>(PatientOperationIds.GET_STATUS + busAddrSuffix) { message ->
-            this.getStatus().future().onComplete(onPromiseCompleteHandler<PatientState>(message))
+            this.getStatus().onComplete(onPromiseCompleteHandler<PatientState>(message))
         }
 
         eb.consumer<JsonObject>(PatientOperationIds.UPDATE_STATUS + busAddrSuffix) { message ->
@@ -218,34 +176,28 @@ abstract class AbstractPatientService(var mongoConfigPath: String) {
         }
     }
 
-    fun getMedicalHistory(): Promise<MedicalHistory> {
+    fun getMedicalHistory(): Future<MedicalHistory> {
         return executeDistinctQuery("medicalHistory", MedicalHistory::class.java)
     }
 
     fun setMedicalHistory(value: MedicalHistory): Future<String> {
-        val update = JsonObject()
-        update.put("medicalHistory", JsonObject.mapFrom(value))
-        return this.updateField(update)
+        return this.updateField("medicalHistory", JsonObject.mapFrom(value))
     }
 
-    fun getAnagraphic(): Promise<Anagraphic> {
+    fun getAnagraphic(): Future<Anagraphic> {
         return executeDistinctQuery("anagraphic", Anagraphic::class.java)
     }
 
     fun setAnagraphic(value: Anagraphic): Future<String> {
-        val update = JsonObject()
-        update.put("anagraphic", JsonObject.mapFrom(value))
-        return this.updateField(update)
+        return this.updateField("anagraphic", JsonObject.mapFrom(value))
     }
 
-    fun getStatus(): Promise<PatientState> {
+    fun getStatus(): Future<PatientState> {
         return executeDistinctQuery("status", PatientState::class.java)
     }
 
     fun setStatus(value: PatientState): Future<String> {
-        val update = JsonObject()
-        update.put("status", JsonObject.mapFrom(value))
-        return this.updateField(update)
+        return this.updateField("status", JsonObject.mapFrom(value))
     }
 
 }

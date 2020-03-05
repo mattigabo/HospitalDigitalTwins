@@ -1,7 +1,7 @@
 package hospitaldigitaltwins.prehmanagement.patients
 
-import digitaltwinframework.coreimplementation.restmanagement.RESTDefaultResponse
 import hospitaldigitaltwins.common.AbstractPatientRestHandlers
+import hospitaldigitaltwins.prehmanagement.missions.MissionRestRequestForwarder
 import io.vertx.ext.web.RoutingContext
 
 /**
@@ -9,10 +9,6 @@ import io.vertx.ext.web.RoutingContext
  */
 object PatientRestHandlers : AbstractPatientRestHandlers() {
     override fun <T> performRequest(routingContext: RoutingContext, busAdrr: String, message: Any) {
-        routingContext.pathParams().get("missionId")?.let {
-
-            eb.request<T>(busAdrr + it, message, responseCallBack(routingContext))
-
-        } ?: RESTDefaultResponse.sendBadRequestResponse("MissionId not specified", routingContext)
+        return MissionRestRequestForwarder.performRequest<T>(routingContext, busAdrr, message)
     }
 }

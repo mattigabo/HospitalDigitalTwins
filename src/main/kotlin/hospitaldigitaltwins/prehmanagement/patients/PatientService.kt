@@ -8,7 +8,7 @@ class PatientService private constructor(
     creationPromise: Promise<PatientService>
 ) : AbstractPatientService("res/mongo/configPreH.json") {
 
-    override var patientCollection = "prehPatients"
+    override var collection = "prehPatients"
     override var busAddrSuffix: String = missionId.toString()
 
     init {

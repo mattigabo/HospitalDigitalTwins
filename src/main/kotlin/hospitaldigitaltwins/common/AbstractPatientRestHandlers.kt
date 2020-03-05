@@ -1,6 +1,5 @@
 package hospitaldigitaltwins.common
 
-import digitaltwinframework.coreimplementation.restmanagement.AbstractRestHandlers
 import digitaltwinframework.coreimplementation.restmanagement.RESTDefaultResponse
 import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages
 import io.vertx.core.Handler
@@ -8,7 +7,7 @@ import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 
-abstract class AbstractPatientRestHandlers : AbstractRestHandlers() {
+abstract class AbstractPatientRestHandlers {
     val onGetPatient = Handler<RoutingContext> { routingContext ->
         performRequest<JsonObject>(
             routingContext,
@@ -178,7 +177,7 @@ abstract class AbstractPatientRestHandlers : AbstractRestHandlers() {
         } ?: RESTDefaultResponse.sendBadRequestResponse("Maneuver ID not specified", routingContext)
     }
 
-    protected abstract fun <T> performRequest(routingContext: RoutingContext, busAdrr: String, message: Any)
+    abstract fun <T> performRequest(routingContext: RoutingContext, busAdrr: String, message: Any)
 
     fun callBackMapping(): Map<String, Handler<RoutingContext>> {
         return mapOf(

@@ -7,6 +7,10 @@ import io.vertx.core.AbstractVerticle
  * Created by Matteo Gabellini on 04/03/2020.
  */
 class TraumaEvolutionController(val thisDT: AbstractDigitalTwin) : AbstractVerticle() {
+    //val locationService = LocationService()
+    //val traumaLeaderService = TraumaInfoService()
+    //val releaseSiteService = ReleaseSiteService()
+    //val patientService = PatientService()
 /*    val eventService = EventService()
 
     var restRoutingAdapter = RESTRoutingAdapter(thisDT.runningEnv.vertx, thisDT.identifier.toString())

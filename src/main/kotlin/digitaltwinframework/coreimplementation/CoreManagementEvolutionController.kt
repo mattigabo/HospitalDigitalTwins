@@ -38,10 +38,10 @@ open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : 
         eb.consumer<JsonObject>(coreManagAdapter.ADD_LINK_TO_ANOTHER_DT_BUS_ADDR) { message ->
             var link = CoreManagementSchemas.LinkToAnotherDigitalTwin(
                 message.body().getString("otherDigitalTwin"),
-                TextualSemantics(message.body().getJsonObject("semantic").getString("description"))
+                message.body().getJsonObject("relation")
             )
 
-            relationService.addRelation(URI(link.otherDigitalTwin), link.semantic)
+            relationService.addRelation(URI(link.otherDigitalTwin), link.relation)
             message.reply(StandardMessages.OPERATION_EXECUTED_MESSAGE)
         }
 
@@ -60,12 +60,12 @@ open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : 
         eb.consumer<JsonObject>(coreManagAdapter.DELETE_LINK_BUS_ADDR) { message ->
             val linkToDT = CoreManagementSchemas.LinkToAnotherDigitalTwin(
                 message.body().getString("otherDigitalTwin"),
-                TextualSemantics(message.body().getJsonObject("semantic").getString("description"))
+                message.body().getJsonObject("relation")
             )
             var wasDeleted = false
             relationService.relationToOtherDT.get(URI(linkToDT.otherDigitalTwin))?.let {
-                if (it.contains(linkToDT.semantic)) {
-                    wasDeleted = relationService.deleteRelation(URI(linkToDT.otherDigitalTwin), linkToDT.semantic)
+                if (it.contains(linkToDT.relation)) {
+                    wasDeleted = relationService.deleteRelation(URI(linkToDT.otherDigitalTwin), linkToDT.relation)
                 }
             }
 
@@ -89,6 +89,6 @@ open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : 
 object CoreManagementSchemas {
     data class LinkToAnotherDigitalTwin(
         @JsonProperty("otherDigitalTwin") val otherDigitalTwin: String,
-        @JsonProperty("semantic") val semantic: Semantics
+        @JsonProperty("relation") val relation: JsonObject
     )
 }

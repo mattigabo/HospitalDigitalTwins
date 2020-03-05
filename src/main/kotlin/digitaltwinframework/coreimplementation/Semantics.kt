@@ -1,5 +1,7 @@
 package digitaltwinframework.coreimplementation
 
+import java.net.URI
+
 /**
  * Created by Matteo Gabellini on 24/01/2020.
  */
@@ -9,11 +11,8 @@ interface HasSemantics {
     var semantics: List<Semantics>
 }
 
-abstract class SemanticRelation<T> : HasSemantics {
-    abstract var first: T
-    abstract var second: T
+abstract class DigitalTwinRelation : HasSemantics {
+    abstract var otherDTIReference: URI
 }
 
 data class TextualSemantics(val description: String) : Semantics
-
-abstract class DigitalTwinRelation<URI>

@@ -350,10 +350,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PatientMediacalHistory"
+              $ref: "#/components/schemas/PatientMedicalHistory"
       responses:
         '204':
-          description: "anagraphic data successfully updated"
+          description: "medical history data successfully updated"
         '400':
           description: "bad request"
         '404':
@@ -374,7 +374,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PatientMediacalHistory"
+                $ref: "#/components/schemas/PatientMedicalHistory"
         '404':
           description: "patient not found"
         '500':
@@ -1300,7 +1300,7 @@ components:
         state:
           $ref: '#/components/schemas/PatientStatus'
         medical-history:
-          $ref: '#/components/schemas/PatientMediacalHistory'
+          $ref: '#/components/schemas/PatientMedicalHistory'
         vital-parameters:
           $ref: '#/components/schemas/VitalParameters'
         complications:
@@ -1329,7 +1329,7 @@ components:
           type: string
           example: "M"
 
-    PatientMediacalHistory:
+    PatientMedicalHistory:
       type: object
       properties:
         anticoagulants:
