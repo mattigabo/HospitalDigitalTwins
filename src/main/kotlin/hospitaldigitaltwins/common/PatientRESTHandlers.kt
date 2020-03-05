@@ -8,55 +8,9 @@ import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 
-object PatientOperationIds {
-    val GET_PATIENT = "getPatientInfo"
-
-    val UPDATE_MEDICAL_HISTORY = "setMedicalHistory"
-    val GET_MEDICAL_HISTORY = "getMedicalHistory"
-
-    val UPDATE_ANAGRAPHIC = "updateAnagraphic"
-    val GET_ANAGRAPHIC = "getAnagraphic"
-
-    val UPDATE_STATUS = "updateStatus"
-    val GET_STATUS = "getStatus"
-
-
-    val GET_VITALPARAMETERS_HISTORY = "getVitalParametersHistory"
-    val ADD_VITALPARAMETERS = "addVitalParameters"
-    val GET_VITALPARAMETERS = "getCurrentVitalParameters"
-
-    val GET_VITALPARAMETER = "getVitalParameter"
-    val GET_VITALPARAMETER_HISTORY = "getVitalParameterHistory"
-
-    val GET_ALL_ADMINISTRATION = "getAdministrations"
-    val ADD_ADMINISTRATION = "addAdministration"
-
-    val GET_EXECUTED_MANEUVERS = "getExecutedManeuvers"
-    val ADD_MANEUVER = "addManeuver"
-
-    val ADD_TIMED_MANEUVER = "addTimedManeuver"
-    val UPDATE_TIMED_MANEUVER = "updateTimedManeuver"
-    val GET_TIMED_MANEUVER = "getTimedManeuver"
-
-    val GET_ALL_COMPLICATIONS = "getAllComplications"
-    val ADD_COMPLICATION = "addComplication"
-    val GET_COMPLICATION = "getComplication"
-
-    val GET_ALL_NOTES = "getAllNotes"
-    val ADD_TEXT_NOTE = "addTextNote"
-    val ADD_AUDIO_NOTE = "addAudioNote"
-    val ADD_PHOTO_NOTE = "addPhoto"
-    val ADD_VIDEO_NOTE = "addVideo"
-
-    val GET_TEXT_NOTE = "getTextNote"
-    val GET_AUDIO_NOTE = "getAudioNote"
-    val GET_PHOTO_NOTE = "getPhotos"
-    val GET_VIDEO_NOTE = "getVideos"
-}
-
-object PatientRESTHandlers : AbstractRestHandlers() {
+abstract class AbstractPatientRESTHandlers : AbstractRestHandlers() {
     val onGetPatient = Handler<RoutingContext> { routingContext ->
-        checkIdAndPerformRequest<JsonObject>(
+        performRequest<JsonObject>(
             routingContext,
             PatientOperationIds.GET_PATIENT,
             StandardMessages.EMPTY_MESSAGE
@@ -65,7 +19,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
 
     val onUpdateMedicalHistory = Handler<RoutingContext> { routingContext ->
         val medicalHistory = routingContext.bodyAsJson
-        checkIdAndPerformRequest<JsonArray>(
+        performRequest<JsonArray>(
             routingContext,
             PatientOperationIds.UPDATE_MEDICAL_HISTORY,
             medicalHistory
@@ -73,7 +27,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
     }
 
     val onGetMedicalHistory = Handler<RoutingContext> { routingContext ->
-        checkIdAndPerformRequest<JsonObject>(
+        performRequest<JsonObject>(
             routingContext,
             PatientOperationIds.GET_MEDICAL_HISTORY,
             StandardMessages.EMPTY_MESSAGE
@@ -82,7 +36,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
 
     val onUpdateAnagraphic = Handler<RoutingContext> { routingContext ->
         val anagraphic = routingContext.bodyAsJson
-        checkIdAndPerformRequest<JsonArray>(
+        performRequest<JsonArray>(
             routingContext,
             PatientOperationIds.UPDATE_ANAGRAPHIC,
             anagraphic
@@ -90,7 +44,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
     }
 
     val onGetAnagraphic = Handler<RoutingContext> { routingContext ->
-        checkIdAndPerformRequest<JsonObject>(
+        performRequest<JsonObject>(
             routingContext,
             PatientOperationIds.GET_ANAGRAPHIC,
             StandardMessages.EMPTY_MESSAGE
@@ -99,7 +53,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
 
     val onUpdateStatus = Handler<RoutingContext> { routingContext ->
         val status = routingContext.bodyAsJson
-        checkIdAndPerformRequest<JsonArray>(
+        performRequest<JsonArray>(
             routingContext,
             PatientOperationIds.UPDATE_STATUS,
             status
@@ -107,7 +61,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
     }
 
     val onGetStatus = Handler<RoutingContext> { routingContext ->
-        checkIdAndPerformRequest<JsonObject>(
+        performRequest<JsonObject>(
             routingContext,
             PatientOperationIds.GET_STATUS,
             StandardMessages.EMPTY_MESSAGE
@@ -115,7 +69,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
     }
 
     val onGetVitalParametersHistory = Handler<RoutingContext> { routingContext ->
-        checkIdAndPerformRequest<JsonArray>(
+        performRequest<JsonArray>(
             routingContext,
             PatientOperationIds.GET_VITALPARAMETERS_HISTORY,
             StandardMessages.EMPTY_MESSAGE
@@ -124,7 +78,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
 
     val onAddVitalParameters = Handler<RoutingContext> { routingContext ->
         val vitalParameters = routingContext.bodyAsJsonArray
-        checkIdAndPerformRequest<JsonArray>(
+        performRequest<JsonArray>(
             routingContext,
             PatientOperationIds.ADD_VITALPARAMETERS,
             vitalParameters
@@ -132,7 +86,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
     }
 
     val onGetCurrentVitalParameters = Handler<RoutingContext> { routingContext ->
-        checkIdAndPerformRequest<JsonArray>(
+        performRequest<JsonArray>(
             routingContext,
             PatientOperationIds.GET_VITALPARAMETERS,
             StandardMessages.EMPTY_MESSAGE
@@ -141,7 +95,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
 
     val onGetCurrentVitalParameter = Handler<RoutingContext> { routingContext ->
         routingContext.pathParams().get("vitalParametersName")?.let {
-            checkIdAndPerformRequest<String>(
+            performRequest<String>(
                 routingContext,
                 PatientOperationIds.GET_VITALPARAMETER,
                 it
@@ -151,7 +105,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
 
     val onGetVitalParameterHistory = Handler<RoutingContext> { routingContext ->
         routingContext.pathParams().get("vitalParametersName")?.let {
-            checkIdAndPerformRequest<String>(
+            performRequest<String>(
                 routingContext,
                 PatientOperationIds.GET_VITALPARAMETER_HISTORY,
                 it
@@ -160,7 +114,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
     }
 
     val onGetAdministrations = Handler<RoutingContext> { routingContext ->
-        checkIdAndPerformRequest<JsonArray>(
+        performRequest<JsonArray>(
             routingContext,
             PatientOperationIds.GET_ALL_ADMINISTRATION,
             StandardMessages.EMPTY_MESSAGE
@@ -169,7 +123,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
 
     val onAddAdministration = Handler<RoutingContext> { routingContext ->
         val administration = routingContext.bodyAsJson
-        checkIdAndPerformRequest<JsonObject>(
+        performRequest<JsonObject>(
             routingContext,
             PatientOperationIds.ADD_ADMINISTRATION,
             administration
@@ -177,7 +131,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
     }
 
     val onGetExecutedManeuvers = Handler<RoutingContext> { routingContext ->
-        checkIdAndPerformRequest<JsonArray>(
+        performRequest<JsonArray>(
             routingContext,
             PatientOperationIds.GET_EXECUTED_MANEUVERS,
             StandardMessages.EMPTY_MESSAGE
@@ -186,7 +140,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
 
     val onAddManeuver = Handler<RoutingContext> { routingContext ->
         val maneuver = routingContext.bodyAsJson
-        checkIdAndPerformRequest<JsonObject>(
+        performRequest<JsonObject>(
             routingContext,
             PatientOperationIds.ADD_MANEUVER,
             maneuver
@@ -195,7 +149,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
 
     val onGetTimedManeuver = Handler<RoutingContext> { routingContext ->
         routingContext.pathParams().get("maneuverId")?.let {
-            checkIdAndPerformRequest<String>(
+            performRequest<String>(
                 routingContext,
                 PatientOperationIds.GET_EXECUTED_MANEUVERS,
                 it
@@ -205,7 +159,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
 
     val onAddTimedManeuver = Handler<RoutingContext> { routingContext ->
         val timedManeuver = routingContext.bodyAsJson
-        checkIdAndPerformRequest<JsonObject>(
+        performRequest<JsonObject>(
             routingContext,
             PatientOperationIds.ADD_MANEUVER,
             timedManeuver
@@ -216,7 +170,7 @@ object PatientRESTHandlers : AbstractRestHandlers() {
         routingContext.pathParams().get("maneuverId")?.let {
             val timedManeuver = routingContext.bodyAsJson
             timedManeuver.put("maneuverId", it)
-            checkIdAndPerformRequest<JsonObject>(
+            performRequest<JsonObject>(
                 routingContext,
                 PatientOperationIds.UPDATE_TIMED_MANEUVER,
                 timedManeuver
@@ -224,11 +178,34 @@ object PatientRESTHandlers : AbstractRestHandlers() {
         } ?: RESTDefaultResponse.sendBadRequestResponse("Maneuver ID not specified", routingContext)
     }
 
-    private fun <T> checkIdAndPerformRequest(routingContext: RoutingContext, busAdrr: String, message: Any) {
-        routingContext.pathParams().get("missionId")?.let {
+    protected abstract fun <T> performRequest(routingContext: RoutingContext, busAdrr: String, message: Any)
 
-            eb.request<T>(busAdrr + it, message, responseCallBack(routingContext))
+    fun callBackMapping(): Map<String, Handler<RoutingContext>> {
+        return mapOf(
+            PatientOperationIds.GET_PATIENT to onGetPatient,
+            PatientOperationIds.GET_MEDICAL_HISTORY to onGetMedicalHistory,
+            PatientOperationIds.GET_ANAGRAPHIC to onGetAnagraphic,
+            PatientOperationIds.GET_STATUS to onGetStatus,
 
-        } ?: RESTDefaultResponse.sendBadRequestResponse("MissionId not specified", routingContext)
+            PatientOperationIds.GET_VITALPARAMETERS_HISTORY to onGetVitalParametersHistory,
+            PatientOperationIds.GET_VITALPARAMETER to onGetCurrentVitalParameter,
+            PatientOperationIds.GET_VITALPARAMETER_HISTORY to onGetVitalParameterHistory,
+            PatientOperationIds.GET_VITALPARAMETERS to onGetCurrentVitalParameters,
+            PatientOperationIds.ADD_VITALPARAMETERS to onAddVitalParameters,
+
+            PatientOperationIds.UPDATE_MEDICAL_HISTORY to onUpdateMedicalHistory,
+            PatientOperationIds.UPDATE_ANAGRAPHIC to onUpdateAnagraphic,
+            PatientOperationIds.UPDATE_STATUS to onUpdateStatus,
+
+            PatientOperationIds.ADD_ADMINISTRATION to onAddAdministration,
+            PatientOperationIds.GET_ALL_ADMINISTRATION to onGetAdministrations,
+
+            PatientOperationIds.GET_EXECUTED_MANEUVERS to onGetExecutedManeuvers,
+            PatientOperationIds.ADD_MANEUVER to onAddManeuver,
+            PatientOperationIds.GET_TIMED_MANEUVER to onGetTimedManeuver,
+            PatientOperationIds.ADD_TIMED_MANEUVER to onAddTimedManeuver,
+            PatientOperationIds.UPDATE_TIMED_MANEUVER to onUpdateTimedManeuver
+        )
     }
 }
+

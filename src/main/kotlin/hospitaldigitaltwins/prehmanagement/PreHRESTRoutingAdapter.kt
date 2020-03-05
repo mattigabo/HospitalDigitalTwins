@@ -2,12 +2,11 @@ package hospitaldigitaltwins.prehmanagement
 
 import digitaltwinframework.coreimplementation.restmanagement.AbstractRESTInteractionAdapter
 import digitaltwinframework.coreimplementation.utils.ConfigUtils
-import hospitaldigitaltwins.common.PatientOperationIds
-import hospitaldigitaltwins.common.PatientRESTHandlers
 import hospitaldigitaltwins.prehmanagement.eventmanagement.EventOperationIds
 import hospitaldigitaltwins.prehmanagement.eventmanagement.EventRestHandlers
 import hospitaldigitaltwins.prehmanagement.missions.MissionOperationIds
 import hospitaldigitaltwins.prehmanagement.missions.MissionRestHandlers
+import hospitaldigitaltwins.prehmanagement.patients.PatientRESTHandlers
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.ext.web.RoutingContext
@@ -15,7 +14,7 @@ import io.vertx.ext.web.RoutingContext
 /**
  * Created by Matteo Gabellini on 06/02/2020.
  */
-class RESTRoutingAdapter(
+class PreHRESTRoutingAdapter(
     vertxInstance: Vertx,
     handlerServiceId: String
 ) : AbstractRESTInteractionAdapter(vertxInstance, handlerServiceId) {
@@ -27,7 +26,7 @@ class RESTRoutingAdapter(
 
 
     override fun operationCallbackMapping(): Map<String, Handler<RoutingContext>> {
-        return mapOf(
+        val partialCallbackMapping = mapOf(
             EventOperationIds.GET_EVENT_INFO to EventRestHandlers.onGetEventInfo,
             EventOperationIds.ADD_EVENT_INFO to EventRestHandlers.onAddEventInfo,
             EventOperationIds.GET_MISSIONS to EventRestHandlers.onGetMissions,
@@ -44,31 +43,10 @@ class RESTRoutingAdapter(
             MissionOperationIds.DEPARTURE_FROM_HOSPITAL to MissionRestHandlers.onDepartureFromHostpital,
             MissionOperationIds.ARRIVAL_ON_SITE to MissionRestHandlers.onArrivalOnSite,
             MissionOperationIds.DEPARTURE_FROM_SITE to MissionRestHandlers.onDepartureFromSite,
-            MissionOperationIds.ARRIVAL_AT_THE_HOSPITAL to MissionRestHandlers.onArrivalAtHostpital,
-
-            PatientOperationIds.GET_PATIENT to PatientRESTHandlers.onGetPatient,
-            PatientOperationIds.GET_MEDICAL_HISTORY to PatientRESTHandlers.onGetMedicalHistory,
-            PatientOperationIds.GET_ANAGRAPHIC to PatientRESTHandlers.onGetAnagraphic,
-            PatientOperationIds.GET_STATUS to PatientRESTHandlers.onGetStatus,
-
-            PatientOperationIds.GET_VITALPARAMETERS_HISTORY to PatientRESTHandlers.onGetVitalParametersHistory,
-            PatientOperationIds.GET_VITALPARAMETER to PatientRESTHandlers.onGetCurrentVitalParameter,
-            PatientOperationIds.GET_VITALPARAMETER_HISTORY to PatientRESTHandlers.onGetVitalParameterHistory,
-            PatientOperationIds.GET_VITALPARAMETERS to PatientRESTHandlers.onGetCurrentVitalParameters,
-            PatientOperationIds.ADD_VITALPARAMETERS to PatientRESTHandlers.onAddVitalParameters,
-
-            PatientOperationIds.UPDATE_MEDICAL_HISTORY to PatientRESTHandlers.onUpdateMedicalHistory,
-            PatientOperationIds.UPDATE_ANAGRAPHIC to PatientRESTHandlers.onUpdateAnagraphic,
-            PatientOperationIds.UPDATE_STATUS to PatientRESTHandlers.onUpdateStatus,
-
-            PatientOperationIds.ADD_ADMINISTRATION to PatientRESTHandlers.onAddAdministration,
-            PatientOperationIds.GET_ALL_ADMINISTRATION to PatientRESTHandlers.onGetAdministrations,
-
-            PatientOperationIds.GET_EXECUTED_MANEUVERS to PatientRESTHandlers.onGetExecutedManeuvers,
-            PatientOperationIds.ADD_MANEUVER to PatientRESTHandlers.onAddManeuver,
-            PatientOperationIds.GET_TIMED_MANEUVER to PatientRESTHandlers.onGetTimedManeuver,
-            PatientOperationIds.ADD_TIMED_MANEUVER to PatientRESTHandlers.onAddTimedManeuver,
-            PatientOperationIds.UPDATE_TIMED_MANEUVER to PatientRESTHandlers.onUpdateTimedManeuver
+            MissionOperationIds.ARRIVAL_AT_THE_HOSPITAL to MissionRestHandlers.onArrivalAtHostpital
         )
+        val result = HashMap(PatientRESTHandlers.callBackMapping())
+        result.putAll(partialCallbackMapping)
+        return result
     }
 }

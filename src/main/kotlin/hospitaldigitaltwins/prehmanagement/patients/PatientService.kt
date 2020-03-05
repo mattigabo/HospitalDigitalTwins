@@ -4,7 +4,7 @@ import hospitaldigitaltwins.common.AbstractPatientService
 import io.vertx.core.Promise
 
 class PatientService private constructor(
-    val missionId: Int,
+    missionId: Int,
     creationPromise: Promise<PatientService>
 ) : AbstractPatientService("res/mongo/configPreH.json") {
 
