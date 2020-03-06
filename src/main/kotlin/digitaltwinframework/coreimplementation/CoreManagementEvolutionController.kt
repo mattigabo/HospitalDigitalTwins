@@ -8,7 +8,6 @@ import io.vertx.core.AbstractVerticle
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
-import java.net.URI
 
 open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : AbstractVerticle() {
 
@@ -38,10 +37,10 @@ open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : 
         eb.consumer<JsonObject>(coreManagAdapter.ADD_LINK_TO_ANOTHER_DT_BUS_ADDR) { message ->
             var link = CoreManagementSchemas.LinkToAnotherDigitalTwin(
                 message.body().getString("otherDigitalTwin"),
-                message.body().getJsonObject("relation")
+                message.body().getJsonObject("semantics")
             )
 
-            relationService.addRelation(URI(link.otherDigitalTwin), link.relation)
+            relationService.addRelation(link.otherDigitalTwin, link.semantics)
             message.reply(StandardMessages.OPERATION_EXECUTED_MESSAGE)
         }
 
@@ -60,12 +59,12 @@ open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : 
         eb.consumer<JsonObject>(coreManagAdapter.DELETE_LINK_BUS_ADDR) { message ->
             val linkToDT = CoreManagementSchemas.LinkToAnotherDigitalTwin(
                 message.body().getString("otherDigitalTwin"),
-                message.body().getJsonObject("relation")
+                message.body().getJsonObject("semantics")
             )
             var wasDeleted = false
-            relationService.relationToOtherDT.get(URI(linkToDT.otherDigitalTwin))?.let {
-                if (it.contains(linkToDT.relation)) {
-                    wasDeleted = relationService.deleteRelation(URI(linkToDT.otherDigitalTwin), linkToDT.relation)
+            relationService.relationToOtherDT.get(linkToDT.otherDigitalTwin)?.let {
+                if (it.contains(linkToDT.semantics)) {
+                    wasDeleted = relationService.deleteRelation(linkToDT.otherDigitalTwin, linkToDT.semantics)
                 }
             }
 
@@ -89,6 +88,6 @@ open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : 
 object CoreManagementSchemas {
     data class LinkToAnotherDigitalTwin(
         @JsonProperty("otherDigitalTwin") val otherDigitalTwin: String,
-        @JsonProperty("relation") val relation: JsonObject
+        @JsonProperty("semantics") val semantics: JsonObject
     )
 }

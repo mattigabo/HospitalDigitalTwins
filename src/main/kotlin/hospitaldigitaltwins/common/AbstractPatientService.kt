@@ -21,7 +21,7 @@ import io.vertx.ext.mongo.MongoClient
  */
 abstract class AbstractPatientService(mongoConfigPath: String) : AbstractMongoClientService(mongoConfigPath) {
 
-    abstract var busAddrSuffix: String
+    open var busAddrSuffix: String = ""
     private var basicPatientInitPromise: Promise<AbstractPatientService> = Promise.promise()
     protected val basicPatientInitFuture: Future<AbstractPatientService> = basicPatientInitPromise.future()
 

@@ -4,11 +4,11 @@ import digitaltwinframework.DigitalTwin
 import digitaltwinframework.DigitalTwinFactory
 import digitaltwinframework.DigitalTwinRunningEnvironment
 import digitaltwinframework.coreimplementation.restmanagement.DevelopmentConfigurations
+import digitaltwinframework.coreimplementation.restmanagement.RESTServerConfig
 import digitaltwinframework.coreimplementation.restmanagement.RestServer
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.Vertx
-import java.net.URI
 
 /**
  * This class represents a basic implementation of a executor for a digital twin that uses Vert.x environment
@@ -25,13 +25,16 @@ class BasicRunningEnvironment private constructor(override val name: String) : D
             private set
 
         @JvmStatic
-        fun boot(environmentName: String): Future<DigitalTwinRunningEnvironment> {
+        fun boot(
+            environmentName: String,
+            serverConfig: RESTServerConfig = DevelopmentConfigurations.basicConfig
+        ): Future<DigitalTwinRunningEnvironment> {
             val bootPromise = Promise.promise<DigitalTwinRunningEnvironment>()
             runningInstance?.let {
                 bootPromise.complete(it)
             }
             runningInstance = BasicRunningEnvironment(environmentName)
-            runningInstance!!.startRestServer().onComplete {
+            runningInstance!!.startRestServer(serverConfig).onComplete {
                 System.out.println(it)
                 bootPromise.complete(runningInstance!!)
             }.onFailure { bootPromise.fail(it.cause) }
@@ -39,9 +42,9 @@ class BasicRunningEnvironment private constructor(override val name: String) : D
         }
     }
 
-    private fun startRestServer(): Future<String> {
+    private fun startRestServer(config: RESTServerConfig): Future<String> {
         val serverBootPromise = Promise.promise<String>()
-        restServer = RestServer(DevelopmentConfigurations.basicConfig, name)
+        restServer = RestServer(config, name)
         vertx.deployVerticle(restServer) { res ->
             if (res.succeeded()) {
                 serverBootPromise.complete("REST Server Deployed")
@@ -52,7 +55,7 @@ class BasicRunningEnvironment private constructor(override val name: String) : D
         return serverBootPromise.future()
     }
 
-    override fun executeDigitalTwin(id: URI, factory: DigitalTwinFactory) {
+    override fun executeDigitalTwin(id: String, factory: DigitalTwinFactory) {
         encapsulatedDT = factory.create(id)
     }
 

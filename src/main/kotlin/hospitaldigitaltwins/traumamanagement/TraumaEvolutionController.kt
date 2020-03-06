@@ -1,19 +1,21 @@
 package hospitaldigitaltwins.traumamanagement
 
 import digitaltwinframework.coreimplementation.AbstractDigitalTwin
+import hospitaldigitaltwins.traumamanagement.info.TraumaInfoService
+import hospitaldigitaltwins.traumamanagement.patient.PatientService
 import io.vertx.core.AbstractVerticle
+import io.vertx.core.eventbus.EventBus
 
 /**
  * Created by Matteo Gabellini on 04/03/2020.
  */
 class TraumaEvolutionController(val thisDT: AbstractDigitalTwin) : AbstractVerticle() {
+    val mongoConfigPath = "res/mongo/configTrauma.json"
     //val locationService = LocationService()
-    //val traumaLeaderService = TraumaInfoService()
-    //val releaseSiteService = ReleaseSiteService()
-    //val patientService = PatientService()
-/*    val eventService = EventService()
+    val traumaInfoPromise = TraumaInfoService.createPatient(mongoConfigPath)
+    val patientServicePromise = PatientService.createPatient(mongoConfigPath)
 
-    var restRoutingAdapter = RESTRoutingAdapter(thisDT.runningEnv.vertx, thisDT.identifier.toString())
+    var restRoutingAdapter = TraumaRestRoutingAdapter(thisDT.runningEnv.vertx, thisDT.identifier.toString())
 
     override fun start() {
         super.start()
@@ -22,6 +24,11 @@ class TraumaEvolutionController(val thisDT: AbstractDigitalTwin) : AbstractVerti
     }
 
     private fun registerCoreHandlerToEventBus(eb: EventBus) {
-        eventService.registerEventBusConsumers(eb)
-    }*/
+        traumaInfoPromise.future().onComplete {
+            it.result().registerEventBusConsumers(eb)
+        }
+        patientServicePromise.future().onComplete {
+            it.result().registerPatientWaitingConsumer(eb)
+        }
+    }
 }

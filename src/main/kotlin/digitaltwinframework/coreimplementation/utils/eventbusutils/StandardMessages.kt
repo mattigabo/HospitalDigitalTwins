@@ -15,4 +15,6 @@ object FailureCode {
     const val PROBLEM_WITH_MONGODB = 2
     const val PROBLEM_IN_MISSION_CREATION = 3
     const val PROBLEM_IN_PATIENT_FIELD_UPDATE = 4
+    const val PROBLEM_IN_DT_COMMUNICATION = 5
+    const val PROBLEM_IN_TRAUMA_FIELD_UPDATE = 6
 }

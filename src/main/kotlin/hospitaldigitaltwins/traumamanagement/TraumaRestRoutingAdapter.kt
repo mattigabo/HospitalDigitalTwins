@@ -2,11 +2,8 @@ package hospitaldigitaltwins.traumamanagement
 
 import digitaltwinframework.coreimplementation.restmanagement.AbstractRestInteractionAdapter
 import digitaltwinframework.coreimplementation.utils.ConfigUtils
-import hospitaldigitaltwins.prehmanagement.missions.MissionOperationIds
-import hospitaldigitaltwins.prehmanagement.missions.MissionRestHandlers
-import hospitaldigitaltwins.prehmanagement.patients.PatientRestHandlers
-import hospitaldigitaltwins.traumamanagement.location.LocationOperationIds
-import hospitaldigitaltwins.traumamanagement.location.LocationRestHandlers
+import hospitaldigitaltwins.traumamanagement.info.*
+import hospitaldigitaltwins.traumamanagement.patient.PatientRestHandlers
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.ext.web.RoutingContext
@@ -27,22 +24,20 @@ class TraumaRestRoutingAdapter(
 
     override fun operationCallbackMapping(): Map<String, Handler<RoutingContext>> {
         val partialCallbackMapping = mapOf(
-            LocationOperationIds.GET_LOCATIONS to LocationRestHandlers.onGetLocations,
-            LocationOperationIds.ENTRY_IN_LOCATION to LocationRestHandlers.onEntryInLocation,
-            LocationOperationIds.EXIT_FROM_LOCATION to LocationRestHandlers.onExitFromLocation,
 
-            MissionOperationIds.GET_MISSION to MissionRestHandlers.onInfoRequest,
-            MissionOperationIds.PUT_MEDIC to MissionRestHandlers.onMedicUpdate,
-            MissionOperationIds.GET_MEDIC to MissionRestHandlers.onMedicRequest,
+            TraumaInfoOperationIds.GET_BASIC_INFO to TraumaInfoRestHandler.onGetInfoService,
 
-            MissionOperationIds.PUT_RETURN_INFO to MissionRestHandlers.onReturnInfoUpdate,
-            MissionOperationIds.GET_RETURN_INFO to MissionRestHandlers.onReturnInfoRequest,
+            //LocationOperationIds.GET_LOCATIONS to LocationRestHandlers.onGetLocations,
+            //LocationOperationIds.ENTRY_IN_LOCATION to LocationRestHandlers.onEntryInLocation,
+            //LocationOperationIds.EXIT_FROM_LOCATION to LocationRestHandlers.onExitFromLocation,
 
-            MissionOperationIds.GET_TRACKING to MissionRestHandlers.onTrackingInfoRequest,
-            MissionOperationIds.DEPARTURE_FROM_HOSPITAL to MissionRestHandlers.onDepartureFromHostpital,
-            MissionOperationIds.ARRIVAL_ON_SITE to MissionRestHandlers.onArrivalOnSite,
-            MissionOperationIds.DEPARTURE_FROM_SITE to MissionRestHandlers.onDepartureFromSite,
-            MissionOperationIds.ARRIVAL_AT_THE_HOSPITAL to MissionRestHandlers.onArrivalAtHostpital
+
+            TraumaTeamOperationIds.ACTIVATE_TRAUMA_TEAM to TraumaTeamRestHandlers.onActivateTraumaTeam,
+            TraumaTeamOperationIds.GET_ACTIVATION_INFO to TraumaTeamRestHandlers.onGetActivationInfo,
+            TraumaTeamOperationIds.TAKE_PATIENT_IN_CHARGE to TraumaTeamRestHandlers.onTakePatientInCharge,
+
+            FinalDestinationOperationIds.GET_FINAL_DESTINATION to FinalDestinationRestHandler.onGetFinalDestination,
+            FinalDestinationOperationIds.SET_FINAL_DESTINATION to FinalDestinationRestHandler.onSetFinalDestination
         )
         val result = HashMap(PatientRestHandlers.callBackMapping())
         result.putAll(partialCallbackMapping)

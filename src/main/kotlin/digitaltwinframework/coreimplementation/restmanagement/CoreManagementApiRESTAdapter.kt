@@ -3,7 +3,6 @@ package digitaltwinframework.coreimplementation.restmanagement
 import digitaltwinframework.coreimplementation.BasicRunningEnvironment
 import digitaltwinframework.coreimplementation.utils.ConfigUtils
 import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages.EMPTY_MESSAGE
-import digitaltwinframework.coreimplementation.utils.eventbusutils.SystemEventBusAddresses.Companion.composeAddress
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonArray
@@ -25,11 +24,13 @@ class CoreManagementApiRESTAdapter(vertxInstance: Vertx, handlerServiceId: Strin
 
     val eventBus = BasicRunningEnvironment.runningInstance!!.eventBus
 
-    val GET_ID_BUS_ADDR = composeAddress(handlerServiceId, OperationIDS.GET_ID)
-    val ADD_LINK_TO_ANOTHER_DT_BUS_ADDR = composeAddress(handlerServiceId, OperationIDS.ADD_LINK_TO_ANOTHER_DT)
-    val GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR = composeAddress(handlerServiceId, OperationIDS.GET_ALL_LINK_TO_OTHER_DT)
-    val DELETE_LINK_BUS_ADDR = composeAddress(handlerServiceId, OperationIDS.DELETE_LINK)
-    val SHUTDOWN_DT_BUS_ADDR = composeAddress(handlerServiceId, OperationIDS.SHUTDOWN_DT)
+    val GET_ID_BUS_ADDR = OperationIDS.GET_ID//composeAddress(handlerServiceId, OperationIDS.GET_ID)
+    val ADD_LINK_TO_ANOTHER_DT_BUS_ADDR =
+        OperationIDS.ADD_LINK_TO_ANOTHER_DT//composeAddress(handlerServiceId, OperationIDS.ADD_LINK_TO_ANOTHER_DT)
+    val GET_ALL_LINK_TO_OTHER_DT_BUS_ADDR =
+        OperationIDS.GET_ALL_LINK_TO_OTHER_DT//composeAddress(handlerServiceId, OperationIDS.GET_ALL_LINK_TO_OTHER_DT)
+    val DELETE_LINK_BUS_ADDR = OperationIDS.DELETE_LINK//composeAddress(handlerServiceId, OperationIDS.DELETE_LINK)
+    val SHUTDOWN_DT_BUS_ADDR = OperationIDS.SHUTDOWN_DT//composeAddress(handlerServiceId, OperationIDS.SHUTDOWN_DT)
 
 
     override fun operationCallbackMapping(): Map<String, Handler<RoutingContext>> {

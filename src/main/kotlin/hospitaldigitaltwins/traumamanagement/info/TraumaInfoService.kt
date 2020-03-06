@@ -1,7 +1,11 @@
 package hospitaldigitaltwins.traumamanagement.info
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import digitaltwinframework.coreimplementation.restmanagement.EventBusRestRequestForwarder
+import digitaltwinframework.coreimplementation.utils.eventbusutils.FailureCode
+import digitaltwinframework.coreimplementation.utils.eventbusutils.JsonResponse
 import hospitaldigitaltwins.common.AbstractMongoClientService
+import hospitaldigitaltwins.traumamanagement.patient.PatientService
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.Vertx
@@ -57,9 +61,18 @@ class TraumaInfoService(
 
 
     fun registerEventBusConsumers(eb: EventBus) {
+
+        eb.consumer<JsonObject>(TraumaInfoOperationIds.GET_BASIC_INFO) { message ->
+            this.getBasicInfo().onComplete(onOperationCompleteHandler(message))
+        }
+
         eb.consumer<JsonObject>(TraumaTeamOperationIds.ACTIVATE_TRAUMA_TEAM) { message ->
             val traumaTeamInfo = message.body().mapTo(TraumaTeamInfo::class.java)
-            this.activateTraumaTeam(traumaTeamInfo).onComplete(onOperationCompleteHandler(message))
+            this.activateTraumaTeam(traumaTeamInfo).onComplete {
+                message.reply(JsonObject.mapFrom(JsonResponse(it.result())))
+            }.onFailure {
+                message.fail(FailureCode.PROBLEM_IN_TRAUMA_FIELD_UPDATE, it.toString())
+            }
         }
 
         eb.consumer<JsonObject>(TraumaTeamOperationIds.GET_ACTIVATION_INFO) { message ->
@@ -68,17 +81,41 @@ class TraumaInfoService(
 
         eb.consumer<JsonObject>(TraumaTeamOperationIds.TAKE_PATIENT_IN_CHARGE) { message ->
             val psCode = message.body().getInteger("psCode")
-            this.takePatientInCharge(psCode).onComplete(onOperationCompleteHandler(message))
+            this.takePatientInCharge(psCode).onComplete {
+                EventBusRestRequestForwarder
+                    .eventBusInstance()
+                    .send(PatientService.PATIENT_TAKEN, "")
+                onOperationCompleteHandler<String>(message).handle(it)
+            }
         }
 
         eb.consumer<JsonObject>(FinalDestinationOperationIds.SET_FINAL_DESTINATION) { message ->
             val finalDestination = message.body().getString("finalDestination")
-            this.setFinalDestination(finalDestination).onComplete(onOperationCompleteHandler(message))
+            this.setFinalDestination(finalDestination).onComplete(onOperationCompleteHandler<String>(message))
         }
 
         eb.consumer<JsonObject>(FinalDestinationOperationIds.GET_FINAL_DESTINATION) { message ->
             this.getFinalDestination().onComplete(onOperationCompleteHandler(message))
         }
+    }
+
+    fun getBasicInfo(): Future<TraumaInfo> {
+        var promise: Promise<TraumaInfo> = Promise.promise()
+        mongoClient.find(collection, emptySearchQuery) { res ->
+            when {
+                res.succeeded() -> {
+                    var jobjRes = JsonObject(res.result().get(0).toString())
+                    jobjRes.remove("_id")
+                    var result = jobjRes.mapTo(TraumaInfo::class.java)
+                    promise.complete(result)
+                }
+                else -> {
+                    println(res.cause())
+                    promise.fail(res.cause())
+                }
+            }
+        }
+        return promise.future()
     }
 
     fun activateTraumaTeam(teamInfo: TraumaTeamInfo): Future<String> {
@@ -90,7 +127,7 @@ class TraumaInfoService(
     }
 
     fun takePatientInCharge(psCode: Int): Future<String> {
-        return this.updateField("psCode", JsonObject.mapFrom(psCode))
+        return this.updateField("psCode", psCode)
     }
 
     fun setFinalDestination(finalDestination: String): Future<String> {
@@ -100,15 +137,23 @@ class TraumaInfoService(
     fun getFinalDestination(): Future<String> {
         return executeDistinctQuery("finalDestination", String::class.java)
     }
+
+    companion object {
+        fun createPatient(mongoConfigPath: String): Promise<TraumaInfoService> {
+            val traumaInfoPromise = Promise.promise<TraumaInfoService>()
+            TraumaInfoService(mongoConfigPath, traumaInfoPromise)
+            return traumaInfoPromise
+        }
+    }
 }
 
 class TraumaInfo(
-    @JsonProperty("traumaTeam") traumaTeam: TraumaTeamInfo = TraumaTeamInfo(),
-    @JsonProperty("psCode") psCode: Int = 0,
-    @JsonProperty("finalDestination") finalDestination: String = ""
+    @JsonProperty("traumaTeam") val traumaTeam: TraumaTeamInfo = TraumaTeamInfo(),
+    @JsonProperty("psCode") val psCode: Int = 0,
+    @JsonProperty("finalDestination") val finalDestination: String = ""
 )
 
 class TraumaTeamInfo(
-    @JsonProperty("traumaLeaderName") traumaLeaderName: String = "",
-    @JsonProperty("activation") activation: String = ""
+    @JsonProperty("traumaLeaderName") val traumaLeaderName: String = "",
+    @JsonProperty("activation") val activation: String = ""
 )

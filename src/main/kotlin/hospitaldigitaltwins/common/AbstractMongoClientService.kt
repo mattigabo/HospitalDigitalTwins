@@ -49,6 +49,12 @@ abstract class AbstractMongoClientService(mongoConfigPath: String) {
         return this.performUpdate(update)
     }
 
+    protected fun <T> updateField(fieldName: String, newField: T): Future<String> {
+        val update = JsonObject()
+        update.put(fieldName, newField)
+        return this.performUpdate(update)
+    }
+
     private fun performUpdate(newField: JsonObject): Future<String> {
         var promise: Promise<String> = Promise.promise()
         var update = JsonObject()
