@@ -57,7 +57,7 @@ class VitalParametersManagement(var patientService: AbstractPatientService, val 
         }
 
         eb.consumer<JsonArray>(PatientOperationIds.ADD_VITALPARAMETERS + patientService.busAddrSuffix) { message ->
-            val addingFuture = message.body().map { addVitalPatameter(it as JsonObject).future() }.toList()
+            val addingFuture = message.body().map { addVitalPatameter(it as JsonObject) }.toList()
             CompositeFuture.join(addingFuture).onComplete {
                 message.reply(JsonObject.mapFrom(JsonResponse(StandardMessages.OPERATION_EXECUTED_MESSAGE)))
             }
@@ -154,7 +154,7 @@ class VitalParametersManagement(var patientService: AbstractPatientService, val 
         return promise
     }
 
-    fun addVitalPatameter(vitalParameter: JsonObject): Promise<String> {
+    fun addVitalPatameter(vitalParameter: JsonObject): Future<String> {
         var promise: Promise<String> = Promise.promise()
         patientService.patientId?.let {
             patientService.mongoClient.save(vitalParametersCollection, vitalParameter) { res ->
@@ -172,6 +172,6 @@ class VitalParametersManagement(var patientService: AbstractPatientService, val 
                 }
             }
         } ?: promise.fail(IllegalStateException())
-        return promise
+        return promise.future()
     }
 }

@@ -85,7 +85,9 @@ class TraumaInfoService(
                 EventBusRestRequestForwarder
                     .eventBusInstance()
                     .send(PatientService.PATIENT_TAKEN, "")
-                onOperationCompleteHandler<String>(message).handle(it)
+                message.reply(JsonObject.mapFrom(JsonResponse(it.result())))
+            }.onFailure {
+                message.fail(FailureCode.PROBLEM_IN_TRAUMA_FIELD_UPDATE, it.toString())
             }
         }
 
