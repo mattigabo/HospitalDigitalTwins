@@ -31,7 +31,6 @@ class PatientService private constructor(
 
     var restClient = WebClient.create(Vertx.currentContext().owner())
     var preHRelation: ManageAPatientFrom? = null
-    var linkRequestUri = "http://localhost:8081/links"
 
     init {
         super.basicPatientInitFuture.onComplete {

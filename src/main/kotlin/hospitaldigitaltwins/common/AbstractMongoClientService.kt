@@ -22,12 +22,7 @@ abstract class AbstractMongoClientService(mongoConfigPath: String) {
 
     protected fun <T> executeDistinctQuery(fieldName: String, destinationClass: Class<T>): Future<T> {
         var promise: Promise<T> = Promise.promise()
-        mongoClient.distinctWithQuery(
-            collection,
-            fieldName,
-            JsonObject::class.java.name,
-            emptySearchQuery
-        ) { res ->
+        mongoClient.distinctWithQuery(collection, fieldName, JsonObject::class.java.name, emptySearchQuery) { res ->
             when {
                 res.succeeded() -> {
                     var jobjRes = res.result().get<JsonObject>(0)

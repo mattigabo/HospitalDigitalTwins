@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
  */
 class PatientState(
     @JsonProperty("traumaType") var traumaType: String = TraumaTypes.NO_TRAUMA.toString(),
-    @JsonProperty("helmetSeatbelt") var helmetSafetyBeltPresent: Boolean = false,
+    @JsonProperty("helmetSeatbelt") var helmetSeatbelt: Boolean = false,
     @JsonProperty("externalBleeding") var externalBleeding: Boolean = false,
     @JsonProperty("perviousAirways") var perviousAirways: Boolean = false,
     @JsonProperty("tachypneaDyspnea") var tachipneaDyspnea: Boolean = false,

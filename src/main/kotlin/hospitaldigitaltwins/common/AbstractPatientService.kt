@@ -38,36 +38,38 @@ abstract class AbstractPatientService(mongoConfigPath: String) : AbstractMongoCl
     val patient: Promise<Patient>
         get() {
             var promise: Promise<Patient> = Promise.promise()
+            var anagraphicFuture = this.getAnagraphic()
+            var medicalHistoryFuture = this.getMedicalHistory()
+            var statusFuture = this.getStatus()
             var vitalParFuture = this.vitalParametersManagement.getCurrentVitalParameters()
             var administrationFuture = this.administrationsManagement.getAllAdministration()
             var maneuverFuture = this.maneuversManagement.getExecutedManeuver()
-            CompositeFuture.all(vitalParFuture, administrationFuture, maneuverFuture).onComplete {
-                var vitalPar = it.result().resultAt<JsonArray>(0)
-                var administrations = it.result().resultAt<JsonArray>(1)
-                var maneuvers = it.result().resultAt<JsonArray>(2)
-                mongoClient.find(collection, emptySearchQuery) { res ->
-                    when {
-                        res.succeeded() -> {
-                            var jobjRes = JsonObject(res.result().get(0).toString())
-                            jobjRes.remove("_id")
-                            var partialResult = jobjRes.mapTo(MongoPatient::class.java)
-                            var resultList = JsonArray()
-                            var result = Patient(
-                                partialResult.anagraphic,
-                                partialResult.medicalHistory,
-                                partialResult.status,
-                                vitalPar,
-                                maneuvers,
-                                administrations
-                            )
-                            promise.complete(result)
-                        }
-                        else -> {
-                            println(res.cause())
-                            promise.fail(res.cause())
-                        }
-                    }
-                }
+            CompositeFuture.all(
+                anagraphicFuture,
+                medicalHistoryFuture,
+                statusFuture,
+                vitalParFuture,
+                administrationFuture,
+                maneuverFuture
+            ).onSuccess {
+                var anagraphic = it.resultAt<Anagraphic>(0)
+                var medicalHistory = it.resultAt<MedicalHistory>(1)
+                var status = it.resultAt<PatientState>(2)
+                var vitalPar = it.resultAt<JsonArray>(3)
+                var administrations = it.resultAt<JsonArray>(4)
+                var maneuvers = it.resultAt<JsonArray>(5)
+                var result = Patient(
+                    anagraphic,
+                    medicalHistory,
+                    status,
+                    vitalPar,
+                    maneuvers,
+                    administrations
+                )
+                promise.complete(result)
+            }.onFailure {
+                println(it)
+                promise.fail(it)
             }
             return promise
         }
@@ -79,10 +81,10 @@ abstract class AbstractPatientService(mongoConfigPath: String) : AbstractMongoCl
                 result.succeeded() -> {
                     config.mergeIn(JsonObject(result.result().toString()))
                     mongoClient = MongoClient.createShared(Vertx.currentContext().owner(), config)
-                    this.createPatientOnMongo().future().onComplete {
+                    this.createPatientOnMongo().future().onSuccess {
                         println(it)
                         basicPatientInitPromise.complete(this)
-                    }
+                    }.onFailure { basicPatientInitPromise.fail(it) }
                 }
                 else -> basicPatientInitPromise.fail(result.cause())
             }
@@ -100,18 +102,9 @@ abstract class AbstractPatientService(mongoConfigPath: String) : AbstractMongoCl
                     var vitalParamCollection = "vitalParametersMeasurementOf" + this.patientId
                     var administrationCollection = "administrationsCollectionOf" + this.patientId
                     var maneuversCollection = "maneuversCollectionOf" + this.patientId
-                    vitalParametersManagement =
-                        VitalParametersManagement(
-                            this,
-                            vitalParamCollection
-                        )
-                    maneuversManagement =
-                        ManeuversManagement(this, maneuversCollection)
-                    administrationsManagement =
-                        AdministrationsManagement(
-                            this,
-                            administrationCollection
-                        )
+                    vitalParametersManagement = VitalParametersManagement(this, vitalParamCollection)
+                    maneuversManagement = ManeuversManagement(this, maneuversCollection)
+                    administrationsManagement = AdministrationsManagement(this, administrationCollection)
 
                     emptySearchQuery.put("_id", patientId)
                     mongoCreationPromise.complete("Saved patient with id ${patientId}")
@@ -134,8 +127,8 @@ abstract class AbstractPatientService(mongoConfigPath: String) : AbstractMongoCl
         val setMedHistoryCons =
             eb.consumer<JsonObject>(PatientOperationIds.UPDATE_MEDICAL_HISTORY + busAddrSuffix) { message ->
                 val medicalHistory = message.body().mapTo(MedicalHistory::class.java)
-                this.setMedicalHistory(medicalHistory).onComplete {
-                    message.reply(JsonObject.mapFrom(JsonResponse(it.result())))
+                this.setMedicalHistory(medicalHistory).onSuccess {
+                    message.reply(JsonObject.mapFrom(JsonResponse(it)))
                 }.onFailure {
                     message.fail(FailureCode.PROBLEM_IN_PATIENT_FIELD_UPDATE, it.toString())
                 }
@@ -149,8 +142,8 @@ abstract class AbstractPatientService(mongoConfigPath: String) : AbstractMongoCl
         val updateAnagraphicConsumer =
             eb.consumer<JsonObject>(PatientOperationIds.UPDATE_ANAGRAPHIC + busAddrSuffix) { message ->
                 val anagraphic = message.body().mapTo(Anagraphic::class.java)
-                this.setAnagraphic(anagraphic).onComplete {
-                    message.reply(JsonObject.mapFrom(JsonResponse(it.result())))
+                this.setAnagraphic(anagraphic).onSuccess {
+                    message.reply(JsonObject.mapFrom(JsonResponse(it)))
                 }.onFailure {
                     message.fail(FailureCode.PROBLEM_IN_PATIENT_FIELD_UPDATE, it.toString())
                 }
@@ -164,8 +157,8 @@ abstract class AbstractPatientService(mongoConfigPath: String) : AbstractMongoCl
         val updateStatusConsumer =
             eb.consumer<JsonObject>(PatientOperationIds.UPDATE_STATUS + busAddrSuffix) { message ->
                 val patientState = message.body().mapTo(PatientState::class.java)
-                this.setStatus(patientState).onComplete {
-                    message.reply(JsonObject.mapFrom(JsonResponse(it.result())))
+                this.setStatus(patientState).onSuccess {
+                    message.reply(JsonObject.mapFrom(JsonResponse(it)))
                 }.onFailure {
                     message.fail(FailureCode.PROBLEM_IN_PATIENT_FIELD_UPDATE, it.toString())
                 }
