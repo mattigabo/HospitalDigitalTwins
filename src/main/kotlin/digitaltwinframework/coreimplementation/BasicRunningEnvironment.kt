@@ -9,6 +9,7 @@ import digitaltwinframework.coreimplementation.restmanagement.RestServer
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.Vertx
+import java.net.URI
 
 /**
  * This class represents a basic implementation of a executor for a digital twin that uses Vert.x environment
@@ -55,7 +56,7 @@ class BasicRunningEnvironment private constructor(override val name: String) : D
         return serverBootPromise.future()
     }
 
-    override fun executeDigitalTwin(id: String, factory: DigitalTwinFactory) {
+    override fun executeDigitalTwin(id: URI, factory: DigitalTwinFactory) {
         encapsulatedDT = factory.create(id)
     }
 

@@ -1,4 +1,4 @@
-package hospitaldigitaltwins.traumamanagement.info
+package hospitaldigitaltwins.traumamanagement.patient
 
 import digitaltwinframework.coreimplementation.restmanagement.EventBusRestRequestForwarder
 import digitaltwinframework.coreimplementation.utils.eventbusutils.StandardMessages

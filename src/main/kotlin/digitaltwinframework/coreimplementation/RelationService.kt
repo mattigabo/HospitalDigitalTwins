@@ -1,13 +1,14 @@
 package digitaltwinframework.coreimplementation
 
 import io.vertx.core.json.JsonObject
+import java.net.URI
 
 class RelationService {
 
-    var relationToOtherDT: MutableMap<String, ArrayList<JsonObject>> = HashMap()
+    var relationToOtherDT: MutableMap<URI, ArrayList<JsonObject>> = HashMap()
         private set
 
-    fun addRelation(digitalTwinId: String, semantics: JsonObject) {
+    fun addRelation(digitalTwinId: URI, semantics: JsonObject) {
         if (this.relationToOtherDT.containsKey(digitalTwinId)) {
             this.relationToOtherDT.get(digitalTwinId)?.add(semantics)
         } else {
@@ -17,7 +18,7 @@ class RelationService {
         }
     }
 
-    fun deleteRelation(digitalTwinId: String, semantics: JsonObject): Boolean {
+    fun deleteRelation(digitalTwinId: URI, semantics: JsonObject): Boolean {
         return this.relationToOtherDT.get(digitalTwinId)?.remove(semantics) ?: false
     }
 }

@@ -3,8 +3,9 @@ package hospitaldigitaltwins.prehmanagement
 import digitaltwinframework.DigitalTwin
 import digitaltwinframework.DigitalTwinFactory
 import digitaltwinframework.coreimplementation.AbstractDigitalTwin
+import java.net.URI
 
-class PreHDT(override val identifier: String) : AbstractDigitalTwin(identifier) {
+class PreHDT(override val identifier: URI) : AbstractDigitalTwin(identifier) {
 
     val preHEvoController = PreHEvolutionController(this)
 
@@ -26,5 +27,5 @@ class PreHDT(override val identifier: String) : AbstractDigitalTwin(identifier) 
 
 
 class PreHDTFactory : DigitalTwinFactory {
-    override fun create(id: String): DigitalTwin = PreHDT(id)
+    override fun create(id: URI): DigitalTwin = PreHDT(id)
 }

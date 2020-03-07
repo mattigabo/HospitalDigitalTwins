@@ -90,15 +90,6 @@ class TraumaInfoService(
                 message.fail(FailureCode.PROBLEM_IN_TRAUMA_FIELD_UPDATE, it.toString())
             }
         }
-
-        eb.consumer<JsonObject>(FinalDestinationOperationIds.SET_FINAL_DESTINATION) { message ->
-            val finalDestination = message.body().getString("finalDestination")
-            this.setFinalDestination(finalDestination).onComplete(onOperationCompleteHandler<String>(message))
-        }
-
-        eb.consumer<JsonObject>(FinalDestinationOperationIds.GET_FINAL_DESTINATION) { message ->
-            this.getFinalDestination().onComplete(onOperationCompleteHandler(message))
-        }
     }
 
     fun getBasicInfo(): Future<TraumaInfo> {
@@ -132,16 +123,8 @@ class TraumaInfoService(
         return this.updateField("psCode", psCode)
     }
 
-    fun setFinalDestination(finalDestination: String): Future<String> {
-        return this.updateField("finalDestination", JsonObject.mapFrom(finalDestination))
-    }
-
-    fun getFinalDestination(): Future<String> {
-        return executeDistinctQuery("finalDestination", String::class.java)
-    }
-
     companion object {
-        fun createPatient(mongoConfigPath: String): Promise<TraumaInfoService> {
+        fun createTrauma(mongoConfigPath: String): Promise<TraumaInfoService> {
             val traumaInfoPromise = Promise.promise<TraumaInfoService>()
             TraumaInfoService(mongoConfigPath, traumaInfoPromise)
             return traumaInfoPromise

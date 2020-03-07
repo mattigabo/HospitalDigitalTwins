@@ -12,6 +12,7 @@ import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.Vertx
 import io.vertx.core.eventbus.EventBus
+import io.vertx.core.eventbus.MessageConsumer
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.mongo.MongoClient
@@ -29,6 +30,7 @@ abstract class AbstractPatientService(mongoConfigPath: String) : AbstractMongoCl
     protected lateinit var administrationsManagement: AdministrationsManagement
     protected lateinit var maneuversManagement: ManeuversManagement
 
+    protected var updateAPIConsumers = ArrayList<MessageConsumer<out Any>>()
 
     var patientId: String? = null
         private set
@@ -120,7 +122,7 @@ abstract class AbstractPatientService(mongoConfigPath: String) : AbstractMongoCl
         return mongoCreationPromise
     }
 
-    fun registerEventBusConsumers(eb: EventBus) {
+    open fun registerEventBusConsumers(eb: EventBus) {
         eb.consumer<JsonObject>(PatientOperationIds.GET_PATIENT + busAddrSuffix) { message ->
             this.patient.future().onComplete(onOperationCompleteHandler<Patient>(message))
         }
@@ -129,40 +131,46 @@ abstract class AbstractPatientService(mongoConfigPath: String) : AbstractMongoCl
             this.getMedicalHistory().onComplete(onOperationCompleteHandler<MedicalHistory>(message))
         }
 
-        eb.consumer<JsonObject>(PatientOperationIds.UPDATE_MEDICAL_HISTORY + busAddrSuffix) { message ->
-            val medicalHistory = message.body().mapTo(MedicalHistory::class.java)
-            this.setMedicalHistory(medicalHistory).onComplete {
-                message.reply(JsonObject.mapFrom(JsonResponse(it.result())))
-            }.onFailure {
-                message.fail(FailureCode.PROBLEM_IN_PATIENT_FIELD_UPDATE, it.toString())
+        val setMedHistoryCons =
+            eb.consumer<JsonObject>(PatientOperationIds.UPDATE_MEDICAL_HISTORY + busAddrSuffix) { message ->
+                val medicalHistory = message.body().mapTo(MedicalHistory::class.java)
+                this.setMedicalHistory(medicalHistory).onComplete {
+                    message.reply(JsonObject.mapFrom(JsonResponse(it.result())))
+                }.onFailure {
+                    message.fail(FailureCode.PROBLEM_IN_PATIENT_FIELD_UPDATE, it.toString())
+                }
             }
-        }
+        updateAPIConsumers.add(setMedHistoryCons)
 
         eb.consumer<JsonObject>(PatientOperationIds.GET_ANAGRAPHIC + busAddrSuffix) { message ->
             this.getAnagraphic().onComplete(onOperationCompleteHandler<Anagraphic>(message))
         }
 
-        eb.consumer<JsonObject>(PatientOperationIds.UPDATE_ANAGRAPHIC + busAddrSuffix) { message ->
-            val anagraphic = message.body().mapTo(Anagraphic::class.java)
-            this.setAnagraphic(anagraphic).onComplete {
-                message.reply(JsonObject.mapFrom(JsonResponse(it.result())))
-            }.onFailure {
-                message.fail(FailureCode.PROBLEM_IN_PATIENT_FIELD_UPDATE, it.toString())
+        val updateAnagraphicConsumer =
+            eb.consumer<JsonObject>(PatientOperationIds.UPDATE_ANAGRAPHIC + busAddrSuffix) { message ->
+                val anagraphic = message.body().mapTo(Anagraphic::class.java)
+                this.setAnagraphic(anagraphic).onComplete {
+                    message.reply(JsonObject.mapFrom(JsonResponse(it.result())))
+                }.onFailure {
+                    message.fail(FailureCode.PROBLEM_IN_PATIENT_FIELD_UPDATE, it.toString())
+                }
             }
-        }
+        updateAPIConsumers.add(updateAnagraphicConsumer)
 
         eb.consumer<JsonObject>(PatientOperationIds.GET_STATUS + busAddrSuffix) { message ->
             this.getStatus().onComplete(onOperationCompleteHandler<PatientState>(message))
         }
 
-        eb.consumer<JsonObject>(PatientOperationIds.UPDATE_STATUS + busAddrSuffix) { message ->
-            val patientState = message.body().mapTo(PatientState::class.java)
-            this.setStatus(patientState).onComplete {
-                message.reply(JsonObject.mapFrom(JsonResponse(it.result())))
-            }.onFailure {
-                message.fail(FailureCode.PROBLEM_IN_PATIENT_FIELD_UPDATE, it.toString())
+        val updateStatusConsumer =
+            eb.consumer<JsonObject>(PatientOperationIds.UPDATE_STATUS + busAddrSuffix) { message ->
+                val patientState = message.body().mapTo(PatientState::class.java)
+                this.setStatus(patientState).onComplete {
+                    message.reply(JsonObject.mapFrom(JsonResponse(it.result())))
+                }.onFailure {
+                    message.fail(FailureCode.PROBLEM_IN_PATIENT_FIELD_UPDATE, it.toString())
+                }
             }
-        }
+        updateAPIConsumers.add(updateStatusConsumer)
 
         this.vitalParametersManagement.registerEventBusConsumers(eb)
         this.administrationsManagement.registerEventBusConsumers(eb)

@@ -2,7 +2,12 @@ package hospitaldigitaltwins.traumamanagement
 
 import digitaltwinframework.coreimplementation.restmanagement.AbstractRestInteractionAdapter
 import digitaltwinframework.coreimplementation.utils.ConfigUtils
-import hospitaldigitaltwins.traumamanagement.info.*
+import hospitaldigitaltwins.traumamanagement.info.TraumaInfoOperationIds
+import hospitaldigitaltwins.traumamanagement.info.TraumaInfoRestHandler
+import hospitaldigitaltwins.traumamanagement.info.TraumaTeamOperationIds
+import hospitaldigitaltwins.traumamanagement.info.TraumaTeamRestHandlers
+import hospitaldigitaltwins.traumamanagement.patient.FinalDestinationOperationIds
+import hospitaldigitaltwins.traumamanagement.patient.FinalDestinationRestHandler
 import hospitaldigitaltwins.traumamanagement.patient.PatientRestHandlers
 import io.vertx.core.Handler
 import io.vertx.core.Vertx

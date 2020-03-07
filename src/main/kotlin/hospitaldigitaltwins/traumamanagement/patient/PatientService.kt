@@ -26,6 +26,7 @@ class PatientService private constructor(
     mongoConfigPath: String,
     creationPromise: Promise<PatientService>
 ) : AbstractPatientService(mongoConfigPath) {
+
     override var collection: String = "traumaPatient"
 
     var restClient = WebClient.create(Vertx.currentContext().owner())
@@ -40,32 +41,41 @@ class PatientService private constructor(
         }
     }
 
+    override fun registerEventBusConsumers(eb: EventBus) {
+        super.registerEventBusConsumers(eb)
+
+        eb.consumer<JsonObject>(FinalDestinationOperationIds.SET_FINAL_DESTINATION) { message ->
+            val finalDestination = message.body().getString("finalDestination")
+            this.setFinalDestination(finalDestination).onComplete(onOperationCompleteHandler<String>(message))
+            println("Patient management -> Unregister update API consumers!")
+            updateAPIConsumers.forEach { it.unregister() }
+        }
+
+        eb.consumer<JsonObject>(FinalDestinationOperationIds.GET_FINAL_DESTINATION) { message ->
+            this.getFinalDestination().onComplete(onOperationCompleteHandler(message))
+        }
+    }
+
     fun registerPatientWaitingConsumer(eb: EventBus) {
         val patientConsumer = eb.consumer<JsonObject>(PatientOperationIds.GET_PATIENT) { message ->
 
             if (preHRelation == null) {
-                loadPreHRelation().onComplete { ar ->
-                    requestPatientInfoToPreHDT().onComplete { ar ->
-                        when {
-                            ar.succeeded() -> message.reply(ar.result())
-                            else -> message.fail(FailureCode.PROBLEM_IN_DT_COMMUNICATION, ar.cause().toString())
-                        }
-                    }.onFailure { message.fail(FailureCode.PROBLEM_IN_DT_COMMUNICATION, it.toString()) }
+                loadPreHRelation().onSuccess { ar ->
+                    requestPatientInfoToPreHDT()
+                        .onSuccess { ar -> message.reply(ar) }
+                        .onFailure { message.fail(FailureCode.PROBLEM_IN_DT_COMMUNICATION, it.toString()) }
                 }.onFailure { message.fail(FailureCode.PROBLEM_IN_DT_COMMUNICATION, it.toString()) }
             } else {
-                requestPatientInfoToPreHDT().onComplete { ar ->
-                    when {
-                        ar.succeeded() -> message.reply(ar.result())
-                        else -> message.fail(FailureCode.PROBLEM_IN_DT_COMMUNICATION, ar.cause().toString())
-                    }
-                }.onFailure { message.fail(FailureCode.PROBLEM_IN_DT_COMMUNICATION, it.toString()) }
+                requestPatientInfoToPreHDT()
+                    .onSuccess { ar -> message.reply(ar) }
+                    .onFailure { message.fail(FailureCode.PROBLEM_IN_DT_COMMUNICATION, it.toString()) }
             }
         }
 
         eb.consumer<String>(PATIENT_TAKEN) {
             patientConsumer.unregister()
             this.registerEventBusConsumers(eb)
-            loadPreHRelation().onComplete { ar ->
+            loadPreHRelation().onSuccess { ar ->
                 this.loadPatientInfoOnTraumaDB()
             }.onFailure { println("PreH Information not loaded! Start from a new Patient Data") }
         }
@@ -76,7 +86,6 @@ class PatientService private constructor(
         EventBusRestRequestForwarder
             .eventBusInstance()
             .request<JsonArray>(GET_ALL_LINK_TO_OTHER_DT, StandardMessages.EMPTY_MESSAGE) {
-
                 val links = it.result().body()
                 links.forEach { link ->
                     if (link is JsonObject) {
@@ -90,7 +99,7 @@ class PatientService private constructor(
 
                 preHRelation?.let {
                     patientPromise.complete("Relation loaded!")
-                } ?: patientPromise.fail("Link to PreH Digital Twin not already loaded")
+                } ?: patientPromise.fail("Link to PreH Digital Twin not yet loaded")
             }
         return patientPromise.future()
     }
@@ -117,9 +126,9 @@ class PatientService private constructor(
             loadPatientStatus(),
             loadPatientMedicalHistory(),
             loadPatientVitalParameters()
-        ).onComplete {
+        ).onSuccess {
             loadingPromise.complete("Loading from PreH DT completed")
-        }
+        }.onFailure { loadingPromise.fail(it) }
         return loadingPromise.future()
     }
 
@@ -187,7 +196,7 @@ class PatientService private constructor(
         val loadingPromise = Promise.promise<String>()
         preHRelation!!.let {
             restClient
-                .get(it.restPort, it.restHost, "/missions/${it.missionId}/patient/vital-parameters/history")
+                .get(it.restPort, it.restHost, "/missions/${it.missionId}/patient/vital-parameters")
                 .`as`(BodyCodec.jsonArray())
                 .send {
                     when {
@@ -209,6 +218,15 @@ class PatientService private constructor(
         }
         return loadingPromise.future()
     }
+
+    fun setFinalDestination(finalDestination: String): Future<String> {
+        return this.updateField("finalDestination", JsonObject.mapFrom(finalDestination))
+    }
+
+    fun getFinalDestination(): Future<String> {
+        return executeDistinctQuery("finalDestination", String::class.java)
+    }
+
 
     companion object {
         const val PATIENT_TAKEN = "PatientTaken"

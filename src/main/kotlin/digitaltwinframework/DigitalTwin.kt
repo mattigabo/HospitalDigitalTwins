@@ -1,8 +1,9 @@
 package digitaltwinframework
 
+import java.net.URI
 import java.time.Instant
 
-interface DigitalTwin : Identifiable<String> {
+interface DigitalTwin : Identifiable<URI> {
     /**
      * Stopping the digital twin causes the termination of the evolution of the digital twin and the resource release
      * */
@@ -31,5 +32,5 @@ interface DigitalTwinInteractionAdapter : InteractionAdapter
 interface SourceOfInformation
 
 interface DigitalTwinFactory {
-    fun create(id: String): DigitalTwin
+    fun create(id: URI): DigitalTwin
 }

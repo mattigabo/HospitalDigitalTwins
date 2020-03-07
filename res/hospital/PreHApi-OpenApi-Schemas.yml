@@ -1358,19 +1358,25 @@ components:
         helmetSeatbelt:
           type: boolean
           example: true
-        externalHaemorrhage:
+        externalBleeding:
           type: boolean
           example: false
-        tachypneaDyspnoea:
+        perviousAirways:
+          type: boolean
+          example: false
+        tachypneaDyspnea:
           type: boolean
           example: true
         thoraxDeformities:
           type: boolean
           example: false
+        ecofast:
+          type: boolean
+          example: false
         deformedPelvis:
           type: boolean
           example: false
-        otorrhagia:
+        skullFracture:
           type: boolean
           example: true
         paraparesis:
@@ -1382,10 +1388,6 @@ components:
         paraesthesia:
           type: boolean
           example: false
-        time:
-          type: string
-          format: date-time
-          example: '2019-07-12T12:20:50'
 
     VitalParameter:
       type: object

@@ -8,6 +8,7 @@ import io.vertx.core.AbstractVerticle
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
+import java.net.URI
 
 open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : AbstractVerticle() {
 
@@ -40,7 +41,7 @@ open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : 
                 message.body().getJsonObject("semantics")
             )
 
-            relationService.addRelation(link.otherDigitalTwin, link.semantics)
+            relationService.addRelation(URI(link.otherDigitalTwin), link.semantics)
             message.reply(StandardMessages.OPERATION_EXECUTED_MESSAGE)
         }
 
@@ -62,9 +63,9 @@ open class CoreManagementEvolutionController(val thisDT: AbstractDigitalTwin) : 
                 message.body().getJsonObject("semantics")
             )
             var wasDeleted = false
-            relationService.relationToOtherDT.get(linkToDT.otherDigitalTwin)?.let {
+            relationService.relationToOtherDT.get(URI(linkToDT.otherDigitalTwin))?.let {
                 if (it.contains(linkToDT.semantics)) {
-                    wasDeleted = relationService.deleteRelation(linkToDT.otherDigitalTwin, linkToDT.semantics)
+                    wasDeleted = relationService.deleteRelation(URI(linkToDT.otherDigitalTwin), linkToDT.semantics)
                 }
             }
 

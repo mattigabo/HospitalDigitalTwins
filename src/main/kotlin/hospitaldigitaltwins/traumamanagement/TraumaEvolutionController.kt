@@ -12,7 +12,7 @@ import io.vertx.core.eventbus.EventBus
 class TraumaEvolutionController(val thisDT: AbstractDigitalTwin) : AbstractVerticle() {
     val mongoConfigPath = "res/mongo/configTrauma.json"
     //val locationService = LocationService()
-    val traumaInfoPromise = TraumaInfoService.createPatient(mongoConfigPath)
+    val traumaInfoPromise = TraumaInfoService.createTrauma(mongoConfigPath)
     val patientServicePromise = PatientService.createPatient(mongoConfigPath)
 
     var restRoutingAdapter = TraumaRestRoutingAdapter(thisDT.runningEnv.vertx, thisDT.identifier.toString())
